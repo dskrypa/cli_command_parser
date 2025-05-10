@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Parameters &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1086,6 +1086,11 @@ values.  By default, no transformation is performed, and values will be strings.
 annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
 argument takes precedence.</p>
 </dd>
+<dt class="field-odd" id="parameters:strict_default">strict_default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether default values should be processed as if provided via CLI (this happens when
+<code class="docutils literal notranslate"><span class="pre">strict_default=False</span></code>, the default), or used as-is (<code class="docutils literal notranslate"><span class="pre">strict_default=True</span></code>).  Only applies to <a class="reference internal" href="inputs.html"><span class="doc">Input Types</span></a>
+that have a <a class="reference internal" href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType.fix_default" title="cli_command_parser.inputs.base.InputType.fix_default"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fix_default()</span></code></a> method.</p>
+</dd>
 </dl>
 <section id="options">
 <h2>Options<a class="headerlink" href="#options" title="Link to this heading"></a></h2>
@@ -1169,7 +1174,7 @@ Option/Flag/etc).  To reject all values beginning with a dash, including numbers
 </dd>
 </dl>
 <p>Given the following example Command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1228,11 +1233,11 @@ taken as if it was specified via a CLI argument.</p>
 </dd>
 </dl>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/simple_flags.py">Example command</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>  <span class="c1"># the default ``default`` value is False</span>
     <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;self.foo = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">foo</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;self.bar = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1315,7 +1320,7 @@ TriFlag’s normal action should be taken as if it was specified via a CLI argum
 </dd>
 </dl>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">TriFlag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="n">alt_short</span><span class="o">=</span><span class="s1">&#39;-F&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Enable/disable foo (default: automatically picked)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1360,7 +1365,7 @@ will be added verbatim - it will NOT be multiplied by <code class="docutils lite
 </dd>
 </dl>
 <p>Given the following example Command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">NoisyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">NoisyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1415,10 +1420,10 @@ Option/Flag/etc).  To reject all values beginning with a dash, including numbers
 </dd>
 </dl>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/echo.py">Example command</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Echo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -1477,33 +1482,33 @@ registered as the default for a given Action.</p>
 </dd>
 </dl>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/action_with_args.py">Example command</a> that uses actions:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The action to take&#39;</span><span class="p">)</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The text to print&#39;</span><span class="p">)</span>
 
     <span class="c1"># Registering an action can be as simple as adding it as a decorator - the method&#39;s name will be registered as</span>
     <span class="c1"># the choice for users to provide, and the docstring will be used as the help text.</span>
     <span class="nd">@action</span>
-    <span class="k">def</span> <span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">echo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Echo the provided text&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 
     <span class="c1"># Keyword arguments can be provided to override the defaults - `help` here takes precedence over the docstring</span>
     <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Split the provided text so that each word is on a new line&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print the provided text on separate lines&quot;&quot;&quot;</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">))</span>
 
     <span class="c1"># This choice value will be used instead of the method name</span>
     <span class="nd">@action</span><span class="p">(</span><span class="n">choice</span><span class="o">=</span><span class="s1">&#39;double&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the provided text twice&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">print_twice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_twice</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
 
     <span class="c1"># Calling the action directly is just a shortcut for .register - both can be used the same way</span>
     <span class="nd">@action</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Reverse the provided text&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reverse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="p">)))</span>
 </pre></div>
 </div>
@@ -1554,11 +1559,11 @@ space.</p>
 </dd>
 </dl>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/command_wrapper.py">Example command</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Wrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Wrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">hosts</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The hosts on which the given command should be run&#39;</span><span class="p">)</span>
     <span class="n">command</span> <span class="o">=</span> <span class="n">PassThru</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">host</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">hosts</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Would run on </span><span class="si">{</span><span class="n">host</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1619,21 +1624,21 @@ allowed when <code class="docutils literal notranslate"><span class="pre">before
 </dd>
 </dl>
 <p>Example command:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Build</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Build</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">build_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target build directory&#39;</span><span class="p">)</span>
     <span class="n">install_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target install directory&#39;</span><span class="p">)</span>
     <span class="n">backup_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory in which backups should be stored&#39;</span><span class="p">)</span>
 
     <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Backup the install directory before building&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">backup_dir</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">subprocess</span><span class="o">.</span><span class="n">check_call</span><span class="p">([</span><span class="s1">&#39;make&#39;</span><span class="p">,</span> <span class="s1">&#39;build&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()])</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">install_dir</span><span class="p">)</span>
 
     <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Cleanup the build directory after installing&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build_dir</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1656,7 +1661,7 @@ exception was raised.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

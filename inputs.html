@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Input Types &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1036,12 +1036,12 @@ with <code class="docutils literal notranslate"><span class="pre">/{drive}/...</
 </dd>
 </dl>
 <p>Given the following (truncated) <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span><span class="p">,</span> <span class="n">inputs</span>
 
-<span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You provided path=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1083,15 +1083,15 @@ read immediately upon parsing of the path argument.</p>
 </dd>
 </dl>
 <p>Using another snippet from the above <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">in_file</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to read&#39;</span><span class="p">)</span>
     <span class="n">out_file</span><span class="p">:</span> <span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">File</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file to write&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_file</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Content from the provided file: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">in_file</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1135,10 +1135,10 @@ the content from the file; when writing, the converter will be called before wri
 <code class="docutils literal notranslate"><span class="pre">dump</span></code> or <code class="docutils literal notranslate"><span class="pre">load</span></code> based on whether the provided <code class="docutils literal notranslate"><span class="pre">mode</span></code> is for reading or writing, and the <code class="docutils literal notranslate"><span class="pre">pass_file</span></code>
 option will be overridden if provided.</p>
 <p>Adding another snippet to the above <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InputsExample</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">json</span><span class="p">:</span> <span class="n">FileWrapper</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Json</span><span class="p">(</span><span class="n">allow_dash</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The path to a file containing json&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">json</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;You provided a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1488,13 +1488,13 @@ invalid arguments / values would be to raise <a class="reference internal" href=
 to provide a custom message, or <a class="reference internal" href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.BadArgument" title="cli_command_parser.exceptions.BadArgument"><code class="xref py py-class docutils literal notranslate"><span class="pre">BadArgument</span></code></a> to show the usage string for the parameter in question with an
 optional custom message.</p>
 <p>Example usage:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">main</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">UsageError</span><span class="p">,</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">main</span>
 
-<span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>
     <span class="n">bar</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">==</span> <span class="s1">&#39;foo&#39;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">foo</span><span class="p">,</span> <span class="s2">&quot;Any value other than &#39;foo&#39; is allowed&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">foo</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="p">:</span>
@@ -1540,7 +1540,7 @@ provide the user with an informative message with a single line / statement.  It
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

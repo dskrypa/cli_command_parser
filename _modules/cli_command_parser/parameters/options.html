@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.parameters.options &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -997,24 +997,24 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParserExit</span>
-<span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
-<span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
-<span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">TypeFunc</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">str_to_bool</span>
-<span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Store</span><span class="p">,</span> <span class="n">StoreConst</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">AllowLeadingDashProperty</span><span class="p">,</span> <span class="n">BaseOption</span>
-<span class="kn">from</span> <span class="nn">.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParserExit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_input_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">T_co</span><span class="p">,</span> <span class="n">TypeFunc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">str_to_bool</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Store</span><span class="p">,</span> <span class="n">StoreConst</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllowLeadingDashProperty</span><span class="p">,</span> <span class="n">BaseOption</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.option_strings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandMethod</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandMethod</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Option&#39;</span><span class="p">,</span>
@@ -1037,7 +1037,7 @@
 
 <div class="viewcode-block" id="Option">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">[docs]</a>
-<span class="k">class</span> <span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">TD</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">TD</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic option that can be specified as ``--foo bar`` or by using other similar forms.</span>
 
@@ -1070,7 +1070,7 @@
     <span class="n">default</span><span class="p">:</span> <span class="n">TD</span>
     <span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDashProperty</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1108,7 +1108,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">allow_leading_dash</span>
 
-    <span class="k">def</span> <span class="nf">_handle_bad_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_bad_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;store_const&#39;</span><span class="p">,</span> <span class="s1">&#39;append_const&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">action</span><span class="si">=}</span><span class="s1"> for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> - use Flag instead&#39;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_handle_bad_action</span><span class="p">(</span><span class="n">action</span><span class="p">)</span></div>
@@ -1117,7 +1117,7 @@
 
 <div class="viewcode-block" id="Flag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag">[docs]</a>
-<span class="k">class</span> <span class="nc">Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A (typically boolean) option that does not accept any values.</span>
 
@@ -1154,7 +1154,7 @@
     <span class="n">default</span><span class="p">:</span> <span class="n">TD</span>
     <span class="n">const</span><span class="p">:</span> <span class="n">TC</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
@@ -1170,7 +1170,7 @@
             <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;A &#39;const&#39; value is required for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> since </span><span class="si">{</span><span class="n">default</span><span class="si">=}</span><span class="s2"> is not True or False&quot;</span>
-                <span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+                <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">if</span> <span class="n">default_cb</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">cls_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The &#39;default_cb&#39; arg is not supported for </span><span class="si">{</span><span class="n">cls_name</span><span class="si">}</span><span class="s2"> parameters&quot;</span><span class="p">)</span>
@@ -1185,17 +1185,17 @@
 
 <div class="viewcode-block" id="Flag.register_default_cb">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.register_default_cb">[docs]</a>
-    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
         <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">s do not support default callback methods&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Flag.get_env_const">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.get_env_const">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TD</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TD</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to parse </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to parse </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span> <span class="ow">and</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">const</span> <span class="ow">and</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid value=</span><span class="si">{</span><span class="n">parsed</span><span class="si">!r}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">parsed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span></div>
@@ -1205,7 +1205,7 @@
 
 <div class="viewcode-block" id="TriFlag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">[docs]</a>
-<span class="k">class</span> <span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]],</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not</span>
 <span class="sd">    provided, this class accepts a pair of constants for the primary and alternate values to store, along with a</span>
@@ -1250,7 +1250,7 @@
     <span class="n">default</span><span class="p">:</span> <span class="n">TD</span>
     <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
@@ -1275,7 +1275,7 @@
             <span class="n">_pos</span><span class="p">,</span> <span class="n">_neg</span> <span class="o">=</span> <span class="n">consts</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">consts</span><span class="si">=}</span><span class="s1"> - expected a 2-tuple of (positive, negative) constants to store&#39;</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="n">default_cb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
@@ -1296,13 +1296,13 @@
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">update_alts</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TriFlag.register_default_cb">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.register_default_cb">[docs]</a>
-    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_cb_ok</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_NotSet</span>  <span class="c1"># The default was set by __init__ - remove it so the method can be registered</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">register_default_cb</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
@@ -1310,7 +1310,7 @@
 
 <div class="viewcode-block" id="TriFlag.get_const">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.get_const">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]:</span>
         <span class="k">if</span> <span class="n">opt_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">alt_allowed</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1319,11 +1319,11 @@
 
 <div class="viewcode-block" id="TriFlag.get_env_const">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.get_env_const">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">,</span> <span class="n">TD</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">,</span> <span class="n">TD</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to parse </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to parse </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">parsed</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span> <span class="ow">and</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid value=</span><span class="si">{</span><span class="n">parsed</span><span class="si">!r}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1340,7 +1340,7 @@
 
 <div class="viewcode-block" id="ActionFlag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag">[docs]</a>
-<span class="k">class</span> <span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionFlag</span><span class="p">(</span><span class="n">Flag</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A :class:`.Flag` that triggers the execution of a function / method / other callable when specified.</span>
 
@@ -1358,7 +1358,7 @@
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.Flag`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
@@ -1379,13 +1379,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">always_available</span> <span class="o">=</span> <span class="n">always_available</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_func</span>
 
 <div class="viewcode-block" id="ActionFlag.func">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.func">[docs]</a>
     <span class="nd">@func</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_func</span> <span class="o">=</span> <span class="n">func</span>
         <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1396,18 +1396,18 @@
             <span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">result</span> <span class="o">=</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">order</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">before_main</span><span class="p">):</span>
             <span class="n">result</span> <span class="o">^=</span> <span class="nb">hash</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">,</span> <span class="s1">&#39;command&#39;</span><span class="p">,</span> <span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="s1">&#39;before_main&#39;</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ActionFlag</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ActionFlag</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
         <span class="c1"># noinspection PyTypeChecker</span>
@@ -1415,7 +1415,7 @@
 
 <div class="viewcode-block" id="ActionFlag.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Allows use as a decorator on the method to be called.  A given method can only be decorated with one ActionFlag.</span>
 
@@ -1428,7 +1428,7 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ActionFlag</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
         <span class="c1"># Allow the method to be called, regardless of whether it was specified</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
@@ -1443,7 +1443,7 @@
 
 <div class="viewcode-block" id="before_main">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.before_main">[docs]</a>
-<span class="k">def</span> <span class="nf">before_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">before_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An ActionFlag that will be executed before :meth:`.Command.main`&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ActionFlag</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -1451,7 +1451,7 @@
 
 <div class="viewcode-block" id="after_main">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.after_main">[docs]</a>
-<span class="k">def</span> <span class="nf">after_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">after_main</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">order</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ActionFlag</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;An ActionFlag that will be executed after :meth:`.Command.main`&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">ActionFlag</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">,</span> <span class="n">before_main</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
@@ -1462,7 +1462,7 @@
 <span class="nd">@action_flag</span><span class="p">(</span>
     <span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="s1">&#39;-inf&#39;</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="n">always_available</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show this help message and exit&#39;</span>
 <span class="p">)</span>
-<span class="k">def</span> <span class="nf">help_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">help_action</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The ``--help`` / ``-h`` action.  Prints help text, then exits.&quot;&quot;&quot;</span>
     <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span>
     <span class="nb">print</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">())</span>
@@ -1475,7 +1475,7 @@
 
 <div class="viewcode-block" id="Counter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter">[docs]</a>
-<span class="k">class</span> <span class="nc">Counter</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Count</span><span class="p">,)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Counter</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Count</span><span class="p">,)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value</span>
 <span class="sd">    to explicitly increase the stored value by that amount.</span>
@@ -1499,7 +1499,7 @@
     <span class="n">default</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">const</span><span class="p">:</span> <span class="nb">int</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span>
@@ -1525,7 +1525,7 @@
 
 <div class="viewcode-block" id="Counter.register_default_cb">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.register_default_cb">[docs]</a>
-    <span class="k">def</span> <span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="n">_counter_default</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">register_default_cb</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
@@ -1533,7 +1533,7 @@
 
 <div class="viewcode-block" id="Counter.prepare_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.prepare_value">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">short_combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1541,27 +1541,27 @@
             <span class="k">if</span> <span class="n">short_combo</span> <span class="ow">and</span> <span class="n">combinable</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">combinable</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
                 <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>  <span class="c1"># +1 for the -short that preceded this value</span>
             <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">env_var</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;bad counter </span><span class="si">{</span><span class="n">value</span><span class="si">=}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span></div>
+            <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;bad counter </span><span class="si">{</span><span class="n">value</span><span class="si">=}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 
     <span class="n">prepare_validation_value</span> <span class="o">=</span> <span class="n">prepare_value</span>
 
 <div class="viewcode-block" id="Counter.validate">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.validate">[docs]</a>
-    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> (expected an integer)&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> (expected an integer)&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span></div>
 </div>
 
 
 
-<span class="k">def</span> <span class="nf">_counter_default</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_counter_default</span><span class="p">():</span>
     <span class="k">return</span> <span class="mi">0</span>
 </pre></div>
 
@@ -1572,7 +1572,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

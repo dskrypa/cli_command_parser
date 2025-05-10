@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.formatting.params &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -998,38 +998,38 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="c1"># pylint: disable=W0613</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">CmdAliasMode</span><span class="p">,</span> <span class="n">SubcommandAliasHelpMode</span>
-<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
-<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">get_config</span>
-<span class="kn">from</span> <span class="nn">..parameters</span> <span class="kn">import</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">TriFlag</span>
-<span class="kn">from</span> <span class="nn">..parameters.base</span> <span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
-<span class="kn">from</span> <span class="nn">..parameters.choice_map</span> <span class="kn">import</span> <span class="n">Choice</span><span class="p">,</span> <span class="n">ChoiceMap</span>
-<span class="kn">from</span> <span class="nn">.restructured_text</span> <span class="kn">import</span> <span class="n">Cell</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="n">RstTable</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">_should_add_default</span><span class="p">,</span> <span class="n">format_help_entry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CmdAliasMode</span><span class="p">,</span> <span class="n">SubcommandAliasHelpMode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">TriFlag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parameters.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parameters.choice_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">Choice</span><span class="p">,</span> <span class="n">ChoiceMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.restructured_text</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cell</span><span class="p">,</span> <span class="n">Row</span><span class="p">,</span> <span class="n">RstTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_add_default</span><span class="p">,</span> <span class="n">format_help_entry</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
-    <span class="kn">from</span> <span class="nn">..parameters.option_strings</span> <span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..parameters.option_strings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
 
     <span class="n">BoolFormatterMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]]</span>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">ParamHelpFormatter</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamHelpFormatter</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;param&#39;</span><span class="p">,)</span>
     <span class="n">_param_cls_fmt_cls_map</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">required_formatter_map</span><span class="p">:</span> <span class="n">BoolFormatterMap</span> <span class="o">=</span> <span class="p">{</span><span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">}</span>
 
 <div class="viewcode-block" id="ParamHelpFormatter.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.__init_subclass__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">param_cls</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_param_cls_fmt_cls_map</span><span class="p">[</span><span class="n">param_cls</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span></div>
@@ -1038,7 +1038,7 @@
 <div class="viewcode-block" id="ParamHelpFormatter.for_param_cls">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.for_param_cls">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">for_param_cls</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">for_param_cls</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param_cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_param_cls_fmt_cls_map</span><span class="p">[</span><span class="n">param_cls</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -1051,15 +1051,15 @@
         <span class="k">return</span> <span class="n">ParamHelpFormatter</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">for_param_cls</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="k">if</span> <span class="bp">cls</span> <span class="ow">is</span> <span class="n">ParamHelpFormatter</span> <span class="k">else</span> <span class="bp">cls</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">param</span> <span class="o">=</span> <span class="n">param</span>
 
 <div class="viewcode-block" id="ParamHelpFormatter.maybe_wrap_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.maybe_wrap_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wraps the provided text in parentheses / brackets / etc based on whether the associated Parameter is required,</span>
 <span class="sd">        if supported.</span>
@@ -1072,7 +1072,7 @@
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_metavar">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_metavar">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span> <span class="ow">and</span> <span class="n">param</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">accepts_values</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">metavar</span>
@@ -1099,7 +1099,7 @@
         <span class="k">return</span> <span class="n">param</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_format_usage_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_usage_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">metavar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">full</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">metavar</span>
@@ -1114,28 +1114,28 @@
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_basic_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_basic_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_basic_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the Parameter for use in the ``usage:`` line&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the Parameter for use in both the ``usage:`` line and in the list of Parameters&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.iter_usage_parts">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.iter_usage_parts">[docs]</a>
-    <span class="k">def</span> <span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Format the Parameter for use in the list of Parameters with their ``help=&#39;...&#39;`` descriptions&quot;&quot;&quot;</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">include_meta</span><span class="o">=</span><span class="n">include_meta</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="n">full</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_description">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="k">if</span> <span class="n">description</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">description</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">help</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
@@ -1148,7 +1148,7 @@
 
 <div class="viewcode-block" id="ParamHelpFormatter.format_help">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.format_help">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">usage_iter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_usage_parts</span><span class="p">(</span><span class="n">include_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">format_help_entry</span><span class="p">(</span><span class="n">usage_iter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(),</span> <span class="n">prefix</span><span class="p">)</span></div>
 
@@ -1157,20 +1157,20 @@
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;``&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">include_meta</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;``&#39;</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_row">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_row">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_row</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a tuple of (usage, description)&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst_usage</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">rst</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamHelpFormatter.rst_rows">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ParamHelpFormatter.rst_rows">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">rst_row</span><span class="p">()</span></div>
 </div>
 
@@ -1180,12 +1180,12 @@
 
 <div class="viewcode-block" id="PositionalHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.PositionalHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">PositionalHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">BasePositional</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PositionalHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">BasePositional</span><span class="p">):</span>
     <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span>
 
 <div class="viewcode-block" id="PositionalHelpFormatter.format_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.PositionalHelpFormatter.format_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_usage_metavar</span><span class="p">(</span><span class="n">full</span><span class="p">)</span></div>
 </div>
 
@@ -1193,12 +1193,12 @@
 
 <div class="viewcode-block" id="OptionHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">OptionHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">BaseOption</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OptionHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">BaseOption</span><span class="p">):</span>
     <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span>
 
 <div class="viewcode-block" id="OptionHelpFormatter.iter_usage_parts">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.iter_usage_parts">[docs]</a>
-    <span class="k">def</span> <span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">iter_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">opts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">option_strs</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># It&#39;s a flag, so no metavar to represent a value</span>
             <span class="k">yield from</span> <span class="n">opts</span><span class="o">.</span><span class="n">option_strs</span><span class="p">()</span>
@@ -1212,7 +1212,7 @@
 
 <div class="viewcode-block" id="OptionHelpFormatter.format_description">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.format_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">description</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">rst</span><span class="p">,</span> <span class="n">description</span><span class="p">)</span>
         <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
         <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">env_var</span> <span class="ow">and</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">show_env_var</span> <span class="ow">or</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">show_env_var</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">show_env_vars</span><span class="p">)):</span>
@@ -1228,7 +1228,7 @@
 
 <div class="viewcode-block" id="OptionHelpFormatter.format_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.format_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_usage_parts</span><span class="p">())</span>
 
@@ -1240,7 +1240,7 @@
 
 <div class="viewcode-block" id="OptionHelpFormatter.rst_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.OptionHelpFormatter.rst_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;``</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">``&#39;</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">iter_usage_parts</span><span class="p">())</span></div>
 </div>
 
@@ -1248,10 +1248,10 @@
 
 <div class="viewcode-block" id="TriFlagHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">TriFlagHelpFormatter</span><span class="p">(</span><span class="n">OptionHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">TriFlag</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TriFlagHelpFormatter</span><span class="p">(</span><span class="n">OptionHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">TriFlag</span><span class="p">):</span>
 <div class="viewcode-block" id="TriFlagHelpFormatter.format_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.format_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">opts</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">option_strs</span>
         <span class="k">if</span> <span class="n">full</span><span class="p">:</span>
             <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">primary_option_strs</span><span class="p">())</span><span class="si">}</span><span class="s1"> | </span><span class="si">{</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">alt_option_strs</span><span class="p">())</span><span class="si">}</span><span class="s1">&#39;</span>
@@ -1261,7 +1261,7 @@
 
 <div class="viewcode-block" id="TriFlagHelpFormatter.format_description">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.format_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">alt</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">alt</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">rst</span><span class="o">=</span><span class="n">rst</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">alt_help</span><span class="p">:</span>
@@ -1271,7 +1271,7 @@
 
 <div class="viewcode-block" id="TriFlagHelpFormatter.format_help">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.format_help">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">opts</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">option_strs</span>
         <span class="n">primary</span> <span class="o">=</span> <span class="n">format_help_entry</span><span class="p">(</span><span class="n">opts</span><span class="o">.</span><span class="n">primary_option_strs</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(),</span> <span class="n">prefix</span><span class="p">)</span>
         <span class="n">alt_desc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">(</span><span class="n">alt</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1281,7 +1281,7 @@
 
 <div class="viewcode-block" id="TriFlagHelpFormatter.rst_rows">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.TriFlagHelpFormatter.rst_rows">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
         <span class="n">opts</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">option_strs</span>
         <span class="k">for</span> <span class="n">alt</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="n">usage</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;``</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s1">``&#39;</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">opts</span><span class="o">.</span><span class="n">option_strs</span><span class="p">(</span><span class="n">alt</span><span class="p">))</span>
@@ -1292,7 +1292,7 @@
 
 <div class="viewcode-block" id="ChoiceMapHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceMapHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">ChoiceMapHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">ChoiceMap</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChoiceMapHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">ChoiceMap</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Formatter for :class:`SubCommand` and :class:`Action` parameters (and any other params that extend ChoiceMap)&quot;&quot;&quot;</span>
 
     <span class="n">param</span><span class="p">:</span> <span class="n">ChoiceMap</span>
@@ -1300,13 +1300,13 @@
 <div class="viewcode-block" id="ChoiceMapHelpFormatter.choice_groups">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceMapHelpFormatter.choice_groups">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">choice_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">choice_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">ChoiceGroup</span><span class="o">.</span><span class="n">group_choices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">values</span><span class="p">())</span></div>
 
 
 <div class="viewcode-block" id="ChoiceMapHelpFormatter.format_metavar">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceMapHelpFormatter.format_metavar">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span>
             <span class="n">choices</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">choice</span> <span class="k">for</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_groups</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cg</span><span class="o">.</span><span class="n">choices</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span>
@@ -1319,7 +1319,7 @@
 
 <div class="viewcode-block" id="ChoiceMapHelpFormatter.format_help">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceMapHelpFormatter.format_help">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">help_entry</span> <span class="o">=</span> <span class="n">format_help_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_usage_parts</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">choices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_choices</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sort_choices</span><span class="p">:</span>
@@ -1334,14 +1334,14 @@
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_format_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cmd_alias_mode</span> <span class="ow">or</span> <span class="n">SubcommandAliasHelpMode</span><span class="o">.</span><span class="n">ALIAS</span>
         <span class="k">for</span> <span class="n">choice_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_groups</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="n">choice_group</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="n">prefix</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ChoiceMapHelpFormatter.rst_table">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceMapHelpFormatter.rst_table">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_rst_rows</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sort_choices</span><span class="p">:</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
@@ -1351,7 +1351,7 @@
         <span class="k">return</span> <span class="n">table</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_format_rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_rst_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cmd_alias_mode</span> <span class="ow">or</span> <span class="n">SubcommandAliasHelpMode</span><span class="o">.</span><span class="n">ALIAS</span>
         <span class="c1"># TODO: The subcommand names should link to their respective subcommand sections</span>
         <span class="k">for</span> <span class="n">choice_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">choice_groups</span><span class="p">:</span>
@@ -1362,7 +1362,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup">[docs]</a>
-<span class="k">class</span> <span class="nc">ChoiceGroup</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChoiceGroup</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A group of :class:`.Choice` objects from a given :class:`~.choice_map.ChoiceMap`, representing the positional</span>
 <span class="sd">    argument values that may be provided, that point to the same target.</span>
@@ -1375,14 +1375,14 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;choice_strs&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">choice</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span> <span class="o">=</span> <span class="p">[</span><span class="n">choice</span><span class="o">.</span><span class="n">choice</span><span class="p">]</span> <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">choice</span> <span class="k">else</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="ChoiceGroup.group_choices">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.group_choices">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">group_choices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Choice</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">group_choices</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choices</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Choice</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ChoiceGroup</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Processes the given Choices to group them by target and configured help text.  If two choices have the same</span>
 <span class="sd">        target but different help text values, then they are considered different, so they are not grouped together.</span>
@@ -1403,7 +1403,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.add">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.add">[docs]</a>
-    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">choice</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">choice</span><span class="o">.</span><span class="n">choice</span><span class="p">)</span></div>
@@ -1411,7 +1411,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.format">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.format">[docs]</a>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param default_mode: The default :class:`.SubcommandAliasHelpMode` to use if no mode was explicitly configured,</span>
 <span class="sd">          or the format string to use for subcommand aliases.</span>
@@ -1424,7 +1424,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias</span>
 <span class="sd">        mode.</span>
@@ -1454,7 +1454,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_combined">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_combined">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation by combining all aliases into a single</span>
 <span class="sd">        entry.</span>
@@ -1473,7 +1473,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_aliases">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation using an alternate description for</span>
 <span class="sd">        aliases.</span>
@@ -1508,7 +1508,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_repeated">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_repeated">[docs]</a>
-    <span class="k">def</span> <span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation with no modifications.  Choices that</span>
 <span class="sd">        are considered aliases are simply repeated as if they were not aliases.</span>
@@ -1521,18 +1521,18 @@
 
 <div class="viewcode-block" id="PassThruHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.PassThruHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">PassThruHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">PassThru</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PassThruHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">PassThru</span><span class="p">):</span>
     <span class="n">required_formatter_map</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;-- </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;[-- </span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">}</span></div>
 
 
 
 <div class="viewcode-block" id="GroupHelpFormatter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter">[docs]</a>
-<span class="k">class</span> <span class="nc">GroupHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">ParamGroup</span><span class="p">):</span>  <span class="c1"># noqa  # pylint: disable=W0223</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupHelpFormatter</span><span class="p">(</span><span class="n">ParamHelpFormatter</span><span class="p">,</span> <span class="n">param_cls</span><span class="o">=</span><span class="n">ParamGroup</span><span class="p">):</span>  <span class="c1"># noqa  # pylint: disable=W0223</span>
     <span class="n">param</span><span class="p">:</span> <span class="n">ParamGroup</span>
     <span class="n">required_formatter_map</span><span class="p">:</span> <span class="n">BoolFormatterMap</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="s1">&#39;{{</span><span class="si">{}</span><span class="s1">}}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">_get_choice_delim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_choice_delim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">mutually_dependent</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39; + &#39;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
@@ -1542,7 +1542,7 @@
 
 <div class="viewcode-block" id="GroupHelpFormatter.format_usage">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_usage">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_meta</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># This is currently (as of 2024-05-18) only used for error messages</span>
         <span class="n">members</span> <span class="o">=</span> <span class="p">(</span><span class="n">mem</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">include_meta</span><span class="p">,</span> <span class="n">full</span><span class="p">,</span> <span class="n">delim</span><span class="p">)</span> <span class="k">for</span> <span class="n">mem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maybe_wrap_usage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_choice_delim</span><span class="p">()</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">members</span><span class="p">))</span></div>
@@ -1550,7 +1550,7 @@
 
 <div class="viewcode-block" id="GroupHelpFormatter.format_description">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_description">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">description</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">description</span>
         <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span>
@@ -1566,7 +1566,7 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">adjective</span><span class="si">}</span><span class="s1"> arguments&#39;</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_spacer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_spacer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">spacers</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">group_tree_spacers</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">mutually_exclusive</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">spacers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># default: \u00a6 (BROKEN BAR)</span>
@@ -1577,7 +1577,7 @@
 
 <div class="viewcode-block" id="GroupHelpFormatter.format_help">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.format_help">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">clean</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">clean</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare the help text for this group.</span>
 
@@ -1614,7 +1614,7 @@
 
 <div class="viewcode-block" id="GroupHelpFormatter.rst_table">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.GroupHelpFormatter.rst_table">[docs]</a>
-    <span class="k">def</span> <span class="nf">rst_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rst_table</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
         <span class="n">table</span> <span class="o">=</span> <span class="n">RstTable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_description</span><span class="p">())</span>
         <span class="c1"># TODO: non-nested when config.show_group_tree is False; maybe separate options for rst vs help</span>
         <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
@@ -1637,7 +1637,7 @@
 
 
 
-<span class="k">def</span> <span class="nf">_pad_and_quote</span><span class="p">(</span><span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_pad_and_quote</span><span class="p">(</span><span class="n">description</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">rst</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a 2-tuple of ``(pad char, quote string)``&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s1">&#39; &#39;</span> <span class="k">if</span> <span class="n">description</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;``&#39;</span> <span class="k">if</span> <span class="n">rst</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
 </pre></div>
@@ -1649,7 +1649,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

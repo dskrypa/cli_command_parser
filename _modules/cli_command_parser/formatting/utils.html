@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.formatting.utils &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -997,24 +997,24 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span>
 
-<span class="kn">from</span> <span class="nn">..compat</span> <span class="kn">import</span> <span class="n">WCTextWrapper</span>
-<span class="kn">from</span> <span class="nn">..config</span> <span class="kn">import</span> <span class="n">ShowDefaults</span>
-<span class="kn">from</span> <span class="nn">..context</span> <span class="kn">import</span> <span class="n">ctx</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">wcswidth</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">WCTextWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ShowDefaults</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">wcswidth</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">IStrs</span><span class="p">,</span> <span class="n">StrIter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">IStrs</span><span class="p">,</span> <span class="n">StrIter</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;format_help_entry&#39;</span><span class="p">,</span> <span class="s1">&#39;line_iter&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="format_help_entry">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.format_help_entry">[docs]</a>
-<span class="k">def</span> <span class="nf">format_help_entry</span><span class="p">(</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_help_entry</span><span class="p">(</span>
     <span class="n">usage_parts</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">,</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">IStrs</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
@@ -1055,10 +1055,10 @@
 
 <div class="viewcode-block" id="PartWrapper">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper">[docs]</a>
-<span class="k">class</span> <span class="nc">PartWrapper</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PartWrapper</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;max_width&#39;</span><span class="p">,</span> <span class="s1">&#39;cont_indent&#39;</span><span class="p">,</span> <span class="s1">&#39;delim&#39;</span><span class="p">,</span> <span class="s1">&#39;_widths&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_width</span> <span class="o">=</span> <span class="n">max_width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cont_indent</span> <span class="o">=</span> <span class="n">cont_indent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delim</span> <span class="o">=</span> <span class="n">delim</span>
@@ -1066,7 +1066,7 @@
 
 <div class="viewcode-block" id="PartWrapper.join">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper.join">[docs]</a>
-    <span class="k">def</span> <span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parts</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">join</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parts</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">prefix</span><span class="p">:</span>
             <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prefix</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combine_and_wrap</span><span class="p">(</span><span class="n">parts</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1075,7 +1075,7 @@
 
 <div class="viewcode-block" id="PartWrapper.format_help_entry">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper.format_help_entry">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_help_entry</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help_entry</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">,</span> <span class="n">usage_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">term_width</span><span class="p">:</span> <span class="nb">int</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">after_pad_width</span> <span class="o">=</span> <span class="n">usage_width</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span>  <span class="c1"># Constant -2 accounts for the spaces in format_row below</span>
@@ -1087,7 +1087,7 @@
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_row</span><span class="p">(</span><span class="o">*</span><span class="n">row</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">line_iter</span><span class="p">(</span><span class="n">usage_lines</span><span class="p">,</span> <span class="n">description_lines</span><span class="p">))</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_combine_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_combine_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cont_indent</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">line_parts</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1095,7 +1095,7 @@
 
 <div class="viewcode-block" id="PartWrapper.combine_and_wrap">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper.combine_and_wrap">[docs]</a>
-    <span class="k">def</span> <span class="nf">combine_and_wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parts</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">combine_and_wrap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parts</span><span class="p">:</span> <span class="n">StrIter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Combine the given strings using the given delimiter, wrapping to a new line at max_width.&quot;&quot;&quot;</span>
         <span class="n">delim_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">delim</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
         <span class="n">delim_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delim</span><span class="p">)</span>
@@ -1142,13 +1142,13 @@
             <span class="k">yield</span> <span class="n">last</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_prepare_description_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">,</span> <span class="n">after_pad_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_description_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">,</span> <span class="n">after_pad_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">start_line</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_description_start_line</span><span class="p">(</span><span class="n">after_pad_width</span><span class="p">):</span>
             <span class="k">yield from</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">start_line</span>
 
         <span class="k">yield from</span> <span class="n">_normalize_column_width</span><span class="p">(</span><span class="n">_single_line_strs</span><span class="p">(</span><span class="n">description</span><span class="p">),</span> <span class="n">column_width</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_description_start_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">after_pad_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_description_start_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">after_pad_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_widths</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">after_pad_width</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
 
@@ -1161,13 +1161,13 @@
 
 
 
-<span class="k">def</span> <span class="nf">_single_line_strs</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_single_line_strs</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="p">(</span><span class="n">lines</span><span class="p">,)</span>
     <span class="k">return</span> <span class="p">[</span><span class="n">line</span> <span class="k">for</span> <span class="n">full_line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">full_line</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
 
 
-<span class="k">def</span> <span class="nf">_normalize_column_width</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_column_width</span><span class="p">(</span><span class="n">lines</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column_width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">wcswidth</span><span class="p">,</span> <span class="n">lines</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">column_width</span><span class="p">:</span>
         <span class="k">yield from</span> <span class="n">lines</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1179,7 +1179,7 @@
                 <span class="k">yield</span> <span class="n">line</span>
 
 
-<span class="k">def</span> <span class="nf">_should_add_default</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">help_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">param_show_default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_add_default</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">help_text</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">param_show_default</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
     <span class="k">elif</span> <span class="n">param_show_default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1197,12 +1197,12 @@
 
 <div class="viewcode-block" id="line_iter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter">[docs]</a>
-<span class="k">def</span> <span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+&quot;&quot;&quot;</span>
     <span class="n">exhausted</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">column_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_iter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_iter</span><span class="p">(</span><span class="n">column</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">nonlocal</span> <span class="n">exhausted</span>
         <span class="k">yield from</span> <span class="n">column</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">column</span>
         <span class="n">exhausted</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1225,7 +1225,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

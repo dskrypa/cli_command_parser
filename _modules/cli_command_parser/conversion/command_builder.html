@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.conversion.command_builder &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -991,26 +991,26 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cli_command_parser.conversion.command_builder</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">keyword</span>
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Constant</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">SetComp</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">literal_eval</span>
-<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">count</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keyword</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Constant</span><span class="p">,</span> <span class="n">DictComp</span><span class="p">,</span> <span class="n">GeneratorExp</span><span class="p">,</span> <span class="n">ListComp</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">SetComp</span><span class="p">,</span> <span class="n">Str</span><span class="p">,</span> <span class="n">Subscript</span><span class="p">,</span> <span class="n">literal_eval</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">from</span> <span class="nn">cli_command_parser.nargs</span> <span class="kn">import</span> <span class="n">Nargs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span>
 
-<span class="kn">from</span> <span class="nn">.argparse_ast</span> <span class="kn">import</span> <span class="n">AC</span><span class="p">,</span> <span class="n">ArgGroup</span><span class="p">,</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">MutuallyExclusiveGroup</span><span class="p">,</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">Script</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">collection_contents</span><span class="p">,</span> <span class="n">unparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.argparse_ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AC</span><span class="p">,</span> <span class="n">ArgGroup</span><span class="p">,</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">MutuallyExclusiveGroup</span><span class="p">,</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">Script</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">collection_contents</span><span class="p">,</span> <span class="n">unparse</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">cli_command_parser.typing</span> <span class="kn">import</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptStr</span>
 
-    <span class="kn">from</span> <span class="nn">.argparse_ast</span> <span class="kn">import</span> <span class="n">ArgCollection</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.argparse_ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgCollection</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;convert_script&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1023,21 +1023,21 @@
 
 <div class="viewcode-block" id="convert_script">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.convert_script">[docs]</a>
-<span class="k">def</span> <span class="nf">convert_script</span><span class="p">(</span><span class="n">script</span><span class="p">:</span> <span class="n">Script</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">convert_script</span><span class="p">(</span><span class="n">script</span><span class="p">:</span> <span class="n">Script</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">return</span> <span class="n">ScriptConverter</span><span class="p">(</span><span class="n">script</span><span class="p">,</span> <span class="n">add_methods</span><span class="o">=</span><span class="n">add_methods</span><span class="p">)</span><span class="o">.</span><span class="n">convert</span><span class="p">()</span></div>
 
 
 
 <div class="viewcode-block" id="Converter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter">[docs]</a>
-<span class="k">class</span> <span class="nc">Converter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Converter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_ac_converter_map</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Converter.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.__init_subclass__">[docs]</a>
-    <span class="k">def</span> <span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">converts</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">converts</span> <span class="o">=</span> <span class="n">converts</span>
@@ -1046,14 +1046,14 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">newline_between_members</span> <span class="o">=</span> <span class="n">newline_between_members</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Script</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Converter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Script</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Converter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
 
 <div class="viewcode-block" id="Converter.for_ast_callable">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.for_ast_callable">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AC</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Type</span><span class="p">[</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
             <span class="n">ast_obj</span> <span class="o">=</span> <span class="n">ast_obj</span><span class="o">.</span><span class="vm">__class__</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1069,27 +1069,27 @@
 <div class="viewcode-block" id="Converter.init_for_ast_callable">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.init_for_ast_callable">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AC</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_for_ast_callable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AC</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">]:</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">for_ast_callable</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">)(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Converter.init_group">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.init_group">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">ast_objs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AC</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConverterGroup</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">ast_objs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AC</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConverterGroup</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
         <span class="k">return</span> <span class="n">ConverterGroup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">ast_obj</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span> <span class="k">for</span> <span class="n">ast_obj</span> <span class="ow">in</span> <span class="n">ast_objs</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="Converter.convert">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.convert">[docs]</a>
-    <span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">convert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">format_lines</span><span class="p">(</span><span class="n">indent</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Converter.format_lines">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.format_lines">[docs]</a>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 </div>
 
@@ -1097,26 +1097,26 @@
 
 <div class="viewcode-block" id="ConverterGroup">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ConverterGroup">[docs]</a>
-<span class="k">class</span> <span class="nc">ConverterGroup</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConverterGroup</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;parent&#39;</span><span class="p">,</span> <span class="s1">&#39;member_type&#39;</span><span class="p">,</span> <span class="s1">&#39;members&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">member_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">members</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">member_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">C</span><span class="p">],</span> <span class="n">members</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">C</span><span class="p">]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">member_type</span> <span class="o">=</span> <span class="n">member_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">members</span> <span class="o">=</span> <span class="n">members</span>
 
-    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">C</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">C</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">members</span>
 
 <div class="viewcode-block" id="ConverterGroup.format_all">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ConverterGroup.format_all">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">newline_between_members</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">member_type</span><span class="o">.</span><span class="n">newline_between_members</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">member</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="ow">and</span> <span class="n">newline_between_members</span><span class="p">:</span>
@@ -1128,14 +1128,14 @@
 
 <div class="viewcode-block" id="ScriptConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ScriptConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">ScriptConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">Script</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScriptConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">,</span> <span class="n">converts</span><span class="o">=</span><span class="n">Script</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span> <span class="o">=</span> <span class="n">add_methods</span>
 
 <div class="viewcode-block" id="ScriptConverter.format_lines">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ScriptConverter.format_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="c1"># TODO: Filter to what is actually used</span>
         <span class="k">yield</span> <span class="p">(</span>
             <span class="s1">&#39;from cli_command_parser import&#39;</span>
@@ -1150,7 +1150,7 @@
 
 <div class="viewcode-block" id="CollectionConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">CollectionConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CollectionConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgCollection</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_name_mode</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1158,20 +1158,20 @@
 <div class="viewcode-block" id="CollectionConverter.name_mode">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.name_mode">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="CollectionConverter.grouped_children">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.grouped_children">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">grouped_children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span> <span class="o">|</span> <span class="n">GroupConverter</span> <span class="o">|</span> <span class="n">Converter</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">grouped_children</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span> <span class="o">|</span> <span class="n">GroupConverter</span> <span class="o">|</span> <span class="n">Converter</span><span class="p">]]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">for_ast_callable</span><span class="p">(</span><span class="n">cg_cls</span><span class="p">)</span><span class="o">.</span><span class="n">init_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cg</span><span class="p">)</span> <span class="k">for</span> <span class="n">cg_cls</span><span class="p">,</span> <span class="n">cg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">()]</span></div>
 
 
 <div class="viewcode-block" id="CollectionConverter.descendant_args">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.descendant_args">[docs]</a>
-    <span class="k">def</span> <span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
         <span class="k">for</span> <span class="n">child_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">child_group</span><span class="o">.</span><span class="n">members</span><span class="p">:</span>
                 <span class="k">continue</span>
@@ -1184,7 +1184,7 @@
 
 <div class="viewcode-block" id="CollectionConverter.format_members">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.format_members">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_members</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">last</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">child_group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grouped_children</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">last</span> <span class="ow">and</span> <span class="n">child_group</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">child_group</span><span class="o">.</span><span class="n">member_type</span><span class="p">,</span> <span class="n">GroupConverter</span><span class="p">):</span>
@@ -1197,7 +1197,7 @@
 
 <div class="viewcode-block" id="CollectionConverter.finalize">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CollectionConverter.finalize">[docs]</a>
-    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">had_members</span><span class="p">:</span>
             <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}</span><span class="s1">pass&#39;</span></div>
 </div>
@@ -1206,12 +1206,12 @@
 
 <div class="viewcode-block" id="ParserConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">AstArgumentParser</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">AstArgumentParser</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParserConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">AstArgumentParser</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">AstArgumentParser</span><span class="p">):</span>
     <span class="n">_auto_gen_disclaimer</span> <span class="o">=</span> <span class="s1">&#39;# This is an automatically generated name that should probably be updated&#39;</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">AstArgumentParser</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">|</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parser</span><span class="p">:</span> <span class="n">AstArgumentParser</span><span class="p">,</span>
         <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1226,14 +1226,14 @@
 <div class="viewcode-block" id="ParserConverter.sub_parser_converters">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.sub_parser_converters">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">sub_parser_converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParserConverter</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sub_parser_converters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParserConverter</span><span class="p">]:</span>
         <span class="bp">cls</span><span class="p">,</span> <span class="n">add_methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">sub_parser</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">,</span> <span class="n">add_methods</span><span class="o">=</span><span class="n">add_methods</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub_parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">sub_parsers</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ParserConverter.descendant_args">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.descendant_args">[docs]</a>
-    <span class="k">def</span> <span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">descendant_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]:</span>
         <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">sp_converter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_parser_converters</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="n">sp_converter</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span></div>
@@ -1241,7 +1241,7 @@
 
 <div class="viewcode-block" id="ParserConverter.format_lines">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.format_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;  </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_auto_gen_disclaimer</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span>
         <span class="c1"># TODO: If subparsers have no unique args, use action methods instead?</span>
         <span class="k">yield</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
@@ -1253,7 +1253,7 @@
 
 <div class="viewcode-block" id="ParserConverter.finalize">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.finalize">[docs]</a>
-    <span class="k">def</span> <span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">had_members</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span><span class="p">:</span>
             <span class="k">yield from</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize</span><span class="p">(</span><span class="n">had_members</span><span class="p">,</span> <span class="n">prefix</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
             <span class="k">return</span>
@@ -1279,7 +1279,7 @@
             <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">pass&#39;</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="c1"># log.debug(f&#39;Processing args for {kwargs}&#39;)</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;option_name_mode&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span>
@@ -1296,7 +1296,7 @@
 <div class="viewcode-block" id="ParserConverter.is_sub_parser">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.is_sub_parser">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">is_sub_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_sub_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
 
 
@@ -1305,12 +1305,12 @@
 <div class="viewcode-block" id="ParserConverter.name">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.name">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_custom_name</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;Command</span><span class="si">{</span><span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counter</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span></div>
 
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_custom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_custom_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">literal_eval_or_none</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">))</span>
@@ -1319,7 +1319,7 @@
         <span class="k">return</span> <span class="n">name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_choices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_sub_parser</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
         <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
@@ -1349,12 +1349,12 @@
 <div class="viewcode-block" id="ParserConverter.name_mode">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter.name_mode">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span> <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_name_mode</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="n">name_modes</span> <span class="o">=</span> <span class="p">{</span><span class="n">pc</span><span class="o">.</span><span class="n">_name_mode</span> <span class="k">for</span> <span class="n">pc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">descendant_args</span><span class="p">()</span> <span class="k">if</span> <span class="n">pc</span><span class="o">.</span><span class="n">is_option</span> <span class="ow">and</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="n">pc</span><span class="o">.</span><span class="n">attr_name</span><span class="p">}</span>
@@ -1366,18 +1366,18 @@
 
 <div class="viewcode-block" id="GroupConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.GroupConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">GroupConverter</span><span class="p">(</span><span class="n">CollectionConverter</span><span class="p">[</span><span class="n">ArgGroup</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ArgGroup</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ArgGroup</span>
 
 <div class="viewcode-block" id="GroupConverter.format_lines">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.GroupConverter.format_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span>
         <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">with ParamGroup(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_args</span><span class="p">()</span><span class="si">}</span><span class="s1">):&#39;</span>
         <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_members</span><span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">indent</span> <span class="o">+</span> <span class="mi">4</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="c1"># log.debug(f&#39;Processing args for {self.ast_obj._init_func_bound}&#39;)</span>
         <span class="n">description</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
         <span class="c1"># TODO: Missing required=True</span>
@@ -1400,19 +1400,19 @@
 
 <div class="viewcode-block" id="ParamConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">ParamConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ParserArg</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamConverter</span><span class="p">(</span><span class="n">Converter</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">],</span> <span class="n">converts</span><span class="o">=</span><span class="n">ParserArg</span><span class="p">):</span>
     <span class="n">ast_obj</span><span class="p">:</span> <span class="n">ParserArg</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_counter</span> <span class="o">=</span> <span class="n">count</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">=</span> <span class="n">num</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">ast_obj</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span>
 
-    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamConverter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_positional</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">is_positional</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_pass_thru</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">is_pass_thru</span><span class="p">:</span>
@@ -1422,19 +1422,19 @@
 <div class="viewcode-block" id="ParamConverter.init_group">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.init_group">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ParamConverterGroup</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_group</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="n">CollectionConverter</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParserArg</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ParamConverterGroup</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">ParamConverterGroup</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="p">[</span><span class="bp">cls</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">args</span><span class="p">)])</span></div>
 
 
 <div class="viewcode-block" id="ParamConverter.format_lines">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.format_lines">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">indent</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamConverter.format">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.format">[docs]</a>
-    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">param_cls</span><span class="p">,</span> <span class="n">args_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cls_and_kwargs</span><span class="p">()</span>
         <span class="n">arg_str</span> <span class="o">=</span> <span class="n">args_obj</span><span class="o">.</span><span class="n">to_str</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pos_args</span><span class="p">())</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">indent</span><span class="si">}{</span><span class="bp">self</span><span class="o">.</span><span class="n">attr_name</span><span class="si">}</span><span class="s1"> = </span><span class="si">{</span><span class="n">param_cls</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">arg_str</span><span class="si">}</span><span class="s1">)&#39;</span></div>
@@ -1445,28 +1445,28 @@
 <div class="viewcode-block" id="ParamConverter.attr_name">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.attr_name">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamConverter.name_mode">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.name_mode">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name_mode</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name_mode</span></div>
 
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_name_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_auto_long_opt_str</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="s2">&quot;&#39;_&#39;&quot;</span> <span class="k">if</span> <span class="s1">&#39;_&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attr_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name_candidates</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">RESERVED</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_attr_name_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_attr_name_candidates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">dest</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_raw_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dest&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">dest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">Constant</span><span class="p">):</span>
             <span class="k">yield</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">dest</span><span class="o">.</span><span class="n">_fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># .value for Constant, .s for Str</span>
@@ -1489,7 +1489,7 @@
 <div class="viewcode-block" id="ParamConverter.cmd_option_strs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.cmd_option_strs">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">cmd_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cmd_option_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
@@ -1499,7 +1499,7 @@
 <div class="viewcode-block" id="ParamConverter.use_auto_long_opt_str">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.use_auto_long_opt_str">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">use_auto_long_opt_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">use_auto_long_opt_str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_option</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
@@ -1508,13 +1508,13 @@
 
 <div class="viewcode-block" id="ParamConverter.get_pos_args">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.get_pos_args">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_pos_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_pos_args</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cmd_option_strs</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ParamConverter.get_cls_and_kwargs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.get_cls_and_kwargs">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_cls_and_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseArgs</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cls_and_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">BaseArgs</span><span class="p">]:</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">help_arg</span> <span class="o">:=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;help&#39;</span><span class="p">))</span> <span class="ow">and</span> <span class="n">help_arg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">(</span><span class="s1">&#39;argparse&#39;</span><span class="p">,</span> <span class="s1">&#39;SUPPRESS&#39;</span><span class="p">,</span> <span class="p">()):</span>
             <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;hide&#39;</span><span class="p">:</span> <span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">})</span>
@@ -1553,7 +1553,7 @@
 <div class="viewcode-block" id="ParamConverter.is_pass_thru">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.is_pass_thru">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">is_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">nargs</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;nargs&#39;</span><span class="p">)):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="c1"># TODO: Refactor to take advantage of new nargs=REMAINDER support</span>
@@ -1563,7 +1563,7 @@
 <div class="viewcode-block" id="ParamConverter.is_positional">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.is_positional">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">is_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
         <span class="k">return</span> <span class="n">plain</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">long</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">short</span></div>
 
@@ -1571,7 +1571,7 @@
 <div class="viewcode-block" id="ParamConverter.is_option">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverter.is_option">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">is_option</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_option</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grouped_opt_strs</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">long</span> <span class="ow">or</span> <span class="n">short</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">plain</span></div>
 
@@ -1579,7 +1579,7 @@
     <span class="c1"># endregion</span>
 
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">_grouped_opt_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_grouped_opt_strs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="n">option_strs</span> <span class="o">=</span> <span class="p">(</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">opt</span><span class="p">)</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ast_obj</span><span class="o">.</span><span class="n">init_func_args</span><span class="p">)</span>
         <span class="n">long</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">plain</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">option_strs</span><span class="p">:</span>
@@ -1595,15 +1595,15 @@
 
 <div class="viewcode-block" id="ParamConverterGroup">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverterGroup">[docs]</a>
-<span class="k">class</span> <span class="nc">ParamConverterGroup</span><span class="p">(</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamConverterGroup</span><span class="p">(</span><span class="n">ConverterGroup</span><span class="p">[</span><span class="n">ParamConverter</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">ast_obj</span><span class="p">,</span> <span class="s1">&#39;sub_parsers&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ParamConverterGroup.format_all">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamConverterGroup.format_all">[docs]</a>
-    <span class="k">def</span> <span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">positionals</span><span class="p">,</span> <span class="n">others</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="n">i_converters</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">members</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">converter</span> <span class="ow">in</span> <span class="n">i_converters</span><span class="p">:</span>
@@ -1639,10 +1639,10 @@
 <div class="viewcode-block" id="BaseArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">BaseArgs</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseArgs</span><span class="p">:</span>
     <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="nf">_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">end_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">end_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="n">skip</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">end_fields</span><span class="p">)</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">]</span> <span class="o">+</span> <span class="n">end_fields</span>
         <span class="n">kv_iter</span> <span class="o">=</span> <span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)</span>
@@ -1650,14 +1650,14 @@
 
 <div class="viewcode-block" id="BaseArgs.to_str">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs.to_str">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_str</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;help&#39;</span><span class="p">])</span></div>
 
 
 <div class="viewcode-block" id="BaseArgs.from_kwargs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs.from_kwargs">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">from_kwargs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_kwargs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">))</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">filtered</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">help_str</span> <span class="o">:=</span> <span class="n">filtered</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;help&#39;</span><span class="p">):</span>
@@ -1679,7 +1679,7 @@
 <div class="viewcode-block" id="CommandArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.CommandArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">CommandArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
     <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">choices</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">prog</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1702,7 +1702,7 @@
 <div class="viewcode-block" id="ParamBaseArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamBaseArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ParamBaseArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamBaseArgs</span><span class="p">(</span><span class="n">BaseArgs</span><span class="p">):</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">required</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1711,7 +1711,7 @@
 
 <div class="viewcode-block" id="ParamBaseArgs.to_str">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamBaseArgs.to_str">[docs]</a>
-    <span class="k">def</span> <span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_str</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;hide&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">])</span></div>
 </div>
 
@@ -1720,7 +1720,7 @@
 <div class="viewcode-block" id="PassThruArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.PassThruArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">PassThruArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PassThruArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 
@@ -1728,7 +1728,7 @@
 <div class="viewcode-block" id="ParamArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">ParamArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamArgs</span><span class="p">(</span><span class="n">ParamBaseArgs</span><span class="p">):</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
@@ -1737,7 +1737,7 @@
 <div class="viewcode-block" id="ParamArgs.init_positional">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParamArgs.init_positional">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_positional</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_positional</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">nargs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">parsed</span> <span class="o">:=</span> <span class="n">literal_eval_or_none</span><span class="p">(</span><span class="n">nargs</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">nargs_obj</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
@@ -1758,13 +1758,13 @@
 <div class="viewcode-block" id="OptionArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.OptionArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">OptionArgs</span><span class="p">(</span><span class="n">ParamArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OptionArgs</span><span class="p">(</span><span class="n">ParamArgs</span><span class="p">):</span>
     <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="OptionArgs.init_option">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.OptionArgs.init_option">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_option</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_option</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="n">ParserArg</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">nargs</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">const</span><span class="p">:</span>
             <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s1">: ignoring </span><span class="si">{</span><span class="n">const</span><span class="si">=}</span><span class="s1"> - it is only supported for Flag and Counter parameters&#39;</span><span class="p">)</span>
 
@@ -1788,13 +1788,13 @@
 <div class="viewcode-block" id="FlagArgs">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.FlagArgs">[docs]</a>
 <span class="nd">@dataclass</span>
-<span class="k">class</span> <span class="nc">FlagArgs</span><span class="p">(</span><span class="n">OptionArgs</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FlagArgs</span><span class="p">(</span><span class="n">OptionArgs</span><span class="p">):</span>
     <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="FlagArgs.init_flag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.FlagArgs.init_flag">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_flag</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_flag</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;store_true&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;True&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">),</span> <span class="s1">&#39;store_false&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;False&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">)}</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">value</span><span class="p">,</span> <span class="n">opposite</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
@@ -1823,7 +1823,7 @@
 <div class="viewcode-block" id="FlagArgs.init_counter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.FlagArgs.init_counter">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">init_counter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">init_counter</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">const</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;nargs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;action&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;const&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">const</span> <span class="o">==</span> <span class="s1">&#39;1&#39;</span> <span class="k">else</span> <span class="n">const</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">default</span> <span class="o">==</span> <span class="s1">&#39;0&#39;</span> <span class="k">else</span> <span class="n">default</span>
@@ -1837,7 +1837,7 @@
 
 <div class="viewcode-block" id="literal_eval_or_none">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.literal_eval_or_none">[docs]</a>
-<span class="k">def</span> <span class="nf">literal_eval_or_none</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">literal_eval_or_none</span><span class="p">(</span><span class="n">expr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">literal_eval</span><span class="p">(</span><span class="n">expr</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
@@ -1847,7 +1847,7 @@
 
 <div class="viewcode-block" id="ConversionError">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ConversionError">[docs]</a>
-<span class="k">class</span> <span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConversionError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
 
 </pre></div>
@@ -1859,7 +1859,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

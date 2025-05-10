@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Testing Commands &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1005,26 +1005,26 @@ used to parse arguments without running <a class="reference internal" href="api/
 accessed directly (as they would be from within the Command when running normally), or gathered in a dict via
 <a class="reference internal" href="advanced.html#parsed-args-as-a-dictionary"><span class="std std-ref">get_parsed</span></a>.</p>
 <p>Using the <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">hello_world.py</a> script that has been used in other examples:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span><span class="p">):</span>
     <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
     <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>We can write these example test cases:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">get_parsed</span>
-<span class="kn">from</span> <span class="nn">hello_world</span> <span class="kn">import</span> <span class="n">HelloWorld</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parsed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hello_world</span><span class="w"> </span><span class="kn">import</span> <span class="n">HelloWorld</span>
 
-<span class="k">class</span> <span class="nc">HelloWorldTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">test_parse_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HelloWorldTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parse_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">cmd</span><span class="o">.</span><span class="n">count</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">test_parse_name_and_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parse_name_and_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">cmd</span> <span class="o">=</span> <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse</span><span class="p">([</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span> <span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;Bob&#39;</span><span class="p">])</span>
         <span class="n">expected</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Bob&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertDictEqual</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">get_parsed</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
@@ -1039,18 +1039,18 @@ accessed directly (as they would be from within the Command when running normall
 <p>To test the result of actually executing the program, the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a> method can be used.  Using
 the same <code class="docutils literal notranslate"><span class="pre">hello_world.py</span></code> script as the above test, we can define some additional example test cases that check
 the output:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">unittest</span> <span class="kn">import</span> <span class="n">TestCase</span>
-<span class="kn">from</span> <span class="nn">cli_command_parser.testing</span> <span class="kn">import</span> <span class="n">RedirectStreams</span>
-<span class="kn">from</span> <span class="nn">hello_world</span> <span class="kn">import</span> <span class="n">HelloWorld</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">unittest</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestCase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.testing</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedirectStreams</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">hello_world</span><span class="w"> </span><span class="kn">import</span> <span class="n">HelloWorld</span>
 
-<span class="k">class</span> <span class="nc">HelloWorldTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">test_hello_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HelloWorldTest</span><span class="p">(</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_hello_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">RedirectStreams</span><span class="p">()</span> <span class="k">as</span> <span class="n">streams</span><span class="p">:</span>
             <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;Hello World!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">streams</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">streams</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">test_hello_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_hello_test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">with</span> <span class="n">RedirectStreams</span><span class="p">()</span> <span class="k">as</span> <span class="n">streams</span><span class="p">:</span>
             <span class="n">HelloWorld</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s1">&#39;Hello test!</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">streams</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
@@ -1058,7 +1058,7 @@ the output:</p>
 </div>
 <p>Using <code class="docutils literal notranslate"><span class="pre">InputsExample</span></code> from the <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/custom_inputs.py">custom_inputs.py</a> script as the example Command being tested, we can see
 how it works to provide <code class="docutils literal notranslate"><span class="pre">stdin</span></code>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">test_custom_input_json_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">test_custom_input_json_stdin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="k">with</span> <span class="n">RedirectStreams</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;: 1, &quot;b&quot;: 2}&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">streams</span><span class="p">:</span>
         <span class="n">InputsExample</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">([</span><span class="s1">&#39;-j&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="s2">&quot;You provided a dict</span><span class="se">\n</span><span class="s2">[0] (&#39;a&#39;, 1)</span><span class="se">\n</span><span class="s2">[1] (&#39;b&#39;, 2)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">streams</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
@@ -1078,7 +1078,7 @@ how it works to provide <code class="docutils literal notranslate"><span class="
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

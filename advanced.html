@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Advanced Usage &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1000,12 +1000,12 @@
 dynamically generate a default based on the runtime environment or the value of other parsed arguments.</p>
 <p>Most Parameters that support a using a <a class="reference internal" href="parameters.html#parameters:default_cb"><span class="std std-ref">default_cb</span></a> also support registering a method in a
 Command as their default callback.  A very simple example that references another Parameter:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">foo</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-f&#39;</span><span class="p">)</span>
     <span class="n">bar</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">)</span>
 
     <span class="nd">@bar</span><span class="o">.</span><span class="n">register_default_cb</span>
-    <span class="k">def</span> <span class="nf">_bar_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_bar_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">foo</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1016,11 +1016,11 @@ value was provided, then it would be the string <code class="docutils literal no
 <h2>Post-Run &amp; Context<a class="headerlink" href="#post-run-context" title="Link to this heading"></a></h2>
 <p>While Commands are intended to be self-contained, it is possible to interact with them after calling
 <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run" title="cli_command_parser.commands.Command.parse_and_run"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Command.parse_and_run()</span></code></a>, which returns the instance of the executed Command.  Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">bar</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-bar&#39;</span><span class="p">,</span> <span class="s1">&#39;-B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="gp">... </span>    <span class="n">baz</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bar</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">baz</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
 
@@ -1093,7 +1093,7 @@ parsed dict to only the keys that match that callable’s signature.  Only VAR_K
 excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
 calling get_parsed.</p>
 <p>Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">(</span><span class="n">bar</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="k">pass</span>
 <span class="gp">...</span>
 
@@ -1109,10 +1109,10 @@ example of this occurs when multiple levels of subcommands exist, where each lev
 <p>In such cases, it is sometimes necessary for a parent Command to know the raw parsed value for that Parameter.  The
 <a class="reference internal" href="api/cli_command_parser.context.html#cli_command_parser.context.get_raw_arg" title="cli_command_parser.context.get_raw_arg"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_raw_arg()</span></code></a> function simplifies the process of accessing that value.</p>
 <p>Given the following simplified example Commands:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1135,7 +1135,7 @@ example of this occurs when multiple levels of subcommands exist, where each lev
 that values containing spaces are supported.</p>
 <p>From within a Command instance method, <code class="docutils literal notranslate"><span class="pre">self</span></code> would be used instead of the <code class="docutils literal notranslate"><span class="pre">cmd</span></code> variable from the above examples.
 E.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="n">value</span> <span class="o">=</span> <span class="n">get_raw_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Foo</span><span class="o">.</span><span class="n">sub_cmd</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </pre></div>
@@ -1143,14 +1143,14 @@ E.g.:</p>
 <p>Alternatively, it is possible to define Parameters with double-underscore names to take advantage of native name
 mangling.  Doing do results in direct access within a given Command returning the raw value that was parsed at that
 level.  Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">__sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Foo: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__sub_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
-<span class="gp">... </span><span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
+<span class="gp">... </span><span class="k">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span><span class="n">Foo</span><span class="p">):</span>
 <span class="gp">... </span>    <span class="n">__sub_cmd</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">()</span>
-<span class="gp">... </span>    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Bar: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">__sub_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="gp">...</span>
 
@@ -1173,37 +1173,37 @@ to build the documentation for this project is an example of a Command that incl
 methods and ActionFlags.  Additionally, some of the methods even have the two decorators stacked so that they can be
 called either way.</p>
 <p>Example snippet:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">BuildDocs</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Build documentation using Sphinx&#39;</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">BuildDocs</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Build documentation using Sphinx&#39;</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">Action</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
     <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Initialize logging, etc</span>
         <span class="o">...</span>
 
     <span class="nd">@action</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Run sphinx-build&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">sphinx_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sphinx_build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Call sphinx-build in a subprocess</span>
         <span class="o">...</span>
 
     <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Clean the docs directory before building docs&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="nd">@action</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Clean the docs directory&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Clean up the build dir to remove old generated RST files / HTML</span>
         <span class="o">...</span>
 
     <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-u&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Update RST files&#39;</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Re-generate RST files for API docs</span>
         <span class="o">...</span>
 
     <span class="nd">@after_main</span><span class="p">(</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Open the docs in the default web browser after running sphinx-build&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="o">...</span>
 
     <span class="nd">@action</span><span class="p">(</span><span class="s1">&#39;backup&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Test the RST backup&#39;</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">backup_rsts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">backup_rsts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Backup the existing auto-generated RST files</span>
         <span class="o">...</span>
 </pre></div>
@@ -1260,7 +1260,7 @@ you should include a check in your application to prevent it from being run twic
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

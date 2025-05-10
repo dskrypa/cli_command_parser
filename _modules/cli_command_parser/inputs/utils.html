@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.inputs.utils &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -997,37 +997,37 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span> <span class="nn">stat</span> <span class="kn">import</span> <span class="n">S_IFBLK</span><span class="p">,</span> <span class="n">S_IFCHR</span><span class="p">,</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="n">S_IFIFO</span><span class="p">,</span> <span class="n">S_IFLNK</span><span class="p">,</span> <span class="n">S_IFMT</span><span class="p">,</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="n">S_IFSOCK</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">finalize</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">stat</span><span class="w"> </span><span class="kn">import</span> <span class="n">S_IFBLK</span><span class="p">,</span> <span class="n">S_IFCHR</span><span class="p">,</span> <span class="n">S_IFDIR</span><span class="p">,</span> <span class="n">S_IFIFO</span><span class="p">,</span> <span class="n">S_IFLNK</span><span class="p">,</span> <span class="n">S_IFMT</span><span class="p">,</span> <span class="n">S_IFREG</span><span class="p">,</span> <span class="n">S_IFSOCK</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">ContextManager</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">finalize</span>
 
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">FixedFlag</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">InputValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedFlag</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">FP</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Converter</span><span class="p">,</span> <span class="n">Number</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FP</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Converter</span><span class="p">,</span> <span class="n">Number</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;InputParam&#39;</span><span class="p">,</span> <span class="s1">&#39;StatMode&#39;</span><span class="p">,</span> <span class="s1">&#39;FileWrapper&#39;</span><span class="p">,</span> <span class="s1">&#39;fix_windows_path&#39;</span><span class="p">,</span> <span class="s1">&#39;range_str&#39;</span><span class="p">,</span> <span class="s1">&#39;RangeMixin&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="InputParam">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam">[docs]</a>
-<span class="k">class</span> <span class="nc">InputParam</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">InputParam</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
 
-    <span class="k">def</span> <span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># instance is None</span>
@@ -1035,7 +1035,7 @@
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
 
-    <span class="k">def</span> <span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
             <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
@@ -1043,8 +1043,8 @@
 
 <div class="viewcode-block" id="StatMode">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode">[docs]</a>
-<span class="k">class</span> <span class="nc">StatMode</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
-    <span class="k">def</span> <span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">friendly_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatMode</span><span class="p">(</span><span class="n">FixedFlag</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">friendly_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># Defined __new__ to avoid juggling dicts for the stat mode values and names</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">friendly_name</span><span class="p">:</span>
@@ -1067,12 +1067,12 @@
 
 <div class="viewcode-block" id="StatMode.matches">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.matches">[docs]</a>
-    <span class="k">def</span> <span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">mode</span> <span class="o">=</span> <span class="n">S_IFMT</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">mode</span> <span class="o">==</span> <span class="n">part</span><span class="o">.</span><span class="n">mode</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decompose</span><span class="p">())</span></div>
 
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">friendly_name</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># Combined flags</span>
@@ -1089,8 +1089,8 @@
 
 <div class="viewcode-block" id="FileWrapper">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper">[docs]</a>
-<span class="k">class</span> <span class="nc">FileWrapper</span><span class="p">:</span>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileWrapper</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
         <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
@@ -1111,7 +1111,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">TextIO</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_finalizer</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">FileWrapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">FileWrapper</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">,</span> <span class="s1">&#39;mode&#39;</span><span class="p">,</span> <span class="s1">&#39;binary&#39;</span><span class="p">,</span> <span class="s1">&#39;encoding&#39;</span><span class="p">,</span> <span class="s1">&#39;errors&#39;</span><span class="p">,</span> <span class="s1">&#39;converter&#39;</span><span class="p">,</span> <span class="s1">&#39;pass_file&#39;</span><span class="p">,</span> <span class="s1">&#39;parents&#39;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">)</span>
@@ -1120,7 +1120,7 @@
 
 <div class="viewcode-block" id="FileWrapper.read">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.read">[docs]</a>
-    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">(</span><span class="n">f</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span> <span class="k">else</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
@@ -1130,7 +1130,7 @@
 
 <div class="viewcode-block" id="FileWrapper.write">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.write">[docs]</a>
-    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_file</span><span class="p">()</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span><span class="p">:</span>
@@ -1141,7 +1141,7 @@
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FP</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_open</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FP</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">==</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
             <span class="n">stream</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span> <span class="k">if</span> <span class="s1">&#39;r&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="k">else</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
             <span class="k">return</span> <span class="n">stream</span><span class="o">.</span><span class="n">buffer</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">binary</span> <span class="k">else</span> <span class="n">stream</span>
@@ -1152,17 +1152,17 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span> <span class="o">=</span> <span class="n">fp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to open </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">e</span>
+            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to open </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_finalizer</span> <span class="o">=</span> <span class="n">finalize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cleanup</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;Implicitly cleaning up </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">fp</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">_cleanup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">FP</span><span class="p">,</span> <span class="n">warn_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cleanup</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">FP</span><span class="p">,</span> <span class="n">warn_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">warn_msg</span><span class="p">,</span> <span class="ne">ResourceWarning</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -1172,7 +1172,7 @@
 
 <div class="viewcode-block" id="FileWrapper.close">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.close">[docs]</a>
-    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">do_close</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalizer</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
@@ -1182,25 +1182,25 @@
 
 
     <span class="nd">@contextmanager</span>
-    <span class="k">def</span> <span class="nf">_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContextManager</span><span class="p">[</span><span class="n">FP</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ContextManager</span><span class="p">[</span><span class="n">FP</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">()</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FP</span><span class="p">,</span> <span class="n">FileWrapper</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">FP</span><span class="p">,</span> <span class="n">FileWrapper</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
 
 
 <div class="viewcode-block" id="allows_write">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write">[docs]</a>
-<span class="k">def</span> <span class="nf">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="n">chars</span> <span class="o">=</span> <span class="s1">&#39;wxa&#39;</span> <span class="k">if</span> <span class="n">strict</span> <span class="k">else</span> <span class="s1">&#39;wxa+&#39;</span>
     <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">mode</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chars</span><span class="p">)</span></div>
 
@@ -1208,7 +1208,7 @@
 
 <div class="viewcode-block" id="fix_windows_path">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path">[docs]</a>
-<span class="k">def</span> <span class="nf">fix_windows_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fix_windows_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Attempts to resolve issues related to inconsistencies between the way the version of Bash that is distributed with</span>
 <span class="sd">    Git handles paths in some situations and the way that Python handles paths.</span>
@@ -1238,7 +1238,7 @@
 
 <div class="viewcode-block" id="range_str">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str">[docs]</a>
-<span class="k">def</span> <span class="nf">range_str</span><span class="p">(</span><span class="n">min_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">max_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">include_min</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">include_max</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">range_str</span><span class="p">(</span><span class="n">min_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">max_val</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">include_min</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">include_max</span><span class="p">:</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">min_val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">min_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">min_val</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;&lt;=&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">include_min</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot;&lt;&quot;</span><span class="si">}</span><span class="s1"> &#39;</span>
     <span class="k">else</span><span class="p">:</span>
@@ -1255,7 +1255,7 @@
 
 <div class="viewcode-block" id="RangeMixin">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin">[docs]</a>
-<span class="k">class</span> <span class="nc">RangeMixin</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RangeMixin</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>  <span class="c1"># It isn&#39;t possible to use 2+ bases when they both have content in __slots__</span>
     <span class="nb">min</span><span class="p">:</span> <span class="n">Number</span>
     <span class="nb">max</span><span class="p">:</span> <span class="n">Number</span>
@@ -1264,7 +1264,7 @@
 
 <div class="viewcode-block" id="RangeMixin.value_lt_min">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_lt_min">[docs]</a>
-    <span class="k">def</span> <span class="nf">value_lt_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_lt_min</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Bad if &lt; when inclusive, bad if &lt;= when exclusive</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span> <span class="k">else</span> <span class="p">(</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
@@ -1273,7 +1273,7 @@
 
 <div class="viewcode-block" id="RangeMixin.value_gt_max">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin.value_gt_max">[docs]</a>
-    <span class="k">def</span> <span class="nf">value_gt_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">value_gt_max</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span> <span class="k">else</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">False</span></div>
@@ -1288,7 +1288,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

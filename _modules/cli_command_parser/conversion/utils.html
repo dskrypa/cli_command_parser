@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.conversion.utils &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -991,17 +991,17 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cli_command_parser.conversion.utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">ast</span> <span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">unparse</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span> <span class="k">as</span> <span class="n">_List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">unparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span> <span class="k">as</span> <span class="n">_List</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_name_repr&#39;</span><span class="p">,</span> <span class="s1">&#39;iter_module_parents&#39;</span><span class="p">,</span> <span class="s1">&#39;collection_contents&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="get_name_repr">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.utils.html#cli_command_parser.conversion.utils.get_name_repr">[docs]</a>
-<span class="k">def</span> <span class="nf">get_name_repr</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AST</span><span class="p">,</span> <span class="n">expr</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_name_repr</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">AST</span><span class="p">,</span> <span class="n">expr</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
         <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span>
 
@@ -1018,7 +1018,7 @@
 
 <div class="viewcode-block" id="iter_module_parents">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.utils.html#cli_command_parser.conversion.utils.iter_module_parents">[docs]</a>
-<span class="k">def</span> <span class="nf">iter_module_parents</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">iter_module_parents</span><span class="p">(</span><span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
         <span class="n">parent</span> <span class="o">=</span> <span class="n">module</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">parent</span> <span class="o">==</span> <span class="n">module</span><span class="p">:</span>
@@ -1030,7 +1030,7 @@
 
 <div class="viewcode-block" id="collection_contents">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.utils.html#cli_command_parser.conversion.utils.collection_contents">[docs]</a>
-<span class="k">def</span> <span class="nf">collection_contents</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">AST</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">collection_contents</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="n">AST</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">Dict</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">unparse</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">keys</span><span class="p">]</span>  <span class="c1"># noqa</span>
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">)):</span>
@@ -1047,7 +1047,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.conversion.cli &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -991,14 +991,14 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cli_command_parser.conversion.cli</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">cached_property</span>
-<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Positional</span><span class="p">,</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">main</span>
-<span class="kn">from</span> <span class="nn">cli_command_parser.inputs</span> <span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">IPath</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">Positional</span><span class="p">,</span> <span class="n">Flag</span><span class="p">,</span> <span class="n">ParamGroup</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">main</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">IPath</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -1008,7 +1008,7 @@
 
 <div class="viewcode-block" id="ParserConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter">[docs]</a>
-<span class="k">class</span> <span class="nc">ParserConverter</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tool to convert an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1"> into a </span><span class="si">{</span><span class="n">cli_cp_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParserConverter</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tool to convert an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1"> into a </span><span class="si">{</span><span class="n">cli_cp_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
     <span class="n">action</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">no_smart_for</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-S&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable &quot;smart&quot; for loop handling that attempts to dedupe common subparser params&#39;</span><span class="p">)</span>
@@ -1018,7 +1018,7 @@
 
 <div class="viewcode-block" id="ParserConverter._init_command_">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter._init_command_">[docs]</a>
-    <span class="k">def</span> <span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_init_command_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s1">&#39;</span><span class="si">%(message)s</span><span class="s1">&#39;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span></div>
 
@@ -1026,8 +1026,8 @@
 <div class="viewcode-block" id="ParserConverter.script">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter.script">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span> <span class="nf">script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">cli_command_parser.conversion</span> <span class="kn">import</span> <span class="n">Script</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">script</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">Script</span>
 
         <span class="n">script</span> <span class="o">=</span> <span class="n">Script</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">read_text</span><span class="p">(),</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">no_smart_for</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found </span><span class="si">{</span><span class="n">script</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1038,14 +1038,14 @@
 
 <div class="viewcode-block" id="Convert">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert">[docs]</a>
-<span class="k">class</span> <span class="nc">Convert</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Convert</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">add_methods</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-methods&#39;</span><span class="p">,</span> <span class="s1">&#39;-M&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Do not include boilerplate methods in Commands&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Convert.main">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert.main">[docs]</a>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">cli_command_parser.conversion</span> <span class="kn">import</span> <span class="n">convert_script</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.conversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_script</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">convert_script</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_methods</span><span class="p">))</span></div>
 </div>
@@ -1054,12 +1054,12 @@
 
 <div class="viewcode-block" id="Pprint">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint">[docs]</a>
-<span class="k">class</span> <span class="nc">Pprint</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pprint</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Pprint.main">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint.main">[docs]</a>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">parser</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">parsers</span><span class="p">:</span>
             <span class="n">parser</span><span class="o">.</span><span class="n">pprint</span><span class="p">()</span></div>
 </div>
@@ -1077,7 +1077,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

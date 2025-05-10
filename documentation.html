@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Documentation &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1030,7 +1030,7 @@ usage parts (e.g, an <code class="docutils literal notranslate"><span class="pre
 they will be combined and use only one line.  The parameter’s description (<code class="docutils literal notranslate"><span class="pre">help='...'</span></code> value) will begin on the next
 line.</p>
 <p>The following example Command will be used to demonstrate:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">very_long_name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Example description&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1047,7 +1047,7 @@ line.</p>
 column width so that the usage parts will be split, and the description can begin on the same line as the first usage
 part.</p>
 <p>The same example Command as above, updated to use that setting:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">strict_usage_column_width</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Example</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">strict_usage_column_width</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="n">very_long_name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;FOO&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Example description&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1064,7 +1064,7 @@ part.</p>
 <section id="group-formatting">
 <h3>Group Formatting<a class="headerlink" href="#group-formatting" title="Link to this heading"></a></h3>
 <p>To add a visual indicator for groups of parameters, specify <code class="docutils literal notranslate"><span class="pre">show_group_tree=True</span></code>.  Example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">show_group_tree</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">show_group_tree</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="o">...</span>
 </pre></div>
 </div>
@@ -1090,9 +1090,9 @@ supports RST.</p>
 <h3>Generating RST Documentation<a class="headerlink" href="#generating-rst-documentation" title="Link to this heading"></a></h3>
 <p>All you need to generate documentation for a given script that contains one or more Commands is something like
 the following:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cli_command_parser.documentation</span> <span class="kn">import</span> <span class="n">render_script_rst</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser.documentation</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_script_rst</span>
 
-<span class="k">def</span> <span class="nf">save_command_rst</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">rst_path</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_command_rst</span><span class="p">(</span><span class="n">script_path</span><span class="p">,</span> <span class="n">rst_path</span><span class="p">):</span>
     <span class="n">rst</span> <span class="o">=</span> <span class="n">render_script_rst</span><span class="p">(</span><span class="n">script_path</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rst_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rst</span><span class="p">)</span>
@@ -1121,7 +1121,7 @@ for this guide.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

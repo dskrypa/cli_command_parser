@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.parameters.positionals &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -997,26 +997,26 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
 
-<span class="kn">from</span> <span class="nn">..exceptions</span> <span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
-<span class="kn">from</span> <span class="nn">..inputs</span> <span class="kn">import</span> <span class="n">normalize_input_type</span>
-<span class="kn">from</span> <span class="nn">..nargs</span> <span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_NotSet</span>
-<span class="kn">from</span> <span class="nn">.actions</span> <span class="kn">import</span> <span class="n">Store</span><span class="p">,</span> <span class="n">Append</span>
-<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">AllowLeadingDashProperty</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_input_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Store</span><span class="p">,</span> <span class="n">Append</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">AllowLeadingDashProperty</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">..typing</span> <span class="kn">import</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">DefaultFunc</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">DefaultFunc</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Positional&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Positional">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional">[docs]</a>
-<span class="k">class</span> <span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">,</span> <span class="n">default_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">,</span> <span class="n">default_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A parameter that must be provided positionally.</span>
 
@@ -1047,7 +1047,7 @@
 
     <span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDashProperty</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1094,7 +1094,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

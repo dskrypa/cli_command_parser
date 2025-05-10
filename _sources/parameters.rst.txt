@@ -74,6 +74,9 @@ Common parameters that are supported when initializing most Parameters:
   values.  By default, no transformation is performed, and values will be strings.  If not specified, but a type
   annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
   argument takes precedence.
+:strict_default: Whether default values should be processed as if provided via CLI (this happens when
+  ``strict_default=False``, the default), or used as-is (``strict_default=True``).  Only applies to :doc:`inputs`
+  that have a :meth:`~.InputType.fix_default` method.
 
 
 Options

@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.parser &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../_static/sphinx_paramlinks.css" />
 
@@ -997,16 +997,16 @@
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">deque</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">environ</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Deque</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">os</span><span class="w"> </span><span class="kn">import</span> <span class="n">environ</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Deque</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span>
 
-<span class="kn">from</span> <span class="nn">.context</span> <span class="kn">import</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Context</span>
-<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">get_parent</span>
-<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Backtrack</span><span class="p">,</span>
     <span class="n">MissingArgument</span><span class="p">,</span>
     <span class="n">NextCommand</span><span class="p">,</span>
@@ -1015,14 +1015,14 @@
     <span class="n">ParamUsageError</span><span class="p">,</span>
     <span class="n">UsageError</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">.nargs</span> <span class="kn">import</span> <span class="n">REMAINDER</span><span class="p">,</span> <span class="n">nargs_min_and_max_sums</span>
-<span class="kn">from</span> <span class="nn">.parameters.base</span> <span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">Parameter</span>
-<span class="kn">from</span> <span class="nn">.parse_tree</span> <span class="kn">import</span> <span class="n">PosNode</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">REMAINDER</span><span class="p">,</span> <span class="n">nargs_min_and_max_sums</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parameters.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">Parameter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.parse_tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">PosNode</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">.command_parameters</span> <span class="kn">import</span> <span class="n">CommandParameters</span>
-    <span class="kn">from</span> <span class="nn">.config</span> <span class="kn">import</span> <span class="n">CommandConfig</span>
-    <span class="kn">from</span> <span class="nn">.typing</span> <span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.command_parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParameters</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandConfig</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">OptStr</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandParser&#39;</span><span class="p">,</span> <span class="s1">&#39;parse_args_and_get_next_cmd&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -1035,7 +1035,7 @@
 
 <div class="viewcode-block" id="CommandParser">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser">[docs]</a>
-<span class="k">class</span> <span class="nc">CommandParser</span><span class="p">:</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandParser</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stateful parser used for a single pass of argument parsing&quot;&quot;&quot;</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_last&#39;</span><span class="p">,</span> <span class="s1">&#39;arg_deque&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;deferred&#39;</span><span class="p">,</span> <span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="s1">&#39;positionals&#39;</span><span class="p">)</span>
@@ -1047,7 +1047,7 @@
     <span class="n">positionals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]</span>
     <span class="n">_last</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Parameter</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
@@ -1059,7 +1059,7 @@
 <div class="viewcode-block" id="CommandParser.parse_args_and_get_next_cmd">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.parse_args_and_get_next_cmd">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">parse_args_and_get_next_cmd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_args_and_get_next_cmd</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">get_next_cmd</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">UsageError</span><span class="p">:</span>
@@ -1070,7 +1070,7 @@
 
 <div class="viewcode-block" id="CommandParser.get_next_cmd">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.get_next_cmd">[docs]</a>
-    <span class="k">def</span> <span class="nf">get_next_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_next_cmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_args</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_groups</span><span class="p">()</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_missing</span><span class="p">()</span>
@@ -1082,11 +1082,11 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">categorized_action_flags</span><span class="p">[</span><span class="n">_PRE_INIT</span><span class="p">]:</span>  <span class="c1"># No pre-init action was triggered</span>
                 <span class="k">raise</span> <span class="n">ParamsMissing</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ignore_unknown</span><span class="p">:</span>  <span class="c1"># Note: ctx.remaining is self.deferred at this point</span>
-            <span class="k">raise</span> <span class="n">NoSuchOption</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unrecognized arguments: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">NoSuchOption</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;unrecognized arguments: </span><span class="si">{</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_validate_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">exc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1098,7 +1098,7 @@
         <span class="k">if</span> <span class="n">exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">exc</span>
 
-    <span class="k">def</span> <span class="nf">_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_deque</span> <span class="o">=</span> <span class="n">arg_deque</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_pass_thru</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1114,7 +1114,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse_env_vars</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_parse_env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_env_vars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">ctx</span><span class="o">.</span><span class="n">missing_options_with_env_var</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">env_var</span> <span class="ow">in</span> <span class="n">param</span><span class="o">.</span><span class="n">env_vars</span><span class="p">():</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -1130,7 +1130,7 @@
                         <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
                     <span class="k">break</span>
 
-    <span class="k">def</span> <span class="nf">_handle_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_arg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">arg</span> <span class="ow">or</span> <span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_positional</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -1141,7 +1141,7 @@
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># arg == &#39;--&#39;</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handle_double_dash</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_handle_double_dash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_double_dash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_consume_remainder</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">has_nested_pass_thru</span><span class="p">:</span>  <span class="c1"># pylint: disable=R1723</span>
@@ -1150,7 +1150,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoSuchOption</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid argument: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_handle_many_dashes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_many_dashes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_consume_remainder</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">NoSuchOption</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid argument: </span><span class="si">{</span><span class="n">arg</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -1158,7 +1158,7 @@
 
 <div class="viewcode-block" id="CommandParser.handle_pass_thru">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_pass_thru">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_pass_thru</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Deque</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="n">remaining</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">remaining</span>
         <span class="k">if</span> <span class="n">pass_thru</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">pass_thru</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -1172,7 +1172,7 @@
         <span class="k">return</span> <span class="n">deque</span><span class="p">(</span><span class="n">remaining</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_maybe_consume_remainder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_consume_remainder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">param</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">max</span> <span class="ow">is</span> <span class="n">REMAINDER</span><span class="p">:</span>
@@ -1182,7 +1182,7 @@
 
 <div class="viewcode-block" id="CommandParser.handle_remainder">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_remainder">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_remainder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_remainder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">found</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">add_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">arg_deque</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_deque</span>
         <span class="k">while</span> <span class="n">arg_deque</span><span class="p">:</span>
@@ -1194,7 +1194,7 @@
 
 <div class="viewcode-block" id="CommandParser.handle_positional">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_positional">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_positional</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="c1"># log.debug(f&#39;handle_positional({arg=})&#39;)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">:</span>
             <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -1220,7 +1220,7 @@
 
 <div class="viewcode-block" id="CommandParser.handle_long">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_long">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_long</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="c1"># log.debug(f&#39;handle_long({arg=})&#39;)</span>
         <span class="n">opt</span><span class="p">,</span> <span class="n">eq</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">param</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">option_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">opt</span><span class="p">):</span>
@@ -1230,7 +1230,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">deferred</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_handle_option_value</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_option_value</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">opt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">joined</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1247,7 +1247,7 @@
 
 <div class="viewcode-block" id="CommandParser.handle_short">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.handle_short">[docs]</a>
-    <span class="k">def</span> <span class="nf">handle_short</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_short</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="c1"># log.debug(f&#39;handle_short({arg=})&#39;)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">param_val_combos</span><span class="p">,</span> <span class="n">joined</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -1263,7 +1263,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_option_value</span><span class="p">(</span><span class="o">*</span><span class="n">last</span><span class="p">,</span> <span class="n">combo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">joined</span><span class="o">=</span><span class="n">joined</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_handle_short_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_short_not_found</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_consume_remainder</span><span class="p">(</span><span class="n">arg</span><span class="p">):</span>
             <span class="k">return</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_sub_command_options</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
@@ -1277,7 +1277,7 @@
 
     <span class="c1"># endregion</span>
 
-    <span class="k">def</span> <span class="nf">_check_sub_command_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_check_sub_command_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="c1"># log.debug(f&#39;_check_sub_command_options({arg=})&#39;)</span>
         <span class="c1"># This check is only needed when subcommand option values may be misinterpreted as positional values</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">positionals</span><span class="p">:</span>
@@ -1293,7 +1293,7 @@
 
     <span class="c1"># region Backtracking</span>
 
-    <span class="k">def</span> <span class="nf">_maybe_backtrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_backtrack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        If we hit the end of the list of provided argument values, unfulfilled Positional parameters remain, and the</span>
 <span class="sd">        Parameter being processed accepts a variable number of arguments, then check to see if it&#39;s possible to</span>
@@ -1310,7 +1310,7 @@
                 <span class="k">return</span> <span class="n">found</span> <span class="o">-</span> <span class="n">rollback_count</span>
         <span class="k">return</span> <span class="n">found</span>
 
-    <span class="k">def</span> <span class="nf">_maybe_backtrack_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_backtrack_last</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1327,7 +1327,7 @@
 
     <span class="c1"># endregion</span>
 
-    <span class="k">def</span> <span class="nf">_has_matching_short_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_has_matching_short_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">short_option_to_param_value_pairs</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -1336,7 +1336,7 @@
 
 <div class="viewcode-block" id="CommandParser.consume_values">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.consume_values">[docs]</a>
-    <span class="k">def</span> <span class="nf">consume_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">consume_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Consume values for the given Parameter.</span>
 
@@ -1380,7 +1380,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_finalize_consume</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">found</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_finalize_consume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_finalize_consume</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">found</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">Exception</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="n">nargs</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">nargs</span>
         <span class="k">if</span> <span class="n">nargs</span><span class="o">.</span><span class="n">satisfied</span><span class="p">(</span><span class="n">found</span><span class="p">):</span>
             <span class="c1"># Even if an exception was passed to this method, if the found number of values is acceptable, then it</span>
@@ -1402,7 +1402,7 @@
 <span class="n">parse_args_and_get_next_cmd</span> <span class="o">=</span> <span class="n">CommandParser</span><span class="o">.</span><span class="n">parse_args_and_get_next_cmd</span>
 
 
-<span class="k">def</span> <span class="nf">_to_pop</span><span class="p">(</span><span class="n">positionals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">],</span> <span class="n">can_pop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">available</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">req_mod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_pop</span><span class="p">(</span><span class="n">positionals</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">],</span> <span class="n">can_pop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">available</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">req_mod</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">can_pop</span><span class="p">:</span>
         <span class="k">return</span> <span class="mi">0</span>
 
@@ -1420,7 +1420,7 @@
 
 <div class="viewcode-block" id="get_opt_prefix">
 <a class="viewcode-back" href="../../api/cli_command_parser.parser.html#cli_command_parser.parser.get_opt_prefix">[docs]</a>
-<span class="k">def</span> <span class="nf">get_opt_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_opt_prefix</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span> <span class="ow">or</span> <span class="n">text</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -1439,7 +1439,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

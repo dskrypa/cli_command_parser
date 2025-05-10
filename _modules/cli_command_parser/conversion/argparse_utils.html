@@ -6,7 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.conversion.argparse_utils &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
@@ -995,17 +995,17 @@
 <span class="sd">Typing helpers to make it easier to use Signature.from_callable for automatic conversion of positional to keyword args.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">ArgumentParser</span> <span class="k">as</span> <span class="n">_ArgumentParser</span><span class="p">,</span> <span class="n">_SubParsersAction</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">argparse</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArgumentParser</span> <span class="k">as</span> <span class="n">_ArgumentParser</span><span class="p">,</span> <span class="n">_SubParsersAction</span>  <span class="c1"># noqa</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ArgumentParser&#39;</span><span class="p">,</span> <span class="s1">&#39;SubParsersAction&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ArgumentParser">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser">[docs]</a>
-<span class="k">class</span> <span class="nc">ArgumentParser</span><span class="p">(</span><span class="n">_ArgumentParser</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ArgumentParser</span><span class="p">(</span><span class="n">_ArgumentParser</span><span class="p">):</span>
 <div class="viewcode-block" id="ArgumentParser.add_argument_group">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser.add_argument_group">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_argument_group</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_argument_group</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">prefix_chars</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">argument_default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conflict_handler</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;self&#39;</span><span class="p">,</span> <span class="s1">&#39;__class__&#39;</span><span class="p">}</span> <span class="ow">and</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
@@ -1014,14 +1014,14 @@
 
 <div class="viewcode-block" id="ArgumentParser.add_mutually_exclusive_group">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser.add_mutually_exclusive_group">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_mutually_exclusive_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_mutually_exclusive_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_mutually_exclusive_group</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">)</span></div>
 
 
     <span class="c1"># fmt: off</span>
 <div class="viewcode-block" id="ArgumentParser.add_subparsers">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.ArgumentParser.add_subparsers">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_subparsers</span><span class="p">(</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_subparsers</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">action</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">option_string</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1034,10 +1034,10 @@
 
 <div class="viewcode-block" id="SubParsersAction">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.SubParsersAction">[docs]</a>
-<span class="k">class</span> <span class="nc">SubParsersAction</span><span class="p">(</span><span class="n">_SubParsersAction</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SubParsersAction</span><span class="p">(</span><span class="n">_SubParsersAction</span><span class="p">):</span>
 <div class="viewcode-block" id="SubParsersAction.add_parser">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.argparse_utils.html#cli_command_parser.conversion.argparse_utils.SubParsersAction.add_parser">[docs]</a>
-    <span class="k">def</span> <span class="nf">add_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(),</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_parser</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="p">(),</span> <span class="n">description</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">aliases</span><span class="o">=</span><span class="n">aliases</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span> <span class="n">prog</span><span class="o">=</span><span class="n">prog</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">)</span></div>
 </div>
 
@@ -1050,7 +1050,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

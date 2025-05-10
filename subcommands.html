@@ -7,7 +7,7 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subcommands &mdash; CLI Command Parser 2024.12.15 documentation</title>
-      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/sphinx_paramlinks.css" />
 
@@ -1049,15 +1049,15 @@ provided via <code class="docutils literal notranslate"><span class="pre">choice
 </dd>
 </dl>
 <p>Given the following overly-simplistic <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/basic_subcommand.py">basic example</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1087,41 +1087,41 @@ bar
 <h2>Nested Subcommands<a class="headerlink" href="#nested-subcommands" title="Link to this heading"></a></h2>
 <p>Using the example script that is a <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/rest_api_wrapper.py">fake wrapper around a hypothetical REST API</a>,
 we can see an example of two levels of subcommands, and another way that we can take advantage of inheritance:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ApiWrapper</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;The command to run&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Common&#39;</span><span class="p">):</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
         <span class="n">env</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-e&#39;</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;dev&#39;</span><span class="p">,</span> <span class="s1">&#39;qa&#39;</span><span class="p">,</span> <span class="s1">&#39;uat&#39;</span><span class="p">,</span> <span class="s1">&#39;prod&#39;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;prod&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Environment to connect to&#39;</span><span class="p">)</span>
     <span class="o">...</span>
 
-<span class="k">class</span> <span class="nc">Show</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show an object&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Show</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show an object&#39;</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="c1"># region Find subcommands</span>
 
-<span class="k">class</span> <span class="nc">Find</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find objects&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Find</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find objects&#39;</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What to find&#39;</span><span class="p">)</span>
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of results to show&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_objects</span><span class="p">():</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
-<span class="k">class</span> <span class="nc">FindFoo</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find foo objects&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FindFoo</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find foo objects&#39;</span><span class="p">):</span>
     <span class="n">query</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find foo objects that match the specified query&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Would have run query=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="si">!r}</span><span class="s1"> in env=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="si">}</span><span class="s1">, returning fake results&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">]</span>
 
-<span class="k">class</span> <span class="nc">FindBar</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find bar objects&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FindBar</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find bar objects&#39;</span><span class="p">):</span>
     <span class="n">pattern</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Pattern to find&#39;</span><span class="p">)</span>
     <span class="n">show_all</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--all&#39;</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Show all (default: only even)&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="nb">chr</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">97</span><span class="p">,</span> <span class="mi">123</span><span class="p">)}</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">:</span>
             <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">even</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">even</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">even</span><span class="p">}</span>
@@ -1129,7 +1129,7 @@ we can see an example of two levels of subcommands, and another way that we can 
             <span class="n">objects</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">even</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">even</span> <span class="ow">in</span> <span class="n">objects</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">fnmatch</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">)}</span>
         <span class="k">return</span> <span class="n">objects</span>
 
-<span class="k">class</span> <span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;bazs&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FindBaz</span><span class="p">(</span><span class="n">Find</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;bazs&#39;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find baz objects&#39;</span><span class="p">):</span>
     <span class="o">...</span>
 
 <span class="c1"># endregion</span>
@@ -1180,11 +1180,11 @@ have each subcommand define the method that is called by <code class="docutils l
 <p>While subcommands will be automatically registered with their parent class as long as the parent class has a
 <a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a> parameter, it is also possible to have more control over that process.</p>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/advanced_subcommand.py">Example commands</a>:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
     <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">log_fmt</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%(asctime)s</span><span class="s1"> </span><span class="si">%(levelname)s</span><span class="s1"> </span><span class="si">%(name)s</span><span class="s1"> </span><span class="si">%(lineno)d</span><span class="s1"> </span><span class="si">%(message)s</span><span class="s1">&#39;</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1194,22 +1194,22 @@ have each subcommand define the method that is called by <code class="docutils l
         <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">log_fmt</span><span class="p">)</span>
 
 <span class="nd">@Base</span><span class="o">.</span><span class="n">sub_cmd</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="s1">&#39;run foo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Run foo&#39;</span><span class="p">)</span>  <span class="c1"># Aliases can have their own help text</span>
-<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print foo&#39;</span><span class="p">):</span>
     <span class="c1"># This is registered with both ``run foo`` and ``foo`` as names for this command - both can be used</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;foo&#39;</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[foo] this is a debug log&#39;</span><span class="p">)</span>
 
-<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;run bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s1">&#39;run bar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print bar&#39;</span><span class="p">):</span>
     <span class="c1"># This is registered with ``run bar`` as the name for this command instead of ``bar``</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[bar] this is a debug log&#39;</span><span class="p">)</span>
 
 <span class="nd">@Base</span><span class="o">.</span><span class="n">sub_cmd</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print baz&#39;</span><span class="p">)</span>
-<span class="k">class</span> <span class="nc">Baz</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Baz</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="c1"># This is registered as a subcommand of Base, named ``baz``, but it does not share parameters with Base</span>
-    <span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;baz&#39;</span><span class="p">)</span>
         <span class="c1"># The next line will never appear in output because Base.__init__ will not be called for this subcommand</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s1">&#39;[baz] this is a debug log&#39;</span><span class="p">)</span>
@@ -1294,20 +1294,20 @@ Parameter that should be used to register the similar subcommands) that also ext
 the common Parameters.</p>
 <p>A <a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/complex/shared_params.py">full example</a> is available in the examples directory, but the basic
 pattern is the same as the following simplified example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
-<span class="kn">from</span> <span class="nn">cli_command_parser</span> <span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">Option</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">SubCommand</span><span class="p">,</span> <span class="n">Option</span>
 
-<span class="k">class</span> <span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Base</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Common</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Common</span><span class="p">(</span><span class="n">Base</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="n">a</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
     <span class="n">b</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Foo</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Foo</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
 
-<span class="k">class</span> <span class="nc">Bar</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bar</span><span class="p">(</span><span class="n">Common</span><span class="p">):</span>
     <span class="n">d</span> <span class="o">=</span> <span class="n">Option</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1332,7 +1332,7 @@ won’t be shown in help text, and it will not be selectable during parsing).</p
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, Doug Skrypa.</p>
+    <p>&#169; Copyright 2025, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
