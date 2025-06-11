@@ -56,6 +56,9 @@ class ParamHelpFormatter:
     def __init__(self, param: ParamOrGroup):
         self.param = param
 
+    def __getnewargs__(self):
+        return (self.param,)
+
     def maybe_wrap_usage(self, text: str) -> str:
         """
         Wraps the provided text in parentheses / brackets / etc based on whether the associated Parameter is required,

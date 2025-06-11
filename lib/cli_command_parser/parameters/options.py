@@ -410,6 +410,15 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         # Note: If func is None, then CommandParameters._process_action_flags raises ParameterDefinitionError
         return partial(self.func, command)  # imitates a bound method
 
+    def __reduce__(self):
+        # When a string is returned, it is treated as the name of a global variable.  Since this class acts as a
+        # decorator that replaces the decorated method, this approach is necessary to prevent the following kind of
+        # PicklingError: Can't pickle <function help_action ...>: it's not the same object as ...options.help_action
+        if self._func is not None:
+            return self.__qualname__
+        else:  # This is not generally expected
+            return super().__reduce__()
+
 
 #: Alias for :class:`ActionFlag`
 action_flag = ActionFlag  # pylint: disable=C0103
