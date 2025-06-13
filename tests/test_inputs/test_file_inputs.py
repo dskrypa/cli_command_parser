@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import ContextManager
+from typing import Iterator
 from unittest import TestCase, main
 from unittest.mock import Mock, PropertyMock, call, patch
 
@@ -36,7 +36,7 @@ def temp_chdir(path: Path):
 
 
 @contextmanager
-def temp_path(file: str = None, touch: bool = False) -> ContextManager[Path]:
+def temp_path(file: str = None, touch: bool = False) -> Iterator[Path]:
     with TemporaryDirectory() as tmp_dir:
         d = Path(tmp_dir)
         if file:

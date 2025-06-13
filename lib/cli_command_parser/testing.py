@@ -13,7 +13,7 @@ from difflib import unified_diff
 from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import IO, TYPE_CHECKING, Any, Callable, ContextManager, Dict, Iterable, List, Tuple, Type, Union
+from typing import IO, TYPE_CHECKING, Any, Callable, Iterable, Iterator, Type, Union
 from unittest import TestCase
 from unittest.mock import Mock, patch, seal
 
@@ -39,16 +39,16 @@ __all__ = [
     'TemporaryDir',
 ]
 
-Argv = List[str]
-Expected = Dict[str, Any]
-Kwargs = Dict[str, Any]
-Env = Dict[str, str]
-Case = Tuple[Argv, Expected]
-EnvCase = Tuple[Argv, Env, Expected]
+Argv = list[str]
+Expected = dict[str, Any]
+Kwargs = dict[str, Any]
+Env = dict[str, str]
+Case = tuple[Argv, Expected]
+EnvCase = tuple[Argv, Env, Expected]
 ExcType = Type[Exception]
-ExceptionCase = Union[Argv, Tuple[Argv, ExcType], Tuple[Argv, ExcType, str]]
+ExceptionCase = Union[Argv, tuple[Argv, ExcType], tuple[Argv, ExcType, str]]
 ExcCases = Iterable[ExceptionCase]
-CallExceptionCase = Union[Tuple[Kwargs, ExcType], Tuple[Kwargs, ExcType, str]]
+CallExceptionCase = Union[tuple[Kwargs, ExcType], tuple[Kwargs, ExcType, str]]
 CallExceptionCases = Iterable[CallExceptionCase]
 
 OPT_ENV_MOD = 'cli_command_parser.parser.environ'
@@ -344,7 +344,7 @@ def sealed_mock(*args, **kwargs):
 
 
 @contextmanager
-def load_command(directory: Path, name: str, cmd_name: str, **kwargs) -> ContextManager[CommandCls]:
+def load_command(directory: Path, name: str, cmd_name: str, **kwargs) -> Iterator[CommandCls]:
     path = directory.joinpath(name)
     with Context.for_prog(path, **kwargs):
         yield load_commands(path)[cmd_name]
