@@ -8,11 +8,11 @@ repos:
         args: ['check', '--fix', '--no-cache']
         language: system
         types: [python]
-        stages: [commit]
+        stages: [pre-commit]
       - id: ruff-format
         name: ruff-format
         entry: ruff
         args: ['format', '--no-cache']
         language: system
         types: [python]
-        stages: [commit]
+        stages: [pre-commit]
