@@ -5,7 +5,7 @@ from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import UsageError
-from cli_command_parser.inputs.choices import Choices, ChoiceMap, EnumChoices
+from cli_command_parser.inputs.choices import ChoiceMap, Choices, EnumChoices
 from cli_command_parser.inputs.exceptions import InvalidChoiceError
 from cli_command_parser.testing import ParserTest, get_help_text
 

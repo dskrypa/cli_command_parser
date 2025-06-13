@@ -6,7 +6,7 @@ from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import ParameterDefinitionError
-from cli_command_parser.inputs import Regex, RegexMode, Glob, InputValidationError
+from cli_command_parser.inputs import Glob, InputValidationError, Regex, RegexMode
 from cli_command_parser.testing import ParserTest
 
 PAT = re.compile('foo')

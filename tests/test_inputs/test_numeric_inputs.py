@@ -3,8 +3,8 @@
 from unittest import main
 
 from cli_command_parser import Command, Option
-from cli_command_parser.exceptions import ParameterDefinitionError, BadArgument
-from cli_command_parser.inputs import Range, NumRange, InputValidationError
+from cli_command_parser.exceptions import BadArgument, ParameterDefinitionError
+from cli_command_parser.inputs import InputValidationError, NumRange, Range
 from cli_command_parser.testing import ParserTest
 
 
