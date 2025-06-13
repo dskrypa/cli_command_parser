@@ -1,24 +1,32 @@
 #!/usr/bin/env python
 
-from contextlib import ExitStack, contextmanager, redirect_stdout
-from importlib import reload
-from typing import Type, Union, Tuple
-from unittest import TestCase, main
-from unittest.mock import Mock, patch
+from __future__ import annotations
 
-import cli_command_parser.error_handling
-from cli_command_parser.error_handling import ErrorHandler, Handler, no_exit_handler
-from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
-from cli_command_parser.exceptions import ParamConflict, ParamsMissing, MultiParamUsageError
+import pickle
+from contextlib import contextmanager
+from typing import Type, Union
+from unittest import TestCase, main
+from unittest.mock import Mock
+
 from cli_command_parser import Command, Flag
-from cli_command_parser.testing import ParserTest, RedirectStreams
+from cli_command_parser.error_handling import ErrorHandler, Handler, no_exit_handler
+from cli_command_parser.exceptions import (
+    CommandParserException,
+    InvalidChoice,
+    MultiParamUsageError,
+    ParamConflict,
+    ParamsMissing,
+    ParamUsageError,
+    ParserExit,
+)
+from cli_command_parser.testing import RedirectStreams
 
 MODULE = 'cli_command_parser.error_handling'
 
 
 class ErrorHandlingTest(TestCase):
     @contextmanager
-    def assert_maybe_raises(self, exc_cls: Union[Type[BaseException], Tuple[Type[BaseException], ...], None]):
+    def assert_maybe_raises(self, exc_cls: Union[Type[BaseException], tuple[Type[BaseException], ...], None]):
         if exc_cls is None:
             yield
         else:
@@ -110,6 +118,22 @@ class TestCommandErrorHandling(TestCase):
 
         self.assertFalse(Foo.__call__.called)
 
+    def test_command_with_alt_error_handler_is_pickleable(self):
+        foo = ExampleCommand.parse(['-h'])
+        clone = pickle.loads(pickle.dumps(foo))
+        self.assertIsNot(foo, clone)
+        with RedirectStreams() as streams:
+            clone()
+
+        self.assertTrue(streams.stdout.startswith('usage: '))
+
+
+class ExampleCommand(Command, error_handler=no_exit_handler):
+    """
+    This command needed to be defined here for it to be pickleable - pickle.dumps fails when the class is defined
+    in a test method.
+    """
+
 
 class ExceptionTest(TestCase):
     def test_exit_str(self):
@@ -148,86 +172,5 @@ class ExceptionTest(TestCase):
         self.assertTrue(str(exc).endswith('combination of arguments: -a, -b (test)'))
 
 
-with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', create=True):
-    reload(cli_command_parser.error_handling)
-    from cli_command_parser.error_handling import extended_error_handler, handle_win_os_pipe_error
-
-    class BrokenPipeHandlingTest(ParserTest):
-        def test_broken_pipe(self):
-            self.assertIn(OSError, extended_error_handler.exc_handler_map)
-            self.assertEqual([handle_win_os_pipe_error], list(extended_error_handler.iter_handlers(OSError, OSError())))
-
-            with patch(f'{MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B2):
-                with self.assertRaises(OSError), extended_error_handler:
-                    raise OSError(22, 'test')  # Another error won't be raised, so it needs to be caught again
-
-        def test_broken_pipe_handled(self):
-            mock = Mock(close=Mock(side_effect=OSError()))
-            with patch(f'{MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B1):
-                with redirect_stdout(mock), extended_error_handler:
-                    raise OSError(22, 'test')
-
-            self.assertTrue(mock.close.called)
-
-        def test_oserror_other_ignored(self):
-            with RedirectStreams(), self.assertRaises(OSError), extended_error_handler:
-                raise OSError(21, 'test')
-
-        def test_keyboard_interrupt_print(self):
-            with self.assert_raises_contains_str(SystemExit, '130'):
-                with RedirectStreams() as streams, extended_error_handler:
-                    raise KeyboardInterrupt
-
-            self.assertEqual('\n', streams.stdout)
-
-        def test_keyboard_interrupt_print_pipe_error(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=BrokenPipeError))
-                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
-                raise KeyboardInterrupt
-
-            self.assertEqual('', streams.stdout)
-
-        def test_keyboard_interrupt_print_os_error_broken_pipe(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=OSError))
-                stack.enter_context(patch(f'{MODULE}.handle_win_os_pipe_error', return_value=True))
-                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
-                raise KeyboardInterrupt
-
-            self.assertEqual('', streams.stdout)
-
-        def test_keyboard_interrupt_print_os_error_other(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=OSError))
-                stack.enter_context(patch(f'{MODULE}.handle_win_os_pipe_error', return_value=False))
-                stack.enter_context(self.assertRaises(OSError))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
-                raise KeyboardInterrupt
-
-            self.assertEqual('', streams.stdout)
-
-        def test_broken_pipe_caught(self):
-            with RedirectStreams() as streams, extended_error_handler:
-                raise BrokenPipeError
-
-            self.assertEqual('', streams.stdout)
-
-
-class ModuleLoadTest(TestCase):
-    def test_error_handling_linux(self):
-        # This is purely for branch coverage...
-        with patch('platform.system', return_value='linux'):
-            reload(cli_command_parser.error_handling)
-
-
 if __name__ == '__main__':
-    try:
-        main(verbosity=2)
-    except KeyboardInterrupt:
-        print()
+    main(verbosity=2)

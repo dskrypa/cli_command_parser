@@ -2,10 +2,17 @@
 
 from unittest import main
 
-from cli_command_parser import Command, CommandConfig, Option, Flag, SubCommand, Positional
+from cli_command_parser import Command, CommandConfig, Flag, Option, Positional, SubCommand
+from cli_command_parser.context import (
+    ActionPhase,
+    Context,
+    ctx,
+    get_context,
+    get_current_context,
+    get_parsed,
+    get_raw_arg,
+)
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.context import Context, ActionPhase, ctx, get_current_context
-from cli_command_parser.context import get_context, get_parsed, get_raw_arg
 from cli_command_parser.error_handling import extended_error_handler
 from cli_command_parser.testing import ParserTest
 
