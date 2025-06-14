@@ -4,7 +4,7 @@ from abc import ABC
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, main as cmd_main, SubCommand
+from cli_command_parser import Command, SubCommand, main as cmd_main
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.testing import ParserTest
 

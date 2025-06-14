@@ -112,6 +112,18 @@ class DTFormatMode(MissingMixin, Enum):
 
 
 class CalendarUnitInput(DTInput[Union[str, int]], ABC):
+    """
+    Input type representing a date/time unit.
+
+    :param full: Allow the full unit name to be provided
+    :param abbreviation: Allow abbreviations of unit names to be provided
+    :param numeric: Allow unit values to be specified as a decimal number
+    :param locale: An alternate locale to use when parsing input
+    :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
+    :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
     _formats: dict[DTFormatMode, Sequence[Union[str, int]]]
     _min_index: int = 0
@@ -131,17 +143,6 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         out_locale: Locale = None,
         fix_default: Bool = True,
     ):
-        """
-        Input type representing a date/time unit.
-
-        :param full: Allow the full unit name to be provided
-        :param abbreviation: Allow abbreviations of unit names to be provided
-        :param numeric: Allow unit values to be specified as a decimal number
-        :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
-        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
         if not (full or abbreviation or numeric):
             raise ValueError('At least one of full, abbreviation, or numeric must be True')
         super().__init__(locale=locale, fix_default=fix_default)
@@ -224,6 +225,20 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
 
 
 class Day(CalendarUnitInput, dt_type='day of the week'):
+    """
+    Input type representing a day of the week.
+
+    :param full: Allow the full day name to be provided
+    :param abbreviation: Allow abbreviations of day names to be provided
+    :param numeric: Allow weekdays to be specified as a decimal number
+    :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
+      where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.
+    :param locale: An alternate locale to use when parsing input
+    :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
+    :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     __slots__ = ('iso',)
     _formats = {
         DTFormatMode.FULL: day_name,
@@ -244,21 +259,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
         fix_default: Bool = True,
-    ):
-        """
-        Input type representing a day of the week.
-
-        :param full: Allow the full day name to be provided
-        :param abbreviation: Allow abbreviations of day names to be provided
-        :param numeric: Allow weekdays to be specified as a decimal number
-        :param iso: Ignored if ``numeric`` is False.  If True, then numeric weekdays are treated as ISO 8601 weekdays,
-          where 1 is Monday and 7 is Sunday.  If False, then 0 is Monday and 6 is Sunday.
-        :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full weekday name.
-        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
-        ...
+    ): ...
 
     def __init__(self, *, iso: Bool = False, **kwargs):
         super().__init__(**kwargs)
@@ -283,6 +284,18 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
 
 
 class Month(CalendarUnitInput, dt_type='month', min_index=1):
+    """
+    Input type representing a month.
+
+    :param full: Allow the full month name to be provided
+    :param abbreviation: Allow abbreviations of month names to be provided
+    :param numeric: Allow months to be specified as a decimal number
+    :param locale: An alternate locale to use when parsing input
+    :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.
+    :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     __slots__ = ()
     _formats = {
         DTFormatMode.FULL: month_name,
@@ -301,19 +314,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
         out_locale: Locale = None,
         fix_default: Bool = True,
-    ):
-        """
-        Input type representing a month.
-
-        :param full: Allow the full month name to be provided
-        :param abbreviation: Allow abbreviations of month names to be provided
-        :param numeric: Allow months to be specified as a decimal number
-        :param locale: An alternate locale to use when parsing input
-        :param out_format: A :class:`DTFormatMode` or str that matches a format mode.  Defaults to full month name.
-        :param out_locale: Alternate locale to use for output.  Defaults to the same value as ``locale``.
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
-        ...
+    ): ...
 
     def __init__(self, *, numeric: Bool = True, **kwargs):
         super().__init__(numeric=numeric, **kwargs)
@@ -403,6 +404,7 @@ class DateTimeInput(DTInput[DT], ABC):
     _type: Type[DT]
     _earliest: TimeBound = None
     _latest: TimeBound = None
+    # TODO: Add usage examples to the more user-friendly docs
 
     def __init_subclass__(cls, type: Type[DT], **kwargs):  # noqa
         super().__init_subclass__(dt_type=type.__name__, **kwargs)
@@ -501,6 +503,18 @@ class DateTimeInput(DTInput[DT], ABC):
 
 
 class DateTime(DateTimeInput[datetime], type=datetime):
+    """
+    Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+    a :class:`python:datetime.datetime` object.
+
+    :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+      :data:`DEFAULT_DT_FMT`.
+    :param locale: An alternate locale to use when parsing input
+    :param earliest: If specified, the parsed value must be later than or equal to this
+    :param latest: If specified, the parsed value must be earlier than or equal to this
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     def __init__(
         self,
         *formats: str,
@@ -509,23 +523,24 @@ class DateTime(DateTimeInput[datetime], type=datetime):
         latest: TimeBound = None,
         fix_default: Bool = True,
     ):
-        """
-        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
-        a :class:`python:datetime.datetime` object.
-
-        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
-          :data:`DEFAULT_DT_FMT`.
-        :param locale: An alternate locale to use when parsing input
-        :param earliest: If specified, the parsed value must be later than or equal to this
-        :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
         super().__init__(
             formats or (DEFAULT_DT_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
         )
 
 
 class Date(DateTimeInput[date], type=date):
+    """
+    Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+    a :class:`python:datetime.date` object.
+
+    :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+      :data:`DEFAULT_DT_FMT`.
+    :param locale: An alternate locale to use when parsing input
+    :param earliest: If specified, the parsed value must be later than or equal to this
+    :param latest: If specified, the parsed value must be earlier than or equal to this
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     def __init__(
         self,
         *formats: str,
@@ -534,23 +549,24 @@ class Date(DateTimeInput[date], type=date):
         latest: TimeBound = None,
         fix_default: Bool = True,
     ):
-        """
-        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
-        a :class:`python:datetime.date` object.
-
-        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
-          :data:`DEFAULT_DT_FMT`.
-        :param locale: An alternate locale to use when parsing input
-        :param earliest: If specified, the parsed value must be later than or equal to this
-        :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
         super().__init__(
             formats or (DEFAULT_DATE_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
         )
 
 
 class Time(DateTimeInput[time], type=time):
+    """
+    Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
+    a :class:`python:datetime.time` object.
+
+    :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
+      :data:`DEFAULT_DT_FMT`.
+    :param locale: An alternate locale to use when parsing input
+    :param earliest: If specified, the parsed value must be later than or equal to this
+    :param latest: If specified, the parsed value must be earlier than or equal to this
+    :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
+    """
+
     def __init__(
         self,
         *formats: str,
@@ -559,17 +575,6 @@ class Time(DateTimeInput[time], type=time):
         latest: TimeBound = None,
         fix_default: Bool = True,
     ):
-        """
-        Input type that accepts any number of datetime format strings for parsing input.  Parsing results in returning
-        a :class:`python:datetime.time` object.
-
-        :param formats: One or more :ref:`datetime format strings <python:strftime-strptime-behavior>`.  Defaults to
-          :data:`DEFAULT_DT_FMT`.
-        :param locale: An alternate locale to use when parsing input
-        :param earliest: If specified, the parsed value must be later than or equal to this
-        :param latest: If specified, the parsed value must be earlier than or equal to this
-        :param fix_default: Whether default values should be normalized using :meth:`~DTInput.fix_default`.
-        """
         super().__init__(
             formats or (DEFAULT_TIME_FMT,), locale=locale, earliest=earliest, latest=latest, fix_default=fix_default
         )

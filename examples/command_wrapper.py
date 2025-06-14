@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from cli_command_parser import Command, Positional, PassThru, main
+from cli_command_parser import Command, PassThru, Positional, main
 
 
 class Wrapper(Command):

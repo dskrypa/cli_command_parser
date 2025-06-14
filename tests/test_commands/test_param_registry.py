@@ -8,10 +8,10 @@ from cli_command_parser import Command
 from cli_command_parser.core import CommandMeta, get_params
 from cli_command_parser.exceptions import CommandDefinitionError, NoSuchOption
 from cli_command_parser.nargs import Nargs
-from cli_command_parser.parameters import Action, SubCommand, Positional, Counter, Flag, Option
+from cli_command_parser.parameters import Action, Counter, Flag, Option, Positional, SubCommand
 from cli_command_parser.parameters.actions import Store
 from cli_command_parser.parameters.base import Parameter
-from cli_command_parser.testing import RedirectStreams, ParserTest
+from cli_command_parser.testing import ParserTest, RedirectStreams
 
 
 class TestParamRegistry(ParserTest):

@@ -2,16 +2,23 @@
 
 import sys
 from abc import ABC
+from inspect import getfile
 from pathlib import Path
 from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.config import OptionNameMode
 from cli_command_parser.core import get_config
+from cli_command_parser.documentation import (
+    _module_name,
+    _render_commands_rst,
+    filtered_commands,
+    import_module,
+    load_commands,
+    top_level_commands,
+)
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.typing import CommandCls
-from cli_command_parser.documentation import top_level_commands, _render_commands_rst, import_module, load_commands
-from cli_command_parser.documentation import filtered_commands
 
 THIS_FILE = Path(__file__).resolve()
 TEST_DATA_DIR = THIS_FILE.parents[1].joinpath('data')
@@ -80,6 +87,15 @@ class DocumentationUtilsTest(ParserTest):
         self.assertEqual(['--a-b'], Foo.a_b.option_strs.display_long)
         self.assertEqual(['--a-c'], Foo.a_c.option_strs.display_long_primary)
         self.assertEqual(['--no-a-c'], Foo.a_c.option_strs.display_long_alt)
+
+    def test_module_name(self):
+        doc_module_path = Path(getfile(_module_name))
+        with self.subTest('module'):
+            self.assertEqual('cli_command_parser.documentation', _module_name(doc_module_path))
+
+        with self.subTest('package'):
+            params_pkg_path = doc_module_path.parent.joinpath('parameters', '__init__.py')
+            self.assertEqual('cli_command_parser.parameters', _module_name(params_pkg_path))
 
 
 if __name__ == '__main__':

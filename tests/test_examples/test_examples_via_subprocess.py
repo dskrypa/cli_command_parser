@@ -4,7 +4,7 @@ import sys
 from functools import reduce
 from operator import xor
 from pathlib import Path
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 from typing import Tuple
 from unittest import TestCase, TestSuite as _TestSuite, main
 

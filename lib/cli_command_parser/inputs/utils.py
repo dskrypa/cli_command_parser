@@ -11,7 +11,7 @@ import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S_IFSOCK
-from typing import TYPE_CHECKING, Any, BinaryIO, ContextManager, TextIO, Union
+from typing import TYPE_CHECKING, Any, BinaryIO, Iterator, TextIO, Union
 from weakref import finalize
 
 from ..utils import FixedFlag
@@ -169,7 +169,7 @@ class FileWrapper:
             self._close()
 
     @contextmanager
-    def _file(self) -> ContextManager[FP]:
+    def _file(self) -> Iterator[FP]:
         try:
             yield self._open()
         finally:

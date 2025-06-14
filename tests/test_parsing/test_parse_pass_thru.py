@@ -2,7 +2,7 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Positional, SubCommand, PassThru, NoSuchOption, ParamsMissing
+from cli_command_parser import Command, NoSuchOption, ParamsMissing, PassThru, Positional, SubCommand
 from cli_command_parser.testing import ParserTest
 
 

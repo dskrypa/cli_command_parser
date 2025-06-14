@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from cli_command_parser import Command, main, ParamGroup, before_main, after_main
+from cli_command_parser import Command, ParamGroup, after_main, before_main, main
 
 
 class GroupedFlags(Command, show_group_tree=True):

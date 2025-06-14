@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, ContextManager, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Sequence
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
@@ -467,10 +467,12 @@ usage: foo_bar.py [--abcdef ABCDEF]
         class Foo(Command, strict_usage_column_width=True):
             bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR', help='The bar to baz or the foo to bar and baz')
 
+        # fmt: off
         expected = (
             '\n  --bar BAR_BAR_BAR_BAR_BAR,  The bar to baz or the'
             '\n    -b BAR_BAR_BAR_BAR_BAR    foo to bar and baz\n'
         )
+        # fmt: on
         self.assert_str_contains(expected, get_help_text(Foo, terminal_width=52))
 
 
@@ -484,7 +486,7 @@ class SubcommandHelpAndRstTest(ParserTest):
         cmd_mode: str = None,
         sc_kwargs: dict[str, Any] = None,
         cmd_kwargs: dict[str, Any] = None,
-    ) -> ContextManager[CommandCls]:
+    ) -> Iterator[CommandCls]:
         if not cmd_kwargs:
             cmd_kwargs = {}
         if cmd_mode:

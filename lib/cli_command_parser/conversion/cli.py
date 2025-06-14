@@ -4,7 +4,7 @@ import logging
 from functools import cached_property
 from pathlib import Path
 
-from cli_command_parser import Command, Counter, Positional, Flag, ParamGroup, SubCommand, main
+from cli_command_parser import Command, Counter, Flag, ParamGroup, Positional, SubCommand, main
 from cli_command_parser.inputs import Path as IPath
 
 log = logging.getLogger(__name__)

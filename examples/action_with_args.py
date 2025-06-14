@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from cli_command_parser import Command, Action, Positional, main
+from cli_command_parser import Action, Command, Positional, main
 
 
 class Example(Command):

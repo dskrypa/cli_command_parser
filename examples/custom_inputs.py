@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from cli_command_parser import Command, Option, ParamGroup, main
-from cli_command_parser.inputs import Range, NumRange, File, Path, Json, FileWrapper
+from cli_command_parser.inputs import File, FileWrapper, Json, NumRange, Path, Range
 
 
 class InputsExample(Command):

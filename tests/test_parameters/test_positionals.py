@@ -2,8 +2,8 @@
 
 from unittest import main
 
-from cli_command_parser import Command, ParamGroup, SubCommand, Positional, Context
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError, UsageError, TooManyArguments
+from cli_command_parser import Command, Context, ParamGroup, Positional, SubCommand
+from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, TooManyArguments, UsageError
 from cli_command_parser.testing import ParserTest
 from cli_command_parser.utils import _NotSet
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
+import pickle
 from itertools import count
 from unittest import main
 from unittest.mock import Mock, seal
 
-from cli_command_parser import Command, Action, no_exit_handler, ActionFlag, ParamGroup
-from cli_command_parser.context import Context
-from cli_command_parser.parameters import before_main, after_main, action_flag, help_action
-from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError, ParamConflict
+from cli_command_parser import Action, ActionFlag, Command, ParamGroup, no_exit_handler
+from cli_command_parser.exceptions import CommandDefinitionError, ParamConflict, ParameterDefinitionError
+from cli_command_parser.parameters import action_flag, after_main, before_main, help_action
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 
@@ -281,6 +281,51 @@ class ActionFlagTest(ParserTest):
         expected = "invalid parameters: {(True, 2): ActionFlag('bar',"
         with self.assert_raises_contains_str(CommandDefinitionError, expected):
             Foo.parse([])
+
+
+class ActionFlagPickleTest(ParserTest):
+    def test_pickleability_help(self):
+        foo = ExampleCommand.parse(['-h'])
+        self.assertEqual(foo.test_attr, 0)
+        clone = pickle.loads(pickle.dumps(foo))
+        self.assertIsNot(foo, clone)
+        with self.assertRaises(SystemExit), RedirectStreams() as streams:
+            clone()
+
+        self.assertTrue(streams.stdout.startswith('usage: '))
+
+    def test_pickleability_no_args(self):
+        foo = ExampleCommand.parse([])
+        self.assertEqual(foo.test_attr, 0)
+        clone = pickle.loads(pickle.dumps(foo))
+        self.assertIsNot(foo, clone)
+        clone()
+        self.assertEqual(clone.test_attr, 0)
+
+    def test_pickleability_other(self):
+        foo = ExampleCommand.parse(['-a'])
+        self.assertEqual(foo.test_attr, 0)
+        clone = pickle.loads(pickle.dumps(foo))
+        self.assertIsNot(foo, clone)
+        clone()
+        self.assertEqual(clone.test_attr, 1)
+
+    def test_pickleability_no_func(self):
+        flag = ActionFlag('--test', '-t', order=1)
+        clone = pickle.loads(pickle.dumps(flag))
+        self.assertIsNot(flag, clone)
+
+
+class ExampleCommand(Command):
+    # This command needed to be defined here for it to be pickleable - pickle.dumps fails when the class is defined
+    # in a test method.
+
+    def __init__(self):
+        self.test_attr = 0
+
+    @before_main('-a')
+    def action_a(self):
+        self.test_attr += 1
 
 
 if __name__ == '__main__':

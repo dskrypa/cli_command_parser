@@ -5,8 +5,8 @@ from unittest import main
 
 from cli_command_parser import Command, Context, ParameterDefinitionError
 from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import UsageError, CommandDefinitionError, ParamsMissing, ParamConflict
-from cli_command_parser.parameters import ParamGroup, Flag, Positional, PassThru, SubCommand, Action, Option
+from cli_command_parser.exceptions import CommandDefinitionError, ParamConflict, ParamsMissing, UsageError
+from cli_command_parser.parameters import Action, Flag, Option, ParamGroup, PassThru, Positional, SubCommand
 from cli_command_parser.testing import ParserTest
 
 MEMBER_REQ_PREFIX = 'at least one of the following arguments are required'

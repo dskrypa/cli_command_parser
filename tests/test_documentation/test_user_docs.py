@@ -3,11 +3,11 @@
 import re
 from inspect import Signature
 from pathlib import Path
-from typing import Collection, Callable, Dict, Set
+from typing import Callable, Collection, Dict, Set
 from unittest import TestCase, main
 
-from cli_command_parser.core import CommandMeta
 from cli_command_parser.config import CommandConfig
+from cli_command_parser.core import CommandMeta
 
 DOCS_SRC = Path(__file__).resolve().parents[2].joinpath('docs', '_src')
 

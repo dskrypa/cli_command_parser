@@ -2,20 +2,20 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Context, ParameterDefinitionError, CommandDefinitionError
+from cli_command_parser import Command, CommandDefinitionError, Context, ParameterDefinitionError
 from cli_command_parser.config import CommandConfig
-from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument
+from cli_command_parser.exceptions import BadArgument, MissingArgument, ParamUsageError
 from cli_command_parser.formatting.params import (
-    ParamHelpFormatter,
-    PositionalHelpFormatter,
-    OptionHelpFormatter,
     ChoiceMapHelpFormatter,
-    PassThruHelpFormatter,
     GroupHelpFormatter,
+    OptionHelpFormatter,
+    ParamHelpFormatter,
+    PassThruHelpFormatter,
+    PositionalHelpFormatter,
 )
-from cli_command_parser.parameters import PassThru, Positional, ParamGroup, ActionFlag, Counter, Flag, Option
-from cli_command_parser.parameters.base import Parameter, BaseOption, BasePositional, AllowLeadingDashProperty
-from cli_command_parser.parameters.choice_map import ChoiceMap, SubCommand, Action
+from cli_command_parser.parameters import ActionFlag, Counter, Flag, Option, ParamGroup, PassThru, Positional
+from cli_command_parser.parameters.base import AllowLeadingDashProperty, BaseOption, BasePositional, Parameter
+from cli_command_parser.parameters.choice_map import Action, ChoiceMap, SubCommand
 from cli_command_parser.parser import CommandParser
 from cli_command_parser.testing import ParserTest, sealed_mock
 

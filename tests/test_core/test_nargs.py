@@ -2,7 +2,7 @@
 
 from unittest import TestCase, main
 
-from cli_command_parser.nargs import Nargs, REMAINDER, nargs_min_and_max_sums
+from cli_command_parser.nargs import REMAINDER, Nargs, nargs_min_and_max_sums
 
 
 class NargsTest(TestCase):

@@ -3,8 +3,8 @@
 from abc import ABC
 from unittest import main
 
-from cli_command_parser import Command, Positional, Option, Flag, SubCommand, CommandDefinitionError
-from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, UsageError, ParamUsageError
+from cli_command_parser import Command, CommandDefinitionError, Flag, Option, Positional, SubCommand
+from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, ParamUsageError, UsageError
 from cli_command_parser.testing import ParserTest
 
 FOO_BAR = ('foo', 'bar')

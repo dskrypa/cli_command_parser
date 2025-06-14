@@ -1,24 +1,47 @@
 #!/usr/bin/env python
 
-from contextlib import ExitStack, contextmanager, redirect_stdout
-from importlib import reload
-from typing import Type, Union, Tuple
+from __future__ import annotations
+
+import pickle
+from contextlib import contextmanager, redirect_stdout
+from typing import Type, Union
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-import cli_command_parser.error_handling
-from cli_command_parser.error_handling import ErrorHandler, Handler, no_exit_handler
-from cli_command_parser.exceptions import CommandParserException, ParserExit, ParamUsageError, InvalidChoice
-from cli_command_parser.exceptions import ParamConflict, ParamsMissing, MultiParamUsageError
 from cli_command_parser import Command, Flag
+from cli_command_parser.error_handling import (
+    ErrorHandler,
+    Handler,
+    error_handler,
+    extended_error_handler,
+    no_exit_handler,
+)
+from cli_command_parser.error_handling.other import handle_kb_interrupt as handle_other_kbi
+from cli_command_parser.exceptions import (
+    CommandParserException,
+    InvalidChoice,
+    MultiParamUsageError,
+    ParamConflict,
+    ParamsMissing,
+    ParamUsageError,
+    ParserExit,
+)
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
+with patch('ctypes.WinDLL', create=True):
+    from cli_command_parser.error_handling.windows import (
+        handle_kb_interrupt as handle_win_kbi,
+        handle_win_os_pipe_error,
+    )
+
 MODULE = 'cli_command_parser.error_handling'
+WIN_MODULE = 'cli_command_parser.error_handling.windows'
+OTHER_MODULE = 'cli_command_parser.error_handling.other'
 
 
 class ErrorHandlingTest(TestCase):
     @contextmanager
-    def assert_maybe_raises(self, exc_cls: Union[Type[BaseException], Tuple[Type[BaseException], ...], None]):
+    def assert_maybe_raises(self, exc_cls: Union[Type[BaseException], tuple[Type[BaseException], ...], None]):
         if exc_cls is None:
             yield
         else:
@@ -82,6 +105,16 @@ class ErrorHandlingTest(TestCase):
         self.assertEqual(a, b)
         self.assertNotEqual(a, c)
 
+    def test_broken_pipe_caught(self):
+        with RedirectStreams() as streams, error_handler:
+            raise BrokenPipeError
+
+        self.assertEqual('', streams.stdout)
+
+    def test_handlers_are_inherited(self):
+        self.assertNotIn(BrokenPipeError, ErrorHandler().exc_handler_map)
+        self.assertIn(BrokenPipeError, error_handler.copy().exc_handler_map)  # -> _handle_broken_pipe
+
 
 class TestCommandErrorHandling(TestCase):
     def test_no_error_handler_run(self):
@@ -109,6 +142,22 @@ class TestCommandErrorHandling(TestCase):
             Foo.parse_and_run(['-B'])
 
         self.assertFalse(Foo.__call__.called)
+
+    def test_command_with_alt_error_handler_is_pickleable(self):
+        foo = ExampleCommand.parse(['-h'])
+        clone = pickle.loads(pickle.dumps(foo))
+        self.assertIsNot(foo, clone)
+        with RedirectStreams() as streams:
+            clone()
+
+        self.assertTrue(streams.stdout.startswith('usage: '))
+
+
+class ExampleCommand(Command, error_handler=no_exit_handler):
+    """
+    This command needed to be defined here for it to be pickleable - pickle.dumps fails when the class is defined
+    in a test method.
+    """
 
 
 class ExceptionTest(TestCase):
@@ -148,86 +197,84 @@ class ExceptionTest(TestCase):
         self.assertTrue(str(exc).endswith('combination of arguments: -a, -b (test)'))
 
 
-with patch('platform.system', return_value='windows'), patch('ctypes.WinDLL', create=True):
-    reload(cli_command_parser.error_handling)
-    from cli_command_parser.error_handling import extended_error_handler, handle_win_os_pipe_error
+win_error_handler = extended_error_handler.copy()
+win_error_handler.register(handle_win_kbi, KeyboardInterrupt)
 
-    class BrokenPipeHandlingTest(ParserTest):
-        def test_broken_pipe(self):
-            self.assertIn(OSError, extended_error_handler.exc_handler_map)
-            self.assertEqual([handle_win_os_pipe_error], list(extended_error_handler.iter_handlers(OSError, OSError())))
 
-            with patch(f'{MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B2):
-                with self.assertRaises(OSError), extended_error_handler:
-                    raise OSError(22, 'test')  # Another error won't be raised, so it needs to be caught again
+class WindowsErrorHandlingTest(ParserTest):
+    def test_broken_pipe(self):
+        self.assertIn(OSError, win_error_handler.exc_handler_map)
+        self.assertEqual([handle_win_os_pipe_error], list(win_error_handler.iter_handlers(OSError, OSError())))
 
-        def test_broken_pipe_handled(self):
-            mock = Mock(close=Mock(side_effect=OSError()))
-            with patch(f'{MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B1):
-                with redirect_stdout(mock), extended_error_handler:
-                    raise OSError(22, 'test')
+        with patch(f'{WIN_MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B2):
+            with self.assertRaises(OSError), win_error_handler:
+                raise OSError(22, 'test')  # Another error won't be raised, so it needs to be caught again
 
-            self.assertTrue(mock.close.called)
+    def test_broken_pipe_handled(self):
+        mock = Mock(close=Mock(side_effect=OSError()))
+        with patch(f'{WIN_MODULE}.RtlGetLastNtStatus', return_value=0xC000_00B1):  # STATUS_PIPE_CLOSING
+            with redirect_stdout(mock), win_error_handler:
+                raise OSError(22, 'test')
 
-        def test_oserror_other_ignored(self):
-            with RedirectStreams(), self.assertRaises(OSError), extended_error_handler:
-                raise OSError(21, 'test')
+        self.assertTrue(mock.close.called)
 
-        def test_keyboard_interrupt_print(self):
+    def test_oserror_other_ignored(self):
+        with RedirectStreams(), self.assertRaises(OSError), win_error_handler:
+            raise OSError(21, 'test')
+
+    def test_keyboard_interrupt_print(self):
+        with self.assert_raises_contains_str(SystemExit, '130'):
+            with RedirectStreams() as streams, win_error_handler:
+                raise KeyboardInterrupt
+
+        self.assertEqual('\n', streams.stdout)
+
+    def test_keyboard_interrupt_print_pipe_error(self):
+        with patch(f'{WIN_MODULE}.print', side_effect=BrokenPipeError):
             with self.assert_raises_contains_str(SystemExit, '130'):
-                with RedirectStreams() as streams, extended_error_handler:
+                with RedirectStreams() as streams, win_error_handler:
                     raise KeyboardInterrupt
 
-            self.assertEqual('\n', streams.stdout)
+        self.assertEqual('', streams.stdout)
 
-        def test_keyboard_interrupt_print_pipe_error(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=BrokenPipeError))
-                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
+    def test_keyboard_interrupt_print_os_error_broken_pipe(self):
+        with patch(f'{WIN_MODULE}.print', side_effect=OSError):
+            with patch(f'{WIN_MODULE}.handle_win_os_pipe_error', return_value=True):
+                with self.assert_raises_contains_str(SystemExit, '130'):
+                    with RedirectStreams() as streams, win_error_handler:
+                        raise KeyboardInterrupt
+
+        self.assertEqual('', streams.stdout)
+
+    def test_keyboard_interrupt_print_os_error_other(self):
+        with patch(f'{WIN_MODULE}.print', side_effect=OSError):
+            with patch(f'{WIN_MODULE}.handle_win_os_pipe_error', return_value=False):
+                with self.assertRaises(OSError), RedirectStreams() as streams, win_error_handler:
+                    raise KeyboardInterrupt
+
+        self.assertEqual('', streams.stdout)
+
+
+other_error_handler = extended_error_handler.copy()
+other_error_handler.register(handle_other_kbi, KeyboardInterrupt)
+
+
+class OtherOSErrorHandlingTest(ParserTest):
+    def test_keyboard_interrupt_print(self):
+        with self.assert_raises_contains_str(SystemExit, '130'):
+            with RedirectStreams() as streams, other_error_handler:
                 raise KeyboardInterrupt
 
-            self.assertEqual('', streams.stdout)
+        self.assertEqual('\n', streams.stdout)
 
-        def test_keyboard_interrupt_print_os_error_broken_pipe(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=OSError))
-                stack.enter_context(patch(f'{MODULE}.handle_win_os_pipe_error', return_value=True))
-                stack.enter_context(self.assert_raises_contains_str(SystemExit, '130'))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
-                raise KeyboardInterrupt
+    def test_keyboard_interrupt_print_pipe_error(self):
+        with patch(f'{OTHER_MODULE}.print', side_effect=BrokenPipeError):
+            with self.assert_raises_contains_str(SystemExit, '130'):
+                with RedirectStreams() as streams, other_error_handler:
+                    raise KeyboardInterrupt
 
-            self.assertEqual('', streams.stdout)
-
-        def test_keyboard_interrupt_print_os_error_other(self):
-            with ExitStack() as stack:
-                stack.enter_context(patch(f'{MODULE}.print', side_effect=OSError))
-                stack.enter_context(patch(f'{MODULE}.handle_win_os_pipe_error', return_value=False))
-                stack.enter_context(self.assertRaises(OSError))
-                streams = stack.enter_context(RedirectStreams())
-                stack.enter_context(extended_error_handler)
-                raise KeyboardInterrupt
-
-            self.assertEqual('', streams.stdout)
-
-        def test_broken_pipe_caught(self):
-            with RedirectStreams() as streams, extended_error_handler:
-                raise BrokenPipeError
-
-            self.assertEqual('', streams.stdout)
-
-
-class ModuleLoadTest(TestCase):
-    def test_error_handling_linux(self):
-        # This is purely for branch coverage...
-        with patch('platform.system', return_value='linux'):
-            reload(cli_command_parser.error_handling)
+        self.assertEqual('', streams.stdout)
 
 
 if __name__ == '__main__':
-    try:
-        main(verbosity=2)
-    except KeyboardInterrupt:
-        print()
+    main(verbosity=2)

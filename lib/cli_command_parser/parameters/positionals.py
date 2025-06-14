@@ -12,11 +12,11 @@ from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
 from ..utils import _NotSet
-from .actions import Store, Append
-from .base import BasePositional, AllowLeadingDashProperty
+from .actions import Append, Store
+from .base import AllowLeadingDashProperty, BasePositional
 
 if TYPE_CHECKING:
-    from ..typing import InputTypeFunc, ChoicesType, LeadingDash, DefaultFunc
+    from ..typing import ChoicesType, DefaultFunc, InputTypeFunc, LeadingDash
 
 __all__ = ['Positional']
 

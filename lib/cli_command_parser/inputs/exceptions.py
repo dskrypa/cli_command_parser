@@ -4,7 +4,7 @@ Exceptions for custom input types / validators.
 :author: Doug Skrypa
 """
 
-from typing import Collection, Any
+from typing import Any, Collection
 
 from ..exceptions import CommandParserException
 

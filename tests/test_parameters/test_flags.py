@@ -4,7 +4,7 @@ import re
 from unittest import main
 
 from cli_command_parser import Command, Flag, TriFlag
-from cli_command_parser.exceptions import ParameterDefinitionError, CommandDefinitionError
+from cli_command_parser.exceptions import CommandDefinitionError, ParameterDefinitionError
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 
 STANDALONE_DASH_B_LC = re.compile(r'(?<!-)-b\b')

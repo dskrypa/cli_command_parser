@@ -4,11 +4,11 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from subprocess import check_output, check_call
+from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
 from typing import Optional
 
-from cli_command_parser import Command, Flag, Option, Counter
+from cli_command_parser import Command, Counter, Flag, Option
 
 log = logging.getLogger(__name__)
 DEFAULT_PATH = Path('lib/cli_command_parser/__version__.py')

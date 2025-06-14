@@ -8,9 +8,9 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Type, TypeVar, Collection, Iterator, Optional, Set, Mapping
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Mapping, Optional, Set, Type, TypeVar
 
-from ..typing import TypeFunc, T
+from ..typing import T, TypeFunc
 from .base import InputType
 from .exceptions import InvalidChoiceError
 

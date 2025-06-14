@@ -7,7 +7,7 @@ from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import ContextManager
+from typing import Iterator
 from unittest import TestCase, main
 from unittest.mock import Mock, PropertyMock, call, patch
 
@@ -36,7 +36,7 @@ def temp_chdir(path: Path):
 
 
 @contextmanager
-def temp_path(file: str = None, touch: bool = False) -> ContextManager[Path]:
+def temp_path(file: str = None, touch: bool = False) -> Iterator[Path]:
     with TemporaryDirectory() as tmp_dir:
         d = Path(tmp_dir)
         if file:
@@ -277,6 +277,14 @@ class FileInputTest(TestCase):
         for input_cls in (PathInput, File, Json, Pickle):
             with self.subTest(input_cls=input_cls):
                 self.assertTrue(repr(input_cls()).startswith(f'<{input_cls.__name__}('))
+
+    def test_pickleability(self):
+        for path_type, mode in {'file': StatMode.FILE, 'file|dir': StatMode.FILE | StatMode.DIR}.items():
+            with self.subTest(type=path_type):
+                path_input = PathInput(type=path_type)
+                clone: PathInput = pickle.loads(pickle.dumps(path_input))
+                self.assertIsNot(path_input, clone)
+                self.assertEqual(mode, clone.type)
 
 
 class WriteFileTest(TestCase):

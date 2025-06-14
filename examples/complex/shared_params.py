@@ -8,7 +8,7 @@ subcommand choice.
 import logging
 from abc import ABC
 
-from cli_command_parser import SubCommand, Option, ParamGroup, Flag
+from cli_command_parser import Flag, Option, ParamGroup, SubCommand
 
 from .base import Example
 
