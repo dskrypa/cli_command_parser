@@ -132,15 +132,17 @@ def top_level_commands(commands: Commands) -> Commands:
 def import_module(path: PathLike):
     """Import the module / package from the given path"""
     path = Path(path)
-    name = path.stem
+    name = _module_name(path)
     if path.is_dir():
         path /= '__init__.py'
+
     spec = spec_from_file_location(name, path)
     try:
         module = module_from_spec(spec)
     except AttributeError as e:
         path_str = path.as_posix()
         raise ImportError(f'Invalid path={path_str!r} - are you sure it is a Python module?', path=path_str) from e
+
     sys.modules[spec.name] = module  # This is required for the program metadata introspection
     try:
         spec.loader.exec_module(module)
@@ -148,6 +150,20 @@ def import_module(path: PathLike):
         del sys.modules[spec.name]
         raise
     return module
+
+
+def _module_name(path: Path) -> str:
+    if path.name == '__init__.py':
+        path = path.parent
+
+    parts = [path.stem]
+    while (path := path.parent).name:  # / has no name
+        if path.joinpath('__init__.py').exists():  # it is a package
+            parts.append(path.name)
+        else:
+            break
+
+    return '.'.join(parts[::-1])
 
 
 def _is_command(obj, include_abc: Bool = False) -> bool:
