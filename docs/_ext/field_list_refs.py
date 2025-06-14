@@ -9,7 +9,7 @@ Intended use case is for manually written documentation, not autodoc/automodule 
 from pathlib import Path
 from typing import Any, Dict
 
-from docutils.nodes import field_name as FieldName, document as Document, fully_normalize_name
+from docutils.nodes import document as Document, field_name as FieldName, fully_normalize_name
 from sphinx.application import Sphinx
 from sphinx.domains.std import StandardDomain
 from sphinx.util import logging

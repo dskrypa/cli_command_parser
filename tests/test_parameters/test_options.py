@@ -4,9 +4,16 @@ import re
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Flag, Option, ParamGroup, Context
-from cli_command_parser.exceptions import UsageError, ParameterDefinitionError
-from cli_command_parser.exceptions import ParamUsageError, MissingArgument, BadArgument, ParamsMissing, ParamConflict
+from cli_command_parser import Command, Context, Flag, Option, ParamGroup
+from cli_command_parser.exceptions import (
+    BadArgument,
+    MissingArgument,
+    ParamConflict,
+    ParameterDefinitionError,
+    ParamsMissing,
+    ParamUsageError,
+    UsageError,
+)
 from cli_command_parser.nargs import REMAINDER
 from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text
 

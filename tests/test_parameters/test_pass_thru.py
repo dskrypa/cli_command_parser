@@ -2,9 +2,9 @@
 
 from unittest import main
 
-from cli_command_parser import Command, CommandDefinitionError, Context, SubCommand, PassThru, Flag
+from cli_command_parser import Command, CommandDefinitionError, Context, Flag, PassThru, SubCommand
 from cli_command_parser.core import get_params
-from cli_command_parser.exceptions import NoSuchOption, ParamUsageError, MissingArgument, ParamsMissing
+from cli_command_parser.exceptions import MissingArgument, NoSuchOption, ParamsMissing, ParamUsageError
 from cli_command_parser.testing import ParserTest
 
 

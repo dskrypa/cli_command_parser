@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import check_call
 
-from cli_command_parser import Command, Counter, after_main, before_main, Action, Flag, main
+from cli_command_parser import Action, Command, Counter, Flag, after_main, before_main, main
 from cli_command_parser.__version__ import __description__, __title__
 from cli_command_parser.documentation import RstWriter
 

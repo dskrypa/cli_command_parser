@@ -4,7 +4,7 @@ Test case for RST documentation generation.
 
 from abc import ABC
 
-from cli_command_parser import Command, SubCommand, Option, Flag
+from cli_command_parser import Command, Flag, Option, SubCommand
 
 
 class Base(Command, description='test'):

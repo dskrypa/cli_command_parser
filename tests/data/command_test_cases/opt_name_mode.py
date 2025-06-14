@@ -1,4 +1,4 @@
-from cli_command_parser import Command, SubCommand, Flag, TriFlag
+from cli_command_parser import Command, Flag, SubCommand, TriFlag
 
 
 class Base(Command, option_name_mode='-'):

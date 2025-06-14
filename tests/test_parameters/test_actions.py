@@ -3,8 +3,8 @@
 from unittest import main
 from unittest.mock import Mock, PropertyMock, patch
 
-from cli_command_parser import Command, Action, Positional, action_flag, ParameterDefinitionError
-from cli_command_parser.exceptions import CommandDefinitionError, MissingArgument, InvalidChoice
+from cli_command_parser import Action, Command, ParameterDefinitionError, Positional, action_flag
+from cli_command_parser.exceptions import CommandDefinitionError, InvalidChoice, MissingArgument
 from cli_command_parser.testing import ParserTest, RedirectStreams, sealed_mock
 
 # TODO: Test multi-word actions; multi-word actions combined with subcommands (with multiple words)

@@ -3,7 +3,7 @@
 import logging
 from fnmatch import fnmatch
 
-from cli_command_parser import Command, Positional, SubCommand, Flag, Option, Counter, ParamGroup, main
+from cli_command_parser import Command, Counter, Flag, Option, ParamGroup, Positional, SubCommand, main
 
 log = logging.getLogger(__name__)
 
