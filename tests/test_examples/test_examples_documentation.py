@@ -3,9 +3,9 @@
 from pathlib import Path
 from unittest import main
 
-from cli_command_parser import Context, Command
+from cli_command_parser import Command, Context
 from cli_command_parser.documentation import load_commands, render_command_rst, render_script_rst, top_level_commands
-from cli_command_parser.testing import ParserTest, load_command, get_help_text, get_usage_text
+from cli_command_parser.testing import ParserTest, get_help_text, get_usage_text, load_command
 
 THIS_FILE = Path(__file__).resolve()
 EXAMPLES_DIR = THIS_FILE.parents[2].joinpath('examples')

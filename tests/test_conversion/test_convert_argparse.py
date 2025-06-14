@@ -129,7 +129,7 @@ for sp in [sp1, sp123456789]:
     group.add_argument('--dry_run', '-D', action='store_true', help='Perform a dry run with no side effects')
         """
 
-        expected = f"""{prep_expected("foo = Positional()", "action = SubCommand()")}\n\n
+        expected = f"""{prep_expected('foo = Positional()', 'action = SubCommand()')}\n\n
 class One(Command0, help='Command one'):
     foo_bar = Flag('-f', help='Do foo bar')\n
     with ParamGroup(mutually_exclusive=True):

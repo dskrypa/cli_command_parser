@@ -2,9 +2,9 @@
 
 from unittest import main
 
-from cli_command_parser import Command, REMAINDER, PassThru, Positional, Option, Flag
+from cli_command_parser import REMAINDER, Command, Flag, Option, PassThru, Positional
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.exceptions import UsageError, BadArgument, NoSuchOption
+from cli_command_parser.exceptions import BadArgument, NoSuchOption, UsageError
 from cli_command_parser.testing import ParserTest
 
 get_config = CommandMeta.config

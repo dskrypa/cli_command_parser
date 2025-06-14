@@ -4,10 +4,10 @@ import sys
 from unittest import main, skip
 from unittest.mock import patch
 
-from cli_command_parser import Command, Positional, SubCommand, AmbiguousParseTree
+from cli_command_parser import AmbiguousParseTree, Command, Positional, SubCommand
 from cli_command_parser.core import get_config
 from cli_command_parser.nargs import Nargs
-from cli_command_parser.parse_tree import PosNode, AnyWord
+from cli_command_parser.parse_tree import AnyWord, PosNode
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 

@@ -2,9 +2,9 @@
 
 from unittest import main
 
-from cli_command_parser import Command, Option, Flag, Positional, SubCommand, REMAINDER, BaseOption, Counter
+from cli_command_parser import REMAINDER, BaseOption, Command, Counter, Flag, Option, Positional, SubCommand
 from cli_command_parser.core import CommandMeta
-from cli_command_parser.exceptions import UsageError, NoSuchOption, MissingArgument, AmbiguousShortForm, AmbiguousCombo
+from cli_command_parser.exceptions import AmbiguousCombo, AmbiguousShortForm, MissingArgument, NoSuchOption, UsageError
 from cli_command_parser.nargs import Nargs
 from cli_command_parser.parameters.actions import Store
 from cli_command_parser.testing import ParserTest
