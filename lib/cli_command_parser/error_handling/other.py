@@ -16,5 +16,5 @@ def handle_kb_interrupt(exc: KeyboardInterrupt) -> int:
         print(flush=True)  # Flush forces any potential closed/broken pipe-related error to be caught/handled here
     except BrokenPipeError:
         pass
-
+    # 130 (= 128 + SIGINT (2)) is used/expected by Bash; see: https://tldp.org/LDP/abs/html/exitcodes.html
     return 130

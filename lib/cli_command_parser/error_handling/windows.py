@@ -37,10 +37,11 @@ def handle_win_os_pipe_error(exc: OSError):
     """
     This is a workaround for `[Windows] I/O on a broken pipe may raise an EINVAL OSError instead of BrokenPipeError
     <https://github.com/python/cpython/issues/79935>`_, which is a bug in the way that the
-    windows error code for a broken pipe is translated into an errno value.  It should be translated to
+    Windows error code for a broken pipe is translated into an errno value.  It should be translated to
     :data:`~errno.EPIPE`, but it uses :data:`~errno.EINVAL` (22) instead.
 
-    Prevents the following when piping output to utilities such as ``| head``::\n
+    Prevents the following when piping output to utilities such as ``| head``::
+
         Exception ignored in: <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>
         OSError: [Errno 22] Invalid argument
     """

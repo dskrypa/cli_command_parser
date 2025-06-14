@@ -1,19 +1,5 @@
 """
-Error handling for expected / unexpected exceptions.
-
-The default handler will...
-
-- Call ``print()`` after catching a :class:`python:KeyboardInterrupt`, before exiting
-- Exit gracefully after catching a :class:`python:BrokenPipeError` (often caused by piping output to a tool like
-  ``tail``)
-
-.. note::
-    Parameters defined in a base Command will be processed in the context of that Command.  I.e., if a valid
-    subcommand argument was provided, but an Option defined in the parent Command has an invalid value, then the
-    exception that is raised about that invalid value will be raised before transferring control to the
-    subcommand's error handler.
-
-:author: Doug Skrypa
+Platform-agnostic error handling framework / handlers.
 """
 
 from __future__ import annotations
@@ -89,7 +75,8 @@ class ErrorHandler:
 
         for handler in self.iter_handlers(exc_type, exc_val):
             result = handler(exc_val)
-            if result is True:  # noqa  # This explicitly checks for True since truthy values are treated as exit codes
+            if result is True:
+                # This explicitly checks for True since 1 == True, but 1 is treated as an intended exit code
                 return True
             if result or (isinstance(result, int) and result is not False):
                 sys.exit(result)
@@ -129,6 +116,7 @@ class Handler:
         return issubclass(self.exc_cls, other.exc_cls)
 
 
+# By default, all error handlers should call :meth:`CommandParserException.exit` for CommandParserExceptions
 ErrorHandler.cls_handler(CommandParserException)(CommandParserException.exit)  # noqa
 
 #: Default base :class:`ErrorHandler`
@@ -144,7 +132,7 @@ def _handle_broken_pipe(exc: BrokenPipeError):
 #: An :class:`ErrorHandler` that does not call :func:`python:sys.exit` for
 #: :class:`CommandParserExceptions<.CommandParserException>`
 no_exit_handler: ErrorHandler = error_handler.copy()
-no_exit_handler(CommandParserException)(CommandParserException.show)  # noqa
+no_exit_handler.register(CommandParserException.show, CommandParserException)  # noqa
 
 #: The default :class:`ErrorHandler` (extends :obj:`error_handler`)
 extended_error_handler: ErrorHandler = error_handler.copy()
