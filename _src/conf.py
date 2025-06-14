@@ -10,7 +10,7 @@ docs_src = THIS_FILE.parent
 docs_dir = THIS_FILE.parents[1]
 sys.path.append(docs_dir.joinpath('_ext').as_posix())
 
-from cli_command_parser.__version__ import __author__, __version__, __description__, __title__
+from cli_command_parser.__version__ import __author__, __description__, __title__, __version__
 
 project = __description__
 version = release = __version__

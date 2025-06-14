@@ -1,9 +1,9 @@
-Error_Handling Module
-=====================
+Error_Handling Package
+**********************
 
-.. currentmodule:: cli_command_parser.error_handling
+.. toctree::
+    :maxdepth: 3
 
-.. automodule:: cli_command_parser.error_handling
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    cli_command_parser.error_handling.base
+    cli_command_parser.error_handling.other
+    cli_command_parser.error_handling.windows
