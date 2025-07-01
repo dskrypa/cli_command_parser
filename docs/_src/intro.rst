@@ -1,13 +1,12 @@
 Getting Started
 ***************
 
-Simple scripts usually contain a single Command and implement a ``def main(self):`` method in that Command to be
-called after arguments are parsed.
+Simple scripts usually contain a single class that extends ``Command`` and implements a ``def main(self):`` method
+to be called after arguments are parsed.
 
-Multiple Parameters can be specified as attributes inside the Command to define how CLI arguments will be parsed.
-
-The ``main()`` function that can be imported from ``cli_command_parser`` provides the main entry point for parsing
-arguments and running the Command.
+CLI parameters are defined as attributes within that class that are very similar to properties.  There's no need to
+specify a ``'--long-option-name'`` string for options, flags, and other similar parameters (but you can!) - by default,
+those are automatically generated based on the name assigned to the attribute.
 
 .. _hello_example:
 
@@ -39,18 +38,34 @@ After saving the example above as ``hello_world.py``, we can run it with multipl
     Hello John!
 
 
+That example used the ``main()`` function imported from ``cli_command_parser`` to automatically find the command that
+should be used, to parse the provided CLI arguments, and to invoke the ``main`` method within that command.
+
+
 Parameters
 ==========
 
 Types
 -----
 
-Rather than needing to infer the type of parameter that will result from a combination of arguments when defining it,
-each distinct type has its own :doc:`Parameter<parameters>` class.  Commands may contain any number of Parameters to
-define how they will parse CLI arguments.
+One of the largest changes for users who are familiar with other Python libraries used for parsing CLI arguments is
+that different kinds of parameters all have their own distinct :doc:`Parameter<parameters>` class.  This helps to make
+it clear which settings are supported by each one.  Commands may contain any number of Parameters.
 
-The basic types are :ref:`parameters:Positional`, :ref:`parameters:Option`, and :ref:`parameters:Flag`, but there are
-:doc:`others<parameters>` as well, including :doc:`groups<groups>` that can be mutually exclusive or dependent.
+A short intro for each type:
+  - :ref:`parameters:Positional`: Arguments without a ``--key`` preceding their values, where order matters
+  - :ref:`parameters:Option`: Options that can be provided as ``--key value`` or ``-k value`` pairs
+  - :ref:`parameters:Flag`: Options that usually toggle between ``True`` / ``False``, provided as ``--flag`` or ``-f``
+  - :ref:`parameters:TriFlag`: Similar to ``Flag``, but with support for a third constant and an alternate ``--no-flag``
+  - :ref:`parameters:Counter`: Counts the number of times it was provided as a flag; useful for cases like log verbosity
+  - :ref:`parameters:ActionFlag`: Chainable action methods invoked in a pre-defined order when provided like a ``--flag``
+  - :ref:`parameters:SubCommand`: Positional parameter used to specify where the name of a subcommand should be provided
+  - :ref:`parameters:Action`: Similar to ``SubCommand``, but used with action methods within a command
+  - :ref:`parameters:PassThru`: Arguments that are collected verbatim and provided as ``-- extra args here``
+
+Parameters can also be :doc:`grouped<groups>` for organizational purposes, or to make parameters be mutually exclusive
+or dependent.
+
 
 Names
 -----
@@ -70,6 +85,12 @@ If an explicit long form is provided, then it will be used instead of the defaul
 and/or short forms may be provided::
 
     example = Option('--foo', '-f', '--FOO')
+
+
+By default, multi-part `snake_case` names will be translated such that the underscores become dashes.  I.e.,
+``foo_bar = Option()`` will result in ``--foo-bar``.  This behavior can be adjusted for all options in a given command
+(and its subcommands, if any), and on a per-option basis.  See :ref:`configuration:Parsing Options:option_name_mode`
+for more info about how to configure this.
 
 
 Entry Points

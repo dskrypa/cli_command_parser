@@ -26,11 +26,11 @@ CLI Command Parser is a class-based CLI argument parser that defines parameters 
 tools to quickly and easily get started with basic CLIs, and it scales well to support even very large and complex
 CLIs while remaining readable and easy to maintain.
 
-The primary goals of this project:
-  - Make it easy to define subcommands and actions in an clean and organized manner
-  - Allow for inheritance so that common parameters don't need to be repeated
-  - Make it easy to handle common initialization tasks for all actions / subcommands once
-  - Reduce the amount of boilerplate code that is necessary for setting up parsing and handling argument values
+Some of the primary goals and key features of this project:
+  - Minimal boilerplate code is necessary to define CLI parameters and access their parsed values
+  - Easy to use type annotations for CLI parameters
+  - Subcommands can inherit common parameters so they don't need to be repeated
+  - Easy to handle common initialization tasks for all actions / subcommands once
 
 
 Example Program

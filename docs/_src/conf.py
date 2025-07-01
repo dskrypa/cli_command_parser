@@ -65,6 +65,7 @@ autodoc_default_options = {
     'private-members': '_pre_init_actions_,_init_command_,_before_main_,_after_main_',
     'ignore-module-all': True,
 }
+autodoc_mock_imports = ['ctypes']
 autodoc_typehints_format = 'short'
 autodoc_inherit_docstrings = False
 

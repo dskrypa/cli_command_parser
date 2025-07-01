@@ -88,7 +88,7 @@ a ``--`` prefix, and short forms have a ``-`` prefix.
 
 The long form is automatically added (if not explicitly specified) based on the name of the Parameter attribute.  That
 is, if a parameter is defined as ``foo = Option('-f')`` or ``foo = Option()``, then ``--foo`` will automatically be
-added as its long form option string.
+added as its long form option string.  See :ref:`intro:Names` for more info.
 
 
 .. _options_init_params:
@@ -133,7 +133,8 @@ Options support two additional initialization parameters:
 Option
 ------
 
-The generic :class:`.Option` parameter that accepts arbitrary values or lists of values.
+The generic :class:`.Option` parameter that accepts arbitrary values or lists of values.  See :ref:`intro:Names` for
+more about how attribute names are used to automatically generate ``--long`` option names by default.
 
 .. _option_init_params:
 
