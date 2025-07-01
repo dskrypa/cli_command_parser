@@ -508,7 +508,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.other.html#cli_command_parser.error_handling.other.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_win_os_pipe_error"><code class="docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.exceptions.html">Exceptions Module</a><ul>
@@ -1093,7 +1097,7 @@ They are typically not required by default, and often have both long and short f
 a <code class="docutils literal notranslate"><span class="pre">--</span></code> prefix, and short forms have a <code class="docutils literal notranslate"><span class="pre">-</span></code> prefix.</p>
 <p>The long form is automatically added (if not explicitly specified) based on the name of the Parameter attribute.  That
 is, if a parameter is defined as <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">Option('-f')</span></code> or <code class="docutils literal notranslate"><span class="pre">foo</span> <span class="pre">=</span> <span class="pre">Option()</span></code>, then <code class="docutils literal notranslate"><span class="pre">--foo</span></code> will automatically be
-added as its long form option string.</p>
+added as its long form option string.  See <a class="reference internal" href="intro.html#names"><span class="std std-ref">Names</span></a> for more info.</p>
 <p class="rubric" id="options-init-params">Common Initialization Parameters - Options</p>
 <p>Options support two additional initialization parameters:</p>
 <dl class="field-list">
@@ -1143,7 +1147,8 @@ explicitly registered (the automatically added long form based on param name cou
 </div>
 <section id="option">
 <h3>Option<a class="headerlink" href="#option" title="Link to this heading"></a></h3>
-<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter that accepts arbitrary values or lists of values.</p>
+<p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter that accepts arbitrary values or lists of values.  See <a class="reference internal" href="intro.html#names"><span class="std std-ref">Names</span></a> for
+more about how attribute names are used to automatically generate <code class="docutils literal notranslate"><span class="pre">--long</span></code> option names by default.</p>
 <p id="option-init-params"><strong>Unique Option initialization parameters:</strong></p>
 <dl class="field-list simple">
 <dt class="field-odd" id="option:choices">choices<span class="colon">:</span></dt>

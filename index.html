@@ -507,7 +507,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.other.html#cli_command_parser.error_handling.other.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_win_os_pipe_error"><code class="docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.exceptions.html">Exceptions Module</a><ul>
@@ -994,11 +998,11 @@
 tools to quickly and easily get started with basic CLIs, and it scales well to support even very large and complex
 CLIs while remaining readable and easy to maintain.</p>
 <dl class="simple">
-<dt>The primary goals of this project:</dt><dd><ul class="simple">
-<li><p>Make it easy to define subcommands and actions in an clean and organized manner</p></li>
-<li><p>Allow for inheritance so that common parameters don’t need to be repeated</p></li>
-<li><p>Make it easy to handle common initialization tasks for all actions / subcommands once</p></li>
-<li><p>Reduce the amount of boilerplate code that is necessary for setting up parsing and handling argument values</p></li>
+<dt>Some of the primary goals and key features of this project:</dt><dd><ul class="simple">
+<li><p>Minimal boilerplate code is necessary to define CLI parameters and access their parsed values</p></li>
+<li><p>Easy to use type annotations for CLI parameters</p></li>
+<li><p>Subcommands can inherit common parameters so they don’t need to be repeated</p></li>
+<li><p>Easy to handle common initialization tasks for all actions / subcommands once</p></li>
 </ul>
 </dd>
 </dl>

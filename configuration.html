@@ -508,7 +508,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.other.html#cli_command_parser.error_handling.other.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_win_os_pipe_error"><code class="docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.exceptions.html">Exceptions Module</a><ul>
@@ -1093,9 +1097,10 @@ parameter with variable <a class="reference internal" href="api/cli_command_pars
 requirements (default: True)</p>
 </dd>
 <dt class="field-even" id="parsing options:option_name_mode">option_name_mode<span class="colon">:</span></dt>
-<dd class="field-even"><p>How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle
-underscores/dashes.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a> for more details.  Defaults to using underscores to match the
-attribute name.  May be overridden on a per-Parameter basis with <a class="reference internal" href="parameters.html#options:name_mode"><span class="std std-ref">name_mode</span></a>.</p>
+<dd class="field-even"><p>How the default <code class="docutils literal notranslate"><span class="pre">--long-form</span></code> option string that is added for Option/Flag/Counter/etc. Parameters
+should handle underscores/dashes.  See <a class="reference internal" href="api/cli_command_parser.config.html#cli_command_parser.config.OptionNameMode" title="cli_command_parser.config.OptionNameMode"><code class="xref py py-class docutils literal notranslate"><span class="pre">OptionNameMode</span></code></a> for more details about the values that can be used.
+Defaults to replacing underscores in the attribute name with dashes.  May be overridden on a per-Parameter basis
+with <a class="reference internal" href="parameters.html#options:name_mode"><span class="std std-ref">name_mode</span></a>.</p>
 </dd>
 <dt class="field-odd" id="parsing options:reject_ambiguous_pos_combos">reject_ambiguous_pos_combos<span class="colon">:</span></dt>
 <dd class="field-odd"><p>[EXPERIMENTAL] Whether ambiguous combinations of positional choices should result in an

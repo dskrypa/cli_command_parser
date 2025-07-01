@@ -508,7 +508,11 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.other.html#cli_command_parser.error_handling.other.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html">Windows Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_kb_interrupt"><code class="docutils literal notranslate"><span class="pre">handle_kb_interrupt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.error_handling.windows.html#cli_command_parser.error_handling.windows.handle_win_os_pipe_error"><code class="docutils literal notranslate"><span class="pre">handle_win_os_pipe_error()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.exceptions.html">Exceptions Module</a><ul>
@@ -988,11 +992,11 @@
              
   <section id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
-<p>Simple scripts usually contain a single Command and implement a <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self):</span></code> method in that Command to be
-called after arguments are parsed.</p>
-<p>Multiple Parameters can be specified as attributes inside the Command to define how CLI arguments will be parsed.</p>
-<p>The <code class="docutils literal notranslate"><span class="pre">main()</span></code> function that can be imported from <code class="docutils literal notranslate"><span class="pre">cli_command_parser</span></code> provides the main entry point for parsing
-arguments and running the Command.</p>
+<p>Simple scripts usually contain a single class that extends <code class="docutils literal notranslate"><span class="pre">Command</span></code> and implements a <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">main(self):</span></code> method
+to be called after arguments are parsed.</p>
+<p>CLI parameters are defined as attributes within that class that are very similar to properties.  There’s no need to
+specify a <code class="docutils literal notranslate"><span class="pre">'--long-option-name'</span></code> string for options, flags, and other similar parameters (but you can!) - by default,
+those are automatically generated based on the name assigned to the attribute.</p>
 <p id="hello-example">Here’s a basic example of a program that uses CLI Command Parser:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
 
@@ -1019,15 +1023,31 @@ $ hello_world.py --name John
 Hello John!
 </pre></div>
 </div>
+<p>That example used the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function imported from <code class="docutils literal notranslate"><span class="pre">cli_command_parser</span></code> to automatically find the command that
+should be used, to parse the provided CLI arguments, and to invoke the <code class="docutils literal notranslate"><span class="pre">main</span></code> method within that command.</p>
 <section id="parameters">
 <h2>Parameters<a class="headerlink" href="#parameters" title="Link to this heading"></a></h2>
 <section id="types">
 <h3>Types<a class="headerlink" href="#types" title="Link to this heading"></a></h3>
-<p>Rather than needing to infer the type of parameter that will result from a combination of arguments when defining it,
-each distinct type has its own <a class="reference internal" href="parameters.html"><span class="doc">Parameter</span></a> class.  Commands may contain any number of Parameters to
-define how they will parse CLI arguments.</p>
-<p>The basic types are <a class="reference internal" href="parameters.html#positional"><span class="std std-ref">Positional</span></a>, <a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a>, and <a class="reference internal" href="parameters.html#flag"><span class="std std-ref">Flag</span></a>, but there are
-<a class="reference internal" href="parameters.html"><span class="doc">others</span></a> as well, including <a class="reference internal" href="groups.html"><span class="doc">groups</span></a> that can be mutually exclusive or dependent.</p>
+<p>One of the largest changes for users who are familiar with other Python libraries used for parsing CLI arguments is
+that different kinds of parameters all have their own distinct <a class="reference internal" href="parameters.html"><span class="doc">Parameter</span></a> class.  This helps to make
+it clear which settings are supported by each one.  Commands may contain any number of Parameters.</p>
+<dl class="simple">
+<dt>A short intro for each type:</dt><dd><ul class="simple">
+<li><p><a class="reference internal" href="parameters.html#positional"><span class="std std-ref">Positional</span></a>: Arguments without a <code class="docutils literal notranslate"><span class="pre">--key</span></code> preceding their values, where order matters</p></li>
+<li><p><a class="reference internal" href="parameters.html#option"><span class="std std-ref">Option</span></a>: Options that can be provided as <code class="docutils literal notranslate"><span class="pre">--key</span> <span class="pre">value</span></code> or <code class="docutils literal notranslate"><span class="pre">-k</span> <span class="pre">value</span></code> pairs</p></li>
+<li><p><a class="reference internal" href="parameters.html#flag"><span class="std std-ref">Flag</span></a>: Options that usually toggle between <code class="docutils literal notranslate"><span class="pre">True</span></code> / <code class="docutils literal notranslate"><span class="pre">False</span></code>, provided as <code class="docutils literal notranslate"><span class="pre">--flag</span></code> or <code class="docutils literal notranslate"><span class="pre">-f</span></code></p></li>
+<li><p><a class="reference internal" href="parameters.html#triflag"><span class="std std-ref">TriFlag</span></a>: Similar to <code class="docutils literal notranslate"><span class="pre">Flag</span></code>, but with support for a third constant and an alternate <code class="docutils literal notranslate"><span class="pre">--no-flag</span></code></p></li>
+<li><p><a class="reference internal" href="parameters.html#counter"><span class="std std-ref">Counter</span></a>: Counts the number of times it was provided as a flag; useful for cases like log verbosity</p></li>
+<li><p><a class="reference internal" href="parameters.html#actionflag"><span class="std std-ref">ActionFlag</span></a>: Chainable action methods invoked in a pre-defined order when provided like a <code class="docutils literal notranslate"><span class="pre">--flag</span></code></p></li>
+<li><p><a class="reference internal" href="parameters.html#subcommand"><span class="std std-ref">SubCommand</span></a>: Positional parameter used to specify where the name of a subcommand should be provided</p></li>
+<li><p><a class="reference internal" href="parameters.html#action"><span class="std std-ref">Action</span></a>: Similar to <code class="docutils literal notranslate"><span class="pre">SubCommand</span></code>, but used with action methods within a command</p></li>
+<li><p><a class="reference internal" href="parameters.html#passthru"><span class="std std-ref">PassThru</span></a>: Arguments that are collected verbatim and provided as <code class="docutils literal notranslate"><span class="pre">--</span> <span class="pre">extra</span> <span class="pre">args</span> <span class="pre">here</span></code></p></li>
+</ul>
+</dd>
+</dl>
+<p>Parameters can also be <a class="reference internal" href="groups.html"><span class="doc">grouped</span></a> for organizational purposes, or to make parameters be mutually exclusive
+or dependent.</p>
 </section>
 <section id="names">
 <h3>Names<a class="headerlink" href="#names" title="Link to this heading"></a></h3>
@@ -1046,6 +1066,10 @@ and/or short forms may be provided:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">example</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;--foo&#39;</span><span class="p">,</span> <span class="s1">&#39;-f&#39;</span><span class="p">,</span> <span class="s1">&#39;--FOO&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>By default, multi-part <cite>snake_case</cite> names will be translated such that the underscores become dashes.  I.e.,
+<code class="docutils literal notranslate"><span class="pre">foo_bar</span> <span class="pre">=</span> <span class="pre">Option()</span></code> will result in <code class="docutils literal notranslate"><span class="pre">--foo-bar</span></code>.  This behavior can be adjusted for all options in a given command
+(and its subcommands, if any), and on a per-option basis.  See <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a>
+for more info about how to configure this.</p>
 </section>
 </section>
 <section id="entry-points">
