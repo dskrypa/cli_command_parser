@@ -4,7 +4,7 @@ Getting Started
 Simple scripts usually contain a single class that extends ``Command`` and implements a ``def main(self):`` method
 to be called after arguments are parsed.
 
-CLI parameters are defined as attributes within that class that are very similar to properties.  There's no need to
+CLI parameters are defined within that class as attributes that are very similar to properties.  There's no need to
 specify a ``'--long-option-name'`` string for options, flags, and other similar parameters (but you can!) - by default,
 those are automatically generated based on the name assigned to the attribute.
 
