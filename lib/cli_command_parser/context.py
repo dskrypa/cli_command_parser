@@ -24,7 +24,7 @@ from .utils import Terminal, _NotSet
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
-    from .parameters import ActionFlag, Option, Parameter
+    from .parameters import ActionFlag, BaseOption, Option, Parameter
     from .typing import AnyConfig, Bool, CommandObj, CommandType, OptStr, ParamOrGroup, PathLike, StrSeq  # noqa
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
@@ -250,9 +250,11 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         """Not intended to be called by users.  Used during parsing to determine if any Parameters are missing."""
         return [p for p in self.params.required_check_params() if not self._provided[p]]
 
-    def missing_options_with_env_var(self) -> Iterator[Option]:
+    def missing_options_with_env_var(self) -> Iterator[BaseOption]:
         """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
-        yield from (p for p in self.params.options if p.env_var and not self._provided[p])
+        for param in self.params.options:
+            if param.env_var and not self._provided[param]:
+                yield param
 
     # endregion
 
