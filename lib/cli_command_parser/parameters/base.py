@@ -96,6 +96,14 @@ class ParamBase(ABC):
 
     # endregion
 
+    def __eq__(self, other: ParamBase) -> bool:
+        return (
+            self.__class__ == other.__class__
+            and self._attr_name == other._attr_name
+            and self._name == other._name
+            and self.command == other.command
+        )
+
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 

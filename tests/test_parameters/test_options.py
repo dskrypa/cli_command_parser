@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import pickle
 import re
 from unittest import main
 from unittest.mock import Mock
 
-from cli_command_parser import Command, Context, Flag, Option, ParamGroup
+from cli_command_parser import Command, Context, Flag, Option, ParamGroup, get_parsed
 from cli_command_parser.exceptions import (
     BadArgument,
     MissingArgument,
@@ -393,8 +394,30 @@ class EnvVarTest(ParserTest):
         self.assert_env_parse_results_cases(Cmd, cases)
 
 
+class OptionPickleTest(ParserTest):
+    def test_generic_option_is_pickleable(self):
+        cmd = ExampleCommand.parse(['-f', 'bar'])
+        clone = pickle.loads(pickle.dumps(cmd))
+        self.assertEqual('bar', clone.foo)
+
+    def test_nargs_2_ints_option_is_pickleable(self):
+        cmd = ExampleCommand.parse(['-s', '123', '456'])
+        clone = pickle.loads(pickle.dumps(cmd))
+        self.assertEqual([123, 456], clone.size)
+
+    def test_get_parsed_after_unpickle(self):
+        cmd = ExampleCommand.parse(['-s', '123', '456', '-f', 'bar'])
+        clone = pickle.loads(pickle.dumps(cmd))
+        self.assertEqual({'size': [123, 456], 'foo': 'bar'}, get_parsed(clone, include_defaults=False))
+
+
+class ExampleCommand(Command):
+    # This command needed to be defined here for it to be pickleable - pickle.dumps fails when the class is defined
+    # in a test method.
+
+    foo = Option('-f')
+    size = Option('-s', type=int, nargs=2)
+
+
 if __name__ == '__main__':
-    try:
-        main(verbosity=2, exit=False)
-    except KeyboardInterrupt:
-        print()
+    main(verbosity=2)
