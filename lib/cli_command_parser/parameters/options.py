@@ -516,7 +516,7 @@ class Counter(BaseOption[int], actions=(Count,)):
         if value is None or isinstance(value, self.type):
             return
         try:
-            value = self.type(value)
+            self.type(value)
         except (ValueError, TypeError) as e:
             raise BadArgument(self, f'invalid {value=} (expected an integer)') from e
         else:
