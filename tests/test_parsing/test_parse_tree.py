@@ -22,40 +22,6 @@ class TestPosNode(ParserTest):
         self.assertEqual({Foo.foo}, node.link_params())
         self.assertEqual({Foo.foo, Foo.bar}, node.link_params(True))
 
-    # region Nargs Tests
-
-    def test_nargs_min_max_unbound(self):
-        class Foo(Command):
-            foo = Positional(nargs=2)
-            bar = Positional(nargs='+')
-
-        self.assertEqual((3, float('inf')), PosNode.build_tree(Foo).nargs_min_and_max())
-
-    def test_nargs_variable_then_fixed(self):
-        # Note: Positionals accepting any value with variable nargs can't be followed by ones with a fixed # of args
-        class Foo(Command):
-            foo = Positional(nargs=range(1, 5), choices=('a', 'b'))
-            bar = Positional()
-
-        self.assertEqual((2, 5), PosNode.build_tree(Foo).nargs_min_and_max())
-
-    @skip('This case needs to be handled')
-    def test_nargs_pair_extreme(self):
-        class Foo(Command):
-            foo = Positional(nargs=sys.maxsize)
-            bar = Positional(nargs='+')
-
-        self.assertEqual((sys.maxsize, float('inf')), PosNode.build_tree(Foo).nargs_min_and_max())
-
-    def test_nargs_min_max_bound(self):
-        class Foo(Command):
-            foo = Positional(choices=('a', 'b'))
-            bar = Positional()
-
-        self.assertEqual((2, 2), PosNode.build_tree(Foo).nargs_min_and_max())
-
-    # endregion
-
     def test_repr(self):
         class Foo(Command):
             sub_cmd = SubCommand()
