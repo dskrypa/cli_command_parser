@@ -3,7 +3,7 @@
 from abc import ABC
 from unittest import main
 
-from cli_command_parser import Command, CommandDefinitionError, Flag, Option, Positional, SubCommand
+from cli_command_parser import Action, Command, CommandDefinitionError, Flag, Option, Positional, SubCommand
 from cli_command_parser.exceptions import NoSuchOption, ParamsMissing, ParamUsageError, UsageError
 from cli_command_parser.testing import ParserTest
 
@@ -88,6 +88,56 @@ class ParamComboTest(ParserTest):
         fail_cases = [['-b', 'a'], ['a', '-b'], ['a', '-b', 'c']]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_default_action_with_nargs_plus_option(self):
+        class Foo(Command):
+            action = Action()
+            bar = Option('-b', nargs='+')
+
+            @action(default=True)
+            def show(self):
+                pass
+
+            @action()
+            def list(self):
+                pass
+
+        success_cases = [
+            (['-b', 'a'], {'action': None, 'bar': ['a']}),
+            (['-b', 'a', 'b'], {'action': None, 'bar': ['a', 'b']}),
+            (['list', '-b', 'a'], {'action': 'list', 'bar': ['a']}),
+            (['list', '-b', 'a', 'b'], {'action': 'list', 'bar': ['a', 'b']}),
+            (['-b', 'a', 'list'], {'action': 'list', 'bar': ['a']}),
+            (['-b', 'list', 'a'], {'action': None, 'bar': ['list', 'a']}),
+            (['-b', 'show'], {'action': None, 'bar': ['show']}),
+            (['-b', 'list'], {'action': None, 'bar': ['list']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+
+    def test_default_action_with_nargs_plus_option_no_backtrack(self):
+        class Foo(Command, allow_backtrack=False):
+            action = Action()
+            bar = Option('-b', nargs='+')
+
+            @action(default=True)
+            def show(self):
+                pass
+
+            @action()
+            def list(self):
+                pass
+
+        success_cases = [
+            (['-b', 'a'], {'action': None, 'bar': ['a']}),
+            (['-b', 'a', 'b'], {'action': None, 'bar': ['a', 'b']}),
+            (['list', '-b', 'a'], {'action': 'list', 'bar': ['a']}),
+            (['list', '-b', 'a', 'b'], {'action': 'list', 'bar': ['a', 'b']}),
+            (['-b', 'a', 'list'], {'action': None, 'bar': ['a', 'list']}),  # This is the key difference from above
+            (['-b', 'list', 'a'], {'action': None, 'bar': ['list', 'a']}),
+            (['-b', 'show'], {'action': None, 'bar': ['show']}),
+            (['-b', 'list'], {'action': None, 'bar': ['list']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
 
 
 class ParseParamsWithSubcommandsTest(ParserTest):

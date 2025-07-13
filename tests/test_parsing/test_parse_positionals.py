@@ -134,8 +134,6 @@ class PositionalTest(ParserTest):
 
 
 class NargsParsingTest(ParserTest):
-    # region Nargs = Even Range
-
     def test_positional_even_range(self):
         class Foo(Command):
             foo = Positional(nargs=range(2, 6, 2))  # 2 or 4
@@ -147,6 +145,31 @@ class NargsParsingTest(ParserTest):
         fail_cases = [[], ['a'], ['a', 'b', 'c'], ['a', 'b', 'c', 'd', 'e']]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_pos_int_3_with_even_range_option(self):
+        class Foo(Command):
+            foo = Positional(nargs=3, type=int)
+            bar = Option(nargs=range(2, 6, 2))  # 2 or 4
+
+        success_cases = [
+            (['1', '2', '3', '--bar', 'a', 'b'], {'foo': [1, 2, 3], 'bar': ['a', 'b']}),
+            (['1', '2', '3', '--bar', 'a', 'b', 'c', 'd'], {'foo': [1, 2, 3], 'bar': ['a', 'b', 'c', 'd']}),
+            (['--bar', 'a', 'b', 'c', 'd', '1', '2', '3'], {'foo': [1, 2, 3], 'bar': ['a', 'b', 'c', 'd']}),
+            # The following works if backtracking is removed
+            # (['--bar', 'a', 'b', '1', '2', '3'], {'foo': [1, 2, 3], 'bar': ['a', 'b']}),
+        ]
+        fail_cases = [[], ['--bar', 'a', 'b', '1', '2', '3', 'c'], ['--bar', 'a', 'b', '1', '2', '3', 'c', 'd']]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+
+class NargsParsingBacktrackTest(ParserTest):
+    """
+    Except for the methods here with the `_no_backtrack` suffix, these are the only test cases that rely on backtracking
+    during parsing, except for `test_parse_param_combos.ParamComboTest.test_default_action_with_nargs_plus_option`.
+    """
+
+    # region Nargs = Even Range
 
     def test_pos_1_with_even_range_option(self):
         class Foo(Command):
@@ -211,7 +234,7 @@ class NargsParsingTest(ParserTest):
             ['--bar', 'a'],
             ['--bar', 'a', 'b'],
             ['--bar', 'a', 'b', 'c'],
-            ['--bar', 'a', 'b', 'c', 'd', 'e'],
+            ['--bar', 'a', 'b', 'c', 'd', 'e'],  # Triggers _maybe_backtrack_last
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
@@ -250,7 +273,7 @@ class NargsParsingTest(ParserTest):
         success_cases = [
             (['x', 'y', 'z', '--bar', 'a', 'b'], {'foo': ['x', 'y', 'z'], 'bar': ['a', 'b']}),
             (['x', 'y', 'z', '--bar', 'a', 'b', 'c', 'd'], {'foo': ['x', 'y', 'z'], 'bar': ['a', 'b', 'c', 'd']}),
-            (['--bar', 'a', 'b', 'x', 'y', 'z'], {'foo': ['x', 'y', 'z'], 'bar': ['a', 'b']}),
+            (['--bar', 'a', 'b', 'x', 'y', 'z'], {'foo': ['x', 'y', 'z'], 'bar': ['a', 'b']}),  # _maybe_backtrack_last
             (['--bar', 'a', 'b', 'c', 'd', 'x', 'y', 'z'], {'foo': ['x', 'y', 'z'], 'bar': ['a', 'b', 'c', 'd']}),
         ]
         fail_cases = [
@@ -264,22 +287,8 @@ class NargsParsingTest(ParserTest):
             ['z', '--bar', 'a', 'b', 'c'],
             ['--bar', 'a', 'b', 'c'],
             ['--bar', 'a', 'b', 'c', 'd'],
-            ['--bar', 'a', 'b', 'c', 'd', 'e', 'f'],
+            ['--bar', 'a', 'b', 'c', 'd', 'e', 'f'],  # Triggers _maybe_backtrack_last
         ]
-        self.assert_parse_results_cases(Foo, success_cases)
-        self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
-
-    def test_pos_int_3_with_even_range_option(self):
-        class Foo(Command):
-            foo = Positional(nargs=3, type=int)
-            bar = Option(nargs=range(2, 6, 2))  # 2 or 4
-
-        success_cases = [
-            (['1', '2', '3', '--bar', 'a', 'b'], {'foo': [1, 2, 3], 'bar': ['a', 'b']}),
-            (['1', '2', '3', '--bar', 'a', 'b', 'c', 'd'], {'foo': [1, 2, 3], 'bar': ['a', 'b', 'c', 'd']}),
-            (['--bar', 'a', 'b', 'c', 'd', '1', '2', '3'], {'foo': [1, 2, 3], 'bar': ['a', 'b', 'c', 'd']}),
-        ]
-        fail_cases = [[], ['--bar', 'a', 'b', '1', '2', '3']]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 

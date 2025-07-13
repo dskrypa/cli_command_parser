@@ -193,7 +193,7 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
 
     def test_flag_backtrack(self):
         flag_act = Flag().action
-        self.assertEqual([], flag_act.get_maybe_poppable_counts())
+        self.assertEqual([], flag_act.get_maybe_poppable_values())
         self.assertFalse(flag_act.can_reset())
 
     def test_store_add_const(self):

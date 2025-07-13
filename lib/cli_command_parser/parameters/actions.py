@@ -6,7 +6,7 @@ variables.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, Iterable, Iterator, NoReturn, Sequence, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Generic, Iterable, Iterator, NoReturn, Sequence, TypeVar, Union
 
 from ..context import ctx
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
@@ -15,7 +15,8 @@ from ..nargs import Nargs
 from ..utils import _NotSet, camel_to_snake_case
 
 if TYPE_CHECKING:
-    from ..typing import Bool, CommandObj, Param, T_co
+    from .base import Parameter  # noqa
+    from ..typing import Bool, CommandObj, T_co
 
 __all__ = [
     'ParamAction',
@@ -31,20 +32,19 @@ __all__ = [
 
 _PANotSet = object()
 
-TD = TypeVar('TD')
+Param = TypeVar('Param', bound='Parameter')
 Found = Union[int, NoReturn]
 
 
-class ParamAction(ABC):
+class ParamAction(ABC, Generic[Param]):
     __slots__ = ('param',)
     name: str
-    default: TD = _NotSet
+    param: Param
+    default = _NotSet
     accepts_values: bool = False
     accepts_consts: bool = False
 
-    def __init_subclass__(
-        cls, default: TD = _PANotSet, accepts_values: bool = None, accepts_consts: bool = None, **kwargs
-    ):
+    def __init_subclass__(cls, default=_PANotSet, accepts_values: bool = None, accepts_consts: bool = None, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.name = camel_to_snake_case(cls.__name__)
         if default is not _PANotSet:
@@ -111,6 +111,15 @@ class ParamAction(ABC):
             return False
         return self.param.is_valid_arg(normalized)
 
+    def would_accept_all(self, values: list[str], combo: bool = False) -> bool:
+        prepare_validation_value, is_valid_arg = self.param.prepare_validation_value, self.param.is_valid_arg
+        try:
+            valid_values = all(is_valid_arg(prepare_validation_value(value, combo)) for value in values)
+        except BadArgument:  # Potentially raised by prepare_validation_value; is_valid_arg handles exceptions
+            return False
+        else:
+            return valid_values and len(values) in self.param.nargs
+
     # Note: Not used yet
     # def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
     #     prepare_value, validate = self.param.prepare_value, self.param.validate
@@ -123,10 +132,10 @@ class ParamAction(ABC):
 
     # region Backtracking
 
-    def get_maybe_poppable_counts(self) -> list[int]:
+    def get_maybe_poppable_values(self) -> list[list[str]]:
         """
-        :return: The indexes on which the parsed values may be split such that the remaining number of values will
-          still be acceptable for the Parameter's nargs.
+        Groups of args that may be removed from this Parameter's parsed values such that the remaining number will
+        still be acceptable for its nargs.
         """
         return []
 
@@ -162,7 +171,7 @@ class ParamAction(ABC):
 
 class ValueMixin:
     __slots__ = ()
-    param: Param
+    param: Param  # noqa
     get_default: Callable
 
     def set_value(self, value):
@@ -195,7 +204,7 @@ class ValueMixin:
 
 class ConstMixin:
     __slots__ = ()
-    param: Param
+    param: Param  # noqa
     get_default: Callable
     add_const: Callable
     add_value: Callable
@@ -264,8 +273,8 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
     #     ctx.record_action(self.param)
     #     if not values:
     #         raise MissingArgument(self.param)
-    #     elif (val_count := len(values)) not in (nargs := self.param.nargs):
-    #         raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
+    #     elif (val_count := len(values)) not in self.param.nargs:
+    #         raise BadArgument(self.param, f'expected nargs={self.param.nargs} values but found {val_count}')
     #
     #     self.set_value([value for value in self._prep_and_validate(values, combo)])
     #     return val_count
@@ -320,17 +329,13 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
     # region Backtracking
 
-    def get_maybe_poppable_counts(self) -> list[int]:
-        """
-        :return: The indexes on which the parsed values may be split such that the remaining number of values will
-          still be acceptable for the Parameter's nargs.
-        """
+    def get_maybe_poppable_values(self) -> list[list[str]]:
         if not self.param.nargs.variable or self.param.type not in (None, str):
             return []
         elif (values := ctx.get_parsed_value(self.param)) is not _NotSet:
             n_values = len(values)
             satisfied = self.param.nargs.satisfied
-            return [i for i in range(1, n_values) if satisfied(n_values - i)]
+            return [values[-i:] for i in range(1, n_values) if satisfied(n_values - i)]
         else:
             return []
 
@@ -396,6 +401,9 @@ class BasicConstAction(ConstMixin, ParamAction, ABC, accepts_consts=True):
     # region Parsing
 
     def would_accept(self, value: str, combo: bool = False) -> bool:
+        return False
+
+    def would_accept_all(self, values: list[str], combo: bool = False) -> bool:
         return False
 
     # endregion
@@ -504,6 +512,13 @@ class Concatenate(Append):
         n_values = len(values)
         ctx.record_action(param, n_values)
         return n_values
+
+    # endregion
+
+    # region Parsing
+
+    def would_accept_all(self, values: list[str], combo: bool = False) -> bool:
+        return self.param.is_valid_arg(values)
 
     # endregion
 
