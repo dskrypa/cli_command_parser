@@ -158,7 +158,12 @@ class NargsParsingTest(ParserTest):
             # The following works if backtracking is removed
             # (['--bar', 'a', 'b', '1', '2', '3'], {'foo': [1, 2, 3], 'bar': ['a', 'b']}),
         ]
-        fail_cases = [[], ['--bar', 'a', 'b', '1', '2', '3', 'c'], ['--bar', 'a', 'b', '1', '2', '3', 'c', 'd']]
+        fail_cases = [
+            [],
+            ['--bar', 'a', 'b', '1', '2', '3'],  # This should work without backtracking
+            ['--bar', 'a', 'b', '1', '2', '3', 'c'],
+            ['--bar', 'a', 'b', '1', '2', '3', 'c', 'd'],
+        ]
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
