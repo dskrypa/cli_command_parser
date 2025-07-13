@@ -197,6 +197,34 @@ class ActionTest(ParserTest):
         self.assertIs(None, Foo.action.choices['foo'].help)
         self.assertIs(None, Foo.bar.help)
 
+    def test_default_action_has_no_explicit_choice(self):
+        class Foo(Command):
+            action = Action()
+
+            @action(default=True)
+            def bar(self):
+                pass
+
+        self.assert_parse_results(Foo, [], {'action': None})
+        self.assert_parse_fails(Foo, ['bar'])
+
+    def test_default_action_with_explicit_choice(self):
+        class Foo(Command):
+            action_called = None
+            action = Action()
+
+            @action(default=True, choice='bar')
+            def bar(self):
+                self.action_called = 'bar'
+
+            @action()
+            def baz(self):
+                self.action_called = 'baz'
+
+        self.assertEqual('bar', Foo.parse_and_run([]).action_called)
+        self.assertEqual('bar', Foo.parse_and_run(['bar']).action_called)
+        self.assertEqual('baz', Foo.parse_and_run(['baz']).action_called)
+
 
 def make_build_docs_command(explicit_build: bool = False):
     build_mock, clean_mock = sealed_mock(__name__='sphinx_build'), sealed_mock()
