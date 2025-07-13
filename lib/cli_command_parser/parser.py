@@ -319,15 +319,12 @@ class CommandParser:
 
         return True
 
-    def _maybe_backtrack_last_positional(self, param: BasePositional, found: int):
+    def _maybe_backtrack_last_positional(self, param: BasePositional):
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
 
         By the time this method is called, it has already been discovered that `found` does not satisfy `param`'s
         nargs requirements.
-
-        This method does not check whether the popped parameters would be accepted by the positional(s) before popping
-        them, while :meth:`_maybe_backtrack` does perform that check.
         """
         if not self.config.allow_backtrack:
             # This method is called extremely rarely & it's cleaner to have this check here than in _finalize_consume
@@ -406,7 +403,7 @@ class CommandParser:
         elif exc:
             raise exc
         elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
-            self._maybe_backtrack_last_positional(param, found)
+            self._maybe_backtrack_last_positional(param)
 
         s = '' if nargs.min == 1 else 's'
         raise MissingArgument(param, f'expected {nargs.min} value{s}, but only found {found}')
