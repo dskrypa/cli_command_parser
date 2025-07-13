@@ -194,7 +194,7 @@ class OptionTest(ParserTest):
 
     def test_append_get_maybe_poppable_counts(self):
         with Context():
-            self.assertEqual([], Option(action='append').action.get_maybe_poppable_counts())
+            self.assertEqual([], Option(action='append').action.get_maybe_poppable_values())
 
 
 class OptionNargsTest(ParserTest):

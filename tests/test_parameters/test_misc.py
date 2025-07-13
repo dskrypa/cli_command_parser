@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from enum import Enum
 from unittest import main
 
 from cli_command_parser import Command, CommandDefinitionError, Context, ParameterDefinitionError
@@ -130,6 +131,14 @@ class MiscParameterTest(ParserTest):
     def test_leading_dash_property(self):
         self.assertIsInstance(Option.allow_leading_dash, AllowLeadingDashProperty)
 
+    def test_param_repr_with_enum_choices(self):
+        Test = Enum('Test', ('A', 'B', 'C'))  # noqa
+
+        class Foo(Command):
+            bar = Option(type=Test, choices=(Test.A, Test.B))
+
+        self.assertIn('type=<Choices[case_sensitive=True, choices=(<Test.A: 1>,<Test.B: 2>)]>', repr(Foo.bar))
+
 
 class UnlikelyToBeReachedParameterTest(ParserTest):
     def test_too_many_rejected(self):
@@ -184,7 +193,7 @@ class UnlikelyToBeReachedParameterTest(ParserTest):
 
     def test_flag_backtrack(self):
         flag_act = Flag().action
-        self.assertEqual([], flag_act.get_maybe_poppable_counts())
+        self.assertEqual([], flag_act.get_maybe_poppable_values())
         self.assertFalse(flag_act.can_reset())
 
     def test_store_add_const(self):

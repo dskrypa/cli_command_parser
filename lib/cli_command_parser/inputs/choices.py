@@ -36,7 +36,12 @@ class _ChoicesBase(InputType[T], ABC):
         return True
 
     def _type_str(self) -> str:
-        return f'type={self.type.__name__}, ' if self.type is not None else ''
+        if self.type is not None:
+            try:
+                return f'type={self.type.__name__}, '
+            except AttributeError:  # type is not a class
+                pass
+        return ''
 
     def __repr__(self) -> str:
         cls_name = self.__class__.__name__
@@ -100,7 +105,10 @@ class Choices(_ChoicesBase[T]):
         self.case_sensitive = case_sensitive
 
     def _choices_repr(self, delim: str = ',') -> str:
-        return delim.join(map(repr, sorted(self.choices)))
+        try:
+            return delim.join(map(repr, sorted(self.choices)))
+        except TypeError:  # The choice values are not sortable
+            return delim.join(sorted(map(repr, self.choices)))
 
     def __call__(self, value: str) -> T:
         choices = self.choices

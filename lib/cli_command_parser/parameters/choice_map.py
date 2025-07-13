@@ -9,13 +9,13 @@ from __future__ import annotations
 from functools import partial
 from string import printable, whitespace
 from types import MethodType
-from typing import TYPE_CHECKING, Callable, Collection, Generic, Mapping, NoReturn, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Collection, Generic, Mapping, NoReturn, Sequence, Type, TypeVar
 
 from ..context import ctx
 from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
-from ..typing import Bool, CommandCls, CommandObj
+from ..typing import CommandCls
 from ..utils import _NotSet, camel_to_snake_case, short_repr
 from .actions import Concatenate
 from .base import BasePositional
@@ -23,12 +23,12 @@ from .base import BasePositional
 if TYPE_CHECKING:
     from ..formatting.params import ChoiceMapHelpFormatter
     from ..metadata import ProgramMetadata
+    from ..typing import Bool, CommandObj, OptStr
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
 T = TypeVar('T')
 TD = TypeVar('TD')
-OptStr = Optional[str]
 # TODO: Combine SubCommand and Action, replacing `local_choices` with stackable decorators on the target method,
 #  optionally injecting the selected choice into positional args for the decorated method, which may be main?
 
@@ -142,7 +142,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     def _register_choice(
         self,
         choice: OptStr,
-        target: Optional[T] = _NotSet,
+        target: T | None = _NotSet,
         help: str = None,  # noqa
         local: bool = False,
     ):
@@ -162,21 +162,26 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
 
     # region Argument Handling
 
-    def validate(self, value: str, joined: Bool = False):
+    def validate(self, value: str | Sequence[str], joined: Bool = False):
         if not self.choices:
             self._no_choices_error()
 
         parsed = ctx.get_parsed_value(self)
-        values = (value,) if parsed is _NotSet else (*parsed, value)
+        if parsed is _NotSet:
+            values = (value,) if isinstance(value, str) else value
+        else:
+            values = (*parsed, value) if isinstance(value, str) else (*parsed, *value)
+
         if (choice := ' '.join(values)) in self.choices:
             return
         elif len(values) > self.nargs.max:
             raise BadArgument(self, 'too many values')
+
         prefix = choice + ' '
         if not any(c.startswith(prefix) for c in self.choices if c):
             raise InvalidChoice(self, prefix[:-1], self.choices)
 
-    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[OptStr, TD]:
+    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> OptStr | TD:
         if not self.choices:
             self._no_choices_error()
         return super().result(command, missing_default)
@@ -211,7 +216,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         *,
         required: Bool = True,
         default_help: str = None,
-        local_choices: Optional[Union[Mapping[str, str], Collection[str]]] = None,
+        local_choices: Mapping[str, str] | Collection[str] | None = None,
         **kwargs,
     ):
         """
@@ -237,7 +242,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
     def has_local_choices(self) -> bool:
         return None in self.choices or any(c.target is None for c in self.choices.values())
 
-    def _register_local_choices(self, local_choices: Union[Mapping[str, str], Collection[str]]):
+    def _register_local_choices(self, local_choices: Mapping[str, str] | Collection[str]):
         try:
             choice_help_iter = local_choices.items()
         except AttributeError:
@@ -273,7 +278,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
 
     def register(
         self,
-        command_or_choice: Union[str, CommandCls] = None,
+        command_or_choice: str | CommandCls | None = None,
         *,
         choice: str = None,
         help: str = None,  # noqa
@@ -344,12 +349,12 @@ class Action(ChoiceMap[MethodType], title='Actions'):
 
     def register(
         self,
-        method_or_choice: Union[str, MethodType] = None,
+        method_or_choice: str | MethodType | None = None,
         *,
         choice: str = None,
         help: str = None,  # noqa
         default: Bool = False,
-    ) -> Union[MethodType, Callable[[MethodType], MethodType]]:
+    ) -> MethodType | Callable[[MethodType], MethodType]:
         """
         Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
         Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so

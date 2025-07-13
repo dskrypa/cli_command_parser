@@ -182,6 +182,12 @@ class FlagTest(ParserTest):
         expected = '<TriFlagOptionStrings[name_mode=OptionNameMode.DASH][--a-c, --no-a-c]>'
         self.assertEqual(expected, repr(Foo.a_c.option_strs))
 
+    def test_flag_would_not_accept_all(self):
+        class Foo(Command):
+            bar = Flag()
+
+        self.assertFalse(Foo.bar.action.would_accept_all([]))
+
 
 class TriFlagTest(ParserTest):
     def test_trinary(self):

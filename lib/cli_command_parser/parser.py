@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from collections import deque
 from os import environ
-from typing import TYPE_CHECKING, Deque, Iterable, Optional
+from typing import TYPE_CHECKING, Deque, Sequence
 
 from .context import ActionPhase, Context
 from .core import get_parent
@@ -22,7 +22,7 @@ from .exceptions import (
     ParamUsageError,
     UsageError,
 )
-from .nargs import REMAINDER, nargs_min_and_max_sums
+from .nargs import REMAINDER
 from .parameters.base import BaseOption, BasePositional, Parameter
 from .parse_tree import PosNode
 
@@ -45,12 +45,12 @@ class CommandParser:
 
     __slots__ = ('_last', 'arg_deque', 'ctx', 'config', 'deferred', 'params', 'positionals')
 
-    arg_deque: Optional[Deque[str]]
+    arg_deque: Deque[str] | None
     config: CommandConfig
-    deferred: Optional[list[str]]
+    deferred: list[str] | None
     params: CommandParameters
     positionals: list[BasePositional]
-    _last: Optional[Parameter]
+    _last: Parameter | None
 
     def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
         self._last = None
@@ -62,7 +62,7 @@ class CommandParser:
             PosNode.build_tree(ctx.command_cls)
 
     @classmethod
-    def parse_args_and_get_next_cmd(cls, ctx: Context) -> Optional[CommandType]:
+    def parse_args_and_get_next_cmd(cls, ctx: Context) -> CommandType | None:
         try:
             return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
@@ -70,7 +70,7 @@ class CommandParser:
                 raise
             return None
 
-    def get_next_cmd(self, ctx: Context) -> Optional[CommandType]:
+    def get_next_cmd(self, ctx: Context) -> CommandType | None:
         self._parse_args(ctx)
         self._validate_groups()
         missing = ctx.get_missing()
@@ -273,7 +273,7 @@ class CommandParser:
             if len(self.positionals) == 1 and 0 in self.positionals[0].nargs:
                 raise NextCommand
             else:
-                raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')
+                raise ParamUsageError(param, 'subcommand arguments must be provided after the subcommand')  # noqa
 
     # region Backtracking
 
@@ -287,26 +287,58 @@ class CommandParser:
         :param found: The number of values that were consumed by the given Parameter
         :return: The updated found count, if backtracking was possible, otherwise the unmodified found count
         """
-        if self.positionals:
-            can_pop = param.action.get_maybe_poppable_counts()
-            if rollback_count := _to_pop(self.positionals, can_pop, found - 1):
-                self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(param, rollback_count)))
-                return found - rollback_count
-        return found
+        if not self.positionals:
+            return found
+        elif rollback_count := self._get_backtrack_count(param):
+            self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(param, rollback_count)))
+            return found - rollback_count
+        else:
+            return found
 
-    def _maybe_backtrack_last(self, param: BasePositional, found: int):
+    def _get_backtrack_count(
+        self, param: Parameter, extras: Sequence[str] = (), positionals: Sequence[BasePositional] = ()
+    ) -> int:
+        if poppable_groups := param.action.get_maybe_poppable_values():
+            return next((len(g) for g in poppable_groups if self._should_backtrack(g, extras, positionals)), 0)
+        return 0
+
+    def _should_backtrack(
+        self, group: list[str], extras: Sequence[str] = (), positionals: Sequence[BasePositional] = ()
+    ) -> bool:
+        args = [*group, *extras, *self.arg_deque]
+        for pos_param in positionals or self.positionals:
+            n = pos_param.nargs.min
+            if not n and 1 in pos_param.nargs:
+                n = 1
+
+            param_args = args[:n]
+            if len(param_args) != n or not pos_param.action.would_accept_all(param_args):
+                return False
+
+            args = args[n:]
+
+        return True
+
+    def _maybe_backtrack_last_positional(self, param: BasePositional):
         """
         Similar to :meth:`._maybe_backtrack`, but allows backtracking even after starting to process a Positional.
+
+        By the time this method is called, it has already been discovered that `found` does not satisfy `param`'s
+        nargs requirements.
         """
         if not self.config.allow_backtrack:
-            # This method is called relatively rarely & it's cleaner to have this check here than in _finalize_consume
+            # This method is called extremely rarely & it's cleaner to have this check here than in _finalize_consume
             return
 
-        can_pop = self._last.action.get_maybe_poppable_counts()
-        # It is extremely unlikely for this point to be reached without this resulting in triggering a backtrack
-        if rollback_count := _to_pop((param, *self.positionals), can_pop, max(can_pop, default=0) + found, found):
+        parsed = self.ctx.get_parsed_value(param, ())
+        # It is extremely unlikely for this point to be reached without this resulting in triggering backtrack
+        if num := self._get_backtrack_count(self._last, parsed, (param, *self.positionals)):
+            # log.debug(f'Rolling back {num} parsed values from {self._last=} / {param=} and triggering Backtrack')
+            # Reset all of this param's parsed args because the previous param's roll back args need to be injected
+            # before them so they can be processed by this parameter.
             self.arg_deque.extendleft(reversed(self.ctx.pop_parsed_value(param)))
-            self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(self._last, rollback_count)))
+            # Roll back a subset of the previous param's parsed args
+            self.arg_deque.extendleft(reversed(self.ctx.roll_back_parsed_values(self._last, num)))
             raise Backtrack
 
     # endregion
@@ -353,15 +385,13 @@ class CommandParser:
                 # log.debug(f'{value=} was rejected by {param=}', exc_info=True)
                 return self._finalize_consume(param, value, found, e)
 
-        # TODO: Positional(nargs='?') with no values will steal values intended for an Option(nargs='+')
-        #  (likely occurs with nargs='*' for the Positional as well)
-
         # log.debug(f'Ran out of values in deque while processing {param=}')
         if found >= 2 and self.config.allow_backtrack:
             found = self._maybe_backtrack(param, found)
         return self._finalize_consume(param, None, found)
 
-    def _finalize_consume(self, param: Parameter, value: OptStr, found: int, exc: Optional[Exception] = None) -> int:
+    def _finalize_consume(self, param: Parameter, value: OptStr, found: int, exc: Exception | None = None) -> int:
+        # log.debug(f'Finalizing arg consumption for {param=}, {value=}, {found=}, {exc=}')
         nargs = param.nargs
         if nargs.satisfied(found):
             # Even if an exception was passed to this method, if the found number of values is acceptable, then it
@@ -373,29 +403,13 @@ class CommandParser:
         elif exc:
             raise exc
         elif self._last and isinstance(param, BasePositional) and param.action.can_reset():
-            self._maybe_backtrack_last(param, found)
+            self._maybe_backtrack_last_positional(param)
 
         s = '' if nargs.min == 1 else 's'
         raise MissingArgument(param, f'expected {nargs.min} value{s}, but only found {found}')
 
 
 parse_args_and_get_next_cmd = CommandParser.parse_args_and_get_next_cmd
-
-
-def _to_pop(positionals: Iterable[BasePositional], can_pop: list[int], available: int, req_mod: int = 0) -> int:
-    if not can_pop:
-        return 0
-
-    required, acceptable = nargs_min_and_max_sums(p.nargs for p in positionals)
-    if available < required:
-        return 0
-
-    required -= req_mod
-    for n in can_pop:
-        if required <= n <= acceptable:
-            return n
-
-    return 0
 
 
 def get_opt_prefix(text: str) -> OptStr:
