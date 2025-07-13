@@ -721,7 +721,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.upper_bound</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums"><code class="docutils literal notranslate"><span class="pre">nargs_min_and_max_sums()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
@@ -800,7 +799,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.target"><code class="docutils literal notranslate"><span class="pre">PosNode.target</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.word"><code class="docutils literal notranslate"><span class="pre">PosNode.word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params"><code class="docutils literal notranslate"><span class="pre">PosNode.link_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max"><code class="docutils literal notranslate"><span class="pre">PosNode.nargs_min_and_max()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
@@ -998,7 +996,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">MutableMapping</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AmbiguousParseTree</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">nargs_min_and_max_sums</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_tree_target_repr</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1087,12 +1084,6 @@
         <span class="k">if</span> <span class="n">recursive</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="k">yield from</span> <span class="n">node</span><span class="o">.</span><span class="n">_link_params</span><span class="p">(</span><span class="n">_has_upper_bound</span><span class="p">(</span><span class="n">node</span><span class="p">))</span>
-
-<div class="viewcode-block" id="PosNode.nargs_min_and_max">
-<a class="viewcode-back" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">nargs_min_and_max</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-        <span class="k">return</span> <span class="n">nargs_min_and_max_sums</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">nargs</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">link_params</span><span class="p">(</span><span class="kc">True</span><span class="p">))</span></div>
-
 
     <span class="c1"># region AnyWord Methods</span>
 

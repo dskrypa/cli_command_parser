@@ -721,7 +721,6 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.upper_bound</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums"><code class="docutils literal notranslate"><span class="pre">nargs_min_and_max_sums()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parameters.html">Parameters Package</a><ul>
@@ -800,7 +799,6 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.target"><code class="docutils literal notranslate"><span class="pre">PosNode.target</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.word"><code class="docutils literal notranslate"><span class="pre">PosNode.word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params"><code class="docutils literal notranslate"><span class="pre">PosNode.link_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max"><code class="docutils literal notranslate"><span class="pre">PosNode.nargs_min_and_max()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
@@ -2733,10 +2731,10 @@
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.get_help_text">get_help_text() (in module cli_command_parser.testing)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.get_maybe_poppable_counts">get_maybe_poppable_counts() (cli_command_parser.parameters.actions.Append method)</a>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.get_maybe_poppable_values">get_maybe_poppable_values() (cli_command_parser.parameters.actions.Append method)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.get_maybe_poppable_counts">(cli_command_parser.parameters.actions.ParamAction method)</a>
+        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.get_maybe_poppable_values">(cli_command_parser.parameters.actions.ParamAction method)</a>
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_metadata">get_metadata() (in module cli_command_parser.core)</a>
@@ -3638,10 +3636,6 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max">nargs_min_and_max() (cli_command_parser.parse_tree.PosNode method)</a>
-</li>
-      <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums">nargs_min_and_max_sums() (in module cli_command_parser.nargs)</a>
-</li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.AllowLeadingDash.NEVER">NEVER (cli_command_parser.config.AllowLeadingDash attribute)</a>
 
       <ul>
@@ -4767,6 +4761,14 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.would_accept_all">would_accept_all() (cli_command_parser.parameters.actions.BasicConstAction method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.would_accept_all">(cli_command_parser.parameters.actions.Concatenate method)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.would_accept_all">(cli_command_parser.parameters.actions.ParamAction method)</a>
+</li>
+      </ul></li>
       <li><a href="api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">wrap_usage_str (cli_command_parser.config.CommandConfig attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.writable">writable (cli_command_parser.inputs.files.FileInput attribute)</a>

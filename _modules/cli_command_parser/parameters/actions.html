@@ -721,7 +721,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.upper_bound</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.nargs_min_and_max_sums"><code class="docutils literal notranslate"><span class="pre">nargs_min_and_max_sums()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
@@ -800,7 +799,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.target"><code class="docutils literal notranslate"><span class="pre">PosNode.target</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.word"><code class="docutils literal notranslate"><span class="pre">PosNode.word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.link_params"><code class="docutils literal notranslate"><span class="pre">PosNode.link_params()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.nargs_min_and_max"><code class="docutils literal notranslate"><span class="pre">PosNode.nargs_min_and_max()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
@@ -997,7 +995,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">TooManyArguments</span>
@@ -1006,7 +1004,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">T_co</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>  <span class="c1"># noqa</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">T_co</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;ParamAction&#39;</span><span class="p">,</span>
@@ -1022,24 +1021,23 @@
 
 <span class="n">_PANotSet</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
 
-<span class="n">TD</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;TD&#39;</span><span class="p">)</span>
+<span class="n">Param</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;Param&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;Parameter&#39;</span><span class="p">)</span>
 <span class="n">Found</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ParamAction">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ParamAction</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParamAction</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">Param</span><span class="p">]):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;param&#39;</span><span class="p">,)</span>
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_NotSet</span>
+    <span class="n">param</span><span class="p">:</span> <span class="n">Param</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">_NotSet</span>
     <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">accepts_consts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="ParamAction.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.__init_subclass__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">=</span> <span class="n">_PANotSet</span><span class="p">,</span> <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">accepts_consts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">_PANotSet</span><span class="p">,</span> <span class="n">accepts_values</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">accepts_consts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_PANotSet</span><span class="p">:</span>
@@ -1122,6 +1120,18 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">is_valid_arg</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="ParamAction.would_accept_all">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.would_accept_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">would_accept_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="n">prepare_validation_value</span><span class="p">,</span> <span class="n">is_valid_arg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">prepare_validation_value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">is_valid_arg</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">valid_values</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span><span class="n">is_valid_arg</span><span class="p">(</span><span class="n">prepare_validation_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">combo</span><span class="p">))</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">BadArgument</span><span class="p">:</span>  <span class="c1"># Potentially raised by prepare_validation_value; is_valid_arg handles exceptions</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">valid_values</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span></div>
+
+
     <span class="c1"># Note: Not used yet</span>
     <span class="c1"># def _prep_and_validate(self, values: Sequence[str], combo: bool) -&gt; Iterator[T_co]:</span>
     <span class="c1">#     prepare_value, validate = self.param.prepare_value, self.param.validate</span>
@@ -1134,12 +1144,12 @@
 
     <span class="c1"># region Backtracking</span>
 
-<div class="viewcode-block" id="ParamAction.get_maybe_poppable_counts">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.get_maybe_poppable_counts">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_maybe_poppable_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<div class="viewcode-block" id="ParamAction.get_maybe_poppable_values">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.get_maybe_poppable_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_maybe_poppable_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: The indexes on which the parsed values may be split such that the remaining number of values will</span>
-<span class="sd">          still be acceptable for the Parameter&#39;s nargs.</span>
+<span class="sd">        Groups of args that may be removed from this Parameter&#39;s parsed values such that the remaining number will</span>
+<span class="sd">        still be acceptable for its nargs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 
@@ -1191,7 +1201,7 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ValueMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValueMixin</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">param</span><span class="p">:</span> <span class="n">Param</span>
+    <span class="n">param</span><span class="p">:</span> <span class="n">Param</span>  <span class="c1"># noqa</span>
     <span class="n">get_default</span><span class="p">:</span> <span class="n">Callable</span>
 
 <div class="viewcode-block" id="ValueMixin.set_value">
@@ -1233,7 +1243,7 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ConstMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ConstMixin</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
-    <span class="n">param</span><span class="p">:</span> <span class="n">Param</span>
+    <span class="n">param</span><span class="p">:</span> <span class="n">Param</span>  <span class="c1"># noqa</span>
     <span class="n">get_default</span><span class="p">:</span> <span class="n">Callable</span>
     <span class="n">add_const</span><span class="p">:</span> <span class="n">Callable</span>
     <span class="n">add_value</span><span class="p">:</span> <span class="n">Callable</span>
@@ -1320,8 +1330,8 @@
     <span class="c1">#     ctx.record_action(self.param)</span>
     <span class="c1">#     if not values:</span>
     <span class="c1">#         raise MissingArgument(self.param)</span>
-    <span class="c1">#     elif (val_count := len(values)) not in (nargs := self.param.nargs):</span>
-    <span class="c1">#         raise BadArgument(self.param, f&#39;expected {nargs=} values but found {val_count}&#39;)</span>
+    <span class="c1">#     elif (val_count := len(values)) not in self.param.nargs:</span>
+    <span class="c1">#         raise BadArgument(self.param, f&#39;expected nargs={self.param.nargs} values but found {val_count}&#39;)</span>
     <span class="c1">#</span>
     <span class="c1">#     self.set_value([value for value in self._prep_and_validate(values, combo)])</span>
     <span class="c1">#     return val_count</span>
@@ -1388,19 +1398,15 @@
 
     <span class="c1"># region Backtracking</span>
 
-<div class="viewcode-block" id="Append.get_maybe_poppable_counts">
-<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.get_maybe_poppable_counts">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_maybe_poppable_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        :return: The indexes on which the parsed values may be split such that the remaining number of values will</span>
-<span class="sd">          still be acceptable for the Parameter&#39;s nargs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Append.get_maybe_poppable_values">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.get_maybe_poppable_values">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_maybe_poppable_values</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">variable</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[]</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">values</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="n">n_values</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
             <span class="n">satisfied</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">nargs</span><span class="o">.</span><span class="n">satisfied</span>
-            <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_values</span><span class="p">)</span> <span class="k">if</span> <span class="n">satisfied</span><span class="p">(</span><span class="n">n_values</span> <span class="o">-</span> <span class="n">i</span><span class="p">)]</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="n">i</span><span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_values</span><span class="p">)</span> <span class="k">if</span> <span class="n">satisfied</span><span class="p">(</span><span class="n">n_values</span> <span class="o">-</span> <span class="n">i</span><span class="p">)]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span></div>
 
@@ -1487,6 +1493,12 @@
 <div class="viewcode-block" id="BasicConstAction.would_accept">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.would_accept">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">would_accept</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BasicConstAction.would_accept_all">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.would_accept_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">would_accept_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span></div>
 </div>
 
@@ -1625,6 +1637,16 @@
         <span class="n">n_values</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
         <span class="n">ctx</span><span class="o">.</span><span class="n">record_action</span><span class="p">(</span><span class="n">param</span><span class="p">,</span> <span class="n">n_values</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">n_values</span></div>
+
+
+    <span class="c1"># endregion</span>
+
+    <span class="c1"># region Parsing</span>
+
+<div class="viewcode-block" id="Concatenate.would_accept_all">
+<a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Concatenate.would_accept_all">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">would_accept_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">combo</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">is_valid_arg</span><span class="p">(</span><span class="n">values</span><span class="p">)</span></div>
 
 
     <span class="c1"># endregion</span>
