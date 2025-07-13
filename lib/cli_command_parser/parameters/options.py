@@ -7,9 +7,8 @@ Optional Parameters
 from __future__ import annotations
 
 import logging
-from abc import ABC
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, TypeVar, Union
 
 from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
@@ -188,7 +187,7 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
     def register_default_cb(self, method):
         raise ParameterDefinitionError(f'{self.__class__.__name__}s do not support default callback methods')
 
-    def get_env_const(self, value: str, env_var: str) -> tuple[Union[TC, TD], bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[TC | TD, bool]:
         try:
             parsed = self.type(value)
         except Exception as e:
@@ -198,7 +197,7 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
         return parsed, self.use_env_value
 
 
-class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendConst)):
+class TriFlag(BaseOption[Union[TD, TC, TA]], actions=(StoreConst, AppendConst)):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -298,13 +297,13 @@ class TriFlag(BaseOption[Union[TD, TC, TA]], ABC, actions=(StoreConst, AppendCon
             self.default = _NotSet  # The default was set by __init__ - remove it so the method can be registered
         return super().register_default_cb(method)
 
-    def get_const(self, opt_str: OptStr = None) -> Union[TC, TA]:
+    def get_const(self, opt_str: OptStr = None) -> TC | TA:
         if opt_str in self.option_strs.alt_allowed:
             return self.consts[1]
         else:
             return self.consts[0]
 
-    def get_env_const(self, value: str, env_var: str) -> tuple[Union[TC, TA, TD], bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[TC | TA | TD, bool]:
         try:
             parsed = self.type(value)
         except Exception as e:
@@ -342,7 +341,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
     def __init__(
         self,
         *option_strs: str,
-        order: Union[int, float] = 1,
+        order: int | float = 1,
         func: Callable = None,
         before_main: Bool = True,  # noqa  # pylint: disable=W0621
         always_available: Bool = False,
@@ -364,7 +363,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         return self._func
 
     @func.setter
-    def func(self, func: Optional[Callable]):
+    def func(self, func: Callable | None):
         self._func = func
         if func is not None:
             if self.help is None:
@@ -403,7 +402,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         self.func = func
         return self
 
-    def __get__(self, command: Optional[CommandObj], owner: CommandCls) -> Union[ActionFlag, Callable]:
+    def __get__(self, command: CommandObj | None, owner: CommandCls) -> ActionFlag | Callable:
         # Allow the method to be called, regardless of whether it was specified
         if command is None:
             return self
@@ -424,12 +423,12 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
 action_flag = ActionFlag  # pylint: disable=C0103
 
 
-def before_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
+def before_main(*option_strs: str, order: int | float = 1, func: Callable = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed before :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=True, **kwargs)
 
 
-def after_main(*option_strs: str, order: Union[int, float] = 1, func: Callable = None, **kwargs) -> ActionFlag:
+def after_main(*option_strs: str, order: int | float = 1, func: Callable = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed after :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
 
@@ -500,7 +499,7 @@ class Counter(BaseOption[int], actions=(Count,)):
             self.default_cb = None
         return super().register_default_cb(method)
 
-    def prepare_value(self, value: Optional[str], short_combo: bool = False, env_var: str = None) -> int:
+    def prepare_value(self, value: str | None, short_combo: bool = False, env_var: str = None) -> int:
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:
