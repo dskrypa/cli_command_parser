@@ -9,18 +9,18 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Optional, Sequence, Type, overload
+from typing import TYPE_CHECKING, Sequence, TextIO, Type, overload
 
 from .context import ActionPhase, Context, get_or_create_context
 from .core import CommandMeta, get_params, get_top_level_commands
-from .exceptions import ParamConflict
+from .exceptions import ParamConflict, ParserExit
 from .parser import parse_args_and_get_next_cmd
 from .utils import maybe_await
 
 if TYPE_CHECKING:
     from .typing import Bool, CommandObj
 
-__all__ = ['Command', 'AsyncCommand', 'main']
+__all__ = ['Command', 'AsyncCommand', 'main', 'print_help']
 log = logging.getLogger(__name__)
 
 Argv = Sequence[str]
@@ -50,13 +50,13 @@ class Command(ABC, metaclass=CommandMeta):
 
     @classmethod
     @overload
-    def parse_and_run(cls: Type[CommandObj], argv: Argv = None, **kwargs) -> Optional[CommandObj]:
+    def parse_and_run(cls: Type[CommandObj], argv: Argv = None, **kwargs) -> CommandObj | None:
         # These overloads indicate that an instance of the same type or another may be returned
         ...
 
     @classmethod
     @overload
-    def parse_and_run(cls, argv: Argv = None, **kwargs) -> Optional[CommandObj]: ...
+    def parse_and_run(cls, argv: Argv = None, **kwargs) -> CommandObj | None: ...
 
     @classmethod
     def parse_and_run(cls, argv=None, **kwargs):
@@ -214,7 +214,7 @@ class Command(ABC, metaclass=CommandMeta):
         """
         self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
 
-    def main(self, *args, **kwargs) -> Optional[int]:
+    def main(self, *args, **kwargs) -> int | None:
         """
         Primary method that is called when running a Command.
 
@@ -340,7 +340,7 @@ class AsyncCommand(Command, ABC):
         """Asynchronous version of :meth:`Command._before_main_`."""
         await self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
 
-    async def main(self, *args, **kwargs) -> Optional[int]:
+    async def main(self, *args, **kwargs) -> int | None:
         """Asynchronous version of :meth:`Command.main`."""
         with self._Command__ctx as ctx:  # noqa
             action = get_params(self).action
@@ -355,7 +355,7 @@ class AsyncCommand(Command, ABC):
         await self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
 
 
-def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> Optional[CommandObj]:
+def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> CommandObj | None:
     """
     Convenience function that can be used as the main entry point for a program.
 
@@ -389,3 +389,17 @@ def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> Optional[
 
     command = commands[0].parse_and_run(argv, **kwargs)
     return command if return_command else None
+
+
+def print_help(command: Command, *, exit: bool = True, file: TextIO | None = None):  # noqa
+    """
+    User-callable version of the ``--help`` / ``-h`` action.  Prints help text, then optionally exits.
+
+    :param command: The command for which help text should be printed.
+    :param exit: Whether a :class:`~.ParserExit` exception should be raised after help text is printed.  If True (the
+      default), the program will exit with code 0 (success).  If False, no exception will be raised.
+    :param file: The file-like object (stream) to write to; defaults to the current sys.stdout.
+    """
+    print(get_params(command).formatter.format_help(), file=file)
+    if exit:
+        raise ParserExit
