@@ -992,7 +992,7 @@ class PrintHelpTest(ParserTest):
                 print_help(self)
 
         with RedirectStreams() as streams, self.assertRaises(SystemExit):
-            Foo.parse_and_run()
+            Foo.parse_and_run([])
 
         self.assert_str_contains('Optional arguments:\n  --bar                       Include bar\n', streams.stdout)
 
