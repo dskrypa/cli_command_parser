@@ -201,6 +201,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../advanced.html#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../advanced.html#manually-printing-help-text">Manually Printing Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../testing.html">Testing Commands</a><ul>
@@ -267,6 +268,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cli_command_parser.commands.print_help"><code class="docutils literal notranslate"><span class="pre">print_help()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.config.html">Config Module</a><ul>
@@ -1255,6 +1257,22 @@ intended to be the primary entry point.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></a> if multiple subclasses are detected, or if no subclasses could be found.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cli_command_parser.commands.print_help">
+<span class="sig-prename descclassname"><span class="pre">cli_command_parser.commands.</span></span><span class="sig-name descname"><span class="pre">print_help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><span class="pre">Command</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.TextIO" title="(in Python v3.13)"><span class="pre">TextIO</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/commands.html#print_help"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.commands.print_help" title="Link to this definition"></a></dt>
+<dd><p>User-callable version of the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action.  Prints help text, then optionally exits.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span class="target" id="cli_command_parser.commands.print_help.params.command"></span><strong>command</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.commands.print_help.params.command">¶</a> – The command for which help text should be printed.</p></li>
+<li><p><span class="target" id="cli_command_parser.commands.print_help.params.exit"></span><strong>exit</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.commands.print_help.params.exit">¶</a> – Whether a <a class="reference internal" href="cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit" title="cli_command_parser.exceptions.ParserExit"><code class="xref py py-class docutils literal notranslate"><span class="pre">ParserExit</span></code></a> exception should be raised after help text is printed.  If True (the
+default), the program will exit with code 0 (success).  If False, no exception will be raised.</p></li>
+<li><p><span class="target" id="cli_command_parser.commands.print_help.params.file"></span><strong>file</strong><a class="paramlink headerlink reference internal" href="#cli_command_parser.commands.print_help.params.file">¶</a> – The file-like object (stream) to write to; defaults to the current sys.stdout.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>

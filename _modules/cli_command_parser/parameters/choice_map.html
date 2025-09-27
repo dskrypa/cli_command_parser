@@ -198,6 +198,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../advanced.html#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../advanced.html#manually-printing-help-text">Manually Printing Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../testing.html">Testing Commands</a><ul>
@@ -264,6 +265,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.print_help"><code class="docutils literal notranslate"><span class="pre">print_help()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.config.html">Config Module</a><ul>
@@ -1135,14 +1137,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_positional</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;choice&#39;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_positional</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">value</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> - may not be empty or start with &#39;-&#39;&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> choice=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s2"> - may not be empty or start with &#39;-&#39;&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">bad</span> <span class="o">:=</span> <span class="p">{</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">value</span> <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39; &#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">printable</span><span class="p">}:</span>
-            <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - invalid characters: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_choice_validation_exc</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> choice=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - invalid characters: </span><span class="si">{</span><span class="n">bad</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ChoiceMap.register_choice">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.register_choice">[docs]</a>

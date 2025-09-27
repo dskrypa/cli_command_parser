@@ -284,3 +284,19 @@ Higher order values result in being called later, when specified.
 It is technically possible to call the same method both via action and flag, such as ``build_docs.py clean -c``.
 Nothing in this library will prevent that.  If this is problematic, but you want to stack decorators like this, then
 you should include a check in your application to prevent it from being run twice.
+
+
+Manually Printing Help Text
+===========================
+
+While the ``--help`` / ``-h`` action is automatically included (as long as the
+:ref:`configuration:Usage & Help Text Options:add_help` option hasn't been disabled), it is sometimes useful to be able
+to print help text on demand.
+
+This can be achieved with the :func:`~.print_help` function.  Basic example::
+
+    from cli_command_parser import Command, print_help
+
+    class MyCommand(Command):
+        def main(self):
+            print_help(self)

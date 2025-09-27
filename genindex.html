@@ -198,6 +198,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="advanced.html#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#manually-printing-help-text">Manually Printing Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a><ul>
@@ -264,6 +265,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help"><code class="docutils literal notranslate"><span class="pre">print_help()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.config.html">Config Module</a><ul>
@@ -1980,6 +1982,8 @@
       <li><a href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command">command (cli_command_parser.command_parameters.CommandParameters attribute)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help.params.command">(cli_command_parser.commands.print_help parameter)</a>
+</li>
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed.params.command">(cli_command_parser.context.Context.get_parsed parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.get_context.params.command">(cli_command_parser.context.get_context parameter)</a>
@@ -2399,6 +2403,8 @@
         <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Path.params.exists">(cli_command_parser.inputs.files.Path parameter)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help.params.exit">exit (cli_command_parser.commands.print_help parameter)</a>
+</li>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.CommandParserException.exit">exit() (cli_command_parser.exceptions.CommandParserException method)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.FileInput.expand">expand (cli_command_parser.inputs.files.FileInput attribute)</a>
@@ -2430,6 +2436,8 @@
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.FIFO">FIFO (cli_command_parser.inputs.utils.StatMode attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File">File (class in cli_command_parser.inputs.files)</a>
+</li>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help.params.file">file (cli_command_parser.commands.print_help parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.FILE">FILE (cli_command_parser.inputs.utils.StatMode attribute)</a>
 </li>
@@ -2545,10 +2553,10 @@
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.format_diff">format_diff() (in module cli_command_parser.testing)</a>
 </li>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">format_epilog() (cli_command_parser.metadata.ProgramMetadata method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.format_epilog">format_epilog() (cli_command_parser.metadata.ProgramMetadata method)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_help">format_help() (cli_command_parser.formatting.commands.CommandHelpFormatter method)</a>
 
       <ul>
@@ -3926,10 +3934,10 @@
         <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.ParserConverter">(class in cli_command_parser.conversion.command_builder)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.exceptions.html#cli_command_parser.exceptions.ParserExit">ParserExit</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.Script.parsers">parsers (cli_command_parser.conversion.argparse_ast.Script property)</a>
 </li>
       <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
@@ -4041,6 +4049,8 @@
 </li>
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.primary_option_strs">primary_option_strs() (cli_command_parser.parameters.option_strings.TriFlagOptionStrings method)</a>
+</li>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help">print_help() (in module cli_command_parser.commands)</a>
 </li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree">print_tree() (cli_command_parser.parse_tree.PosNode method)</a>
 </li>

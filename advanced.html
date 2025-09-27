@@ -201,6 +201,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#manually-printing-help-text">Manually Printing Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="testing.html">Testing Commands</a><ul>
@@ -267,6 +268,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help"><code class="docutils literal notranslate"><span class="pre">print_help()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.config.html">Config Module</a><ul>
@@ -1242,6 +1244,20 @@ the following methods being called in the following order:</p>
 <p>It is technically possible to call the same method both via action and flag, such as <code class="docutils literal notranslate"><span class="pre">build_docs.py</span> <span class="pre">clean</span> <span class="pre">-c</span></code>.
 Nothing in this library will prevent that.  If this is problematic, but you want to stack decorators like this, then
 you should include a check in your application to prevent it from being run twice.</p>
+</section>
+<section id="manually-printing-help-text">
+<h2>Manually Printing Help Text<a class="headerlink" href="#manually-printing-help-text" title="Link to this heading"></a></h2>
+<p>While the <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> action is automatically included (as long as the
+<a class="reference internal" href="configuration.html#usage &amp; help text options:add_help"><span class="std std-ref">add_help</span></a> option hasn’t been disabled), it is sometimes useful to be able
+to print help text on demand.</p>
+<p>This can be achieved with the <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.print_help" title="cli_command_parser.commands.print_help"><code class="xref py py-func docutils literal notranslate"><span class="pre">print_help()</span></code></a> function.  Basic example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">print_help</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MyCommand</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 

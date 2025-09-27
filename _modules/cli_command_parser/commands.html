@@ -198,6 +198,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../advanced.html#mixing-actions-actionflags">Mixing Actions &amp; ActionFlags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../advanced.html#manually-printing-help-text">Manually Printing Help Text</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../testing.html">Testing Commands</a><ul>
@@ -264,6 +265,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.print_help"><code class="docutils literal notranslate"><span class="pre">print_help()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.config.html">Config Module</a><ul>
@@ -998,18 +1000,18 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExitStack</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionPhase</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="n">get_or_create_context</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMeta</span><span class="p">,</span> <span class="n">get_params</span><span class="p">,</span> <span class="n">get_top_level_commands</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamConflict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParserExit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_args_and_get_next_cmd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">maybe_await</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;AsyncCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Command&#39;</span><span class="p">,</span> <span class="s1">&#39;AsyncCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="s1">&#39;print_help&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">Argv</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -1041,13 +1043,13 @@
 
     <span class="nd">@classmethod</span>
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">],</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">],</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># These overloads indicate that an instance of the same type or another may be returned</span>
         <span class="o">...</span>
 
     <span class="nd">@classmethod</span>
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_and_run</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 
 <div class="viewcode-block" id="Command.parse_and_run">
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.parse_and_run">[docs]</a>
@@ -1225,7 +1227,7 @@
 
 <div class="viewcode-block" id="Command.main">
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.Command.main">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Primary method that is called when running a Command.</span>
 
@@ -1375,7 +1377,7 @@
 
 <div class="viewcode-block" id="AsyncCommand.main">
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main">[docs]</a>
-    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Asynchronous version of :meth:`Command.main`.&quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Command__ctx</span> <span class="k">as</span> <span class="n">ctx</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="n">action</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">action</span>
@@ -1397,7 +1399,7 @@
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_command</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">return_command</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience function that can be used as the main entry point for a program.</span>
 
@@ -1431,6 +1433,23 @@
 
     <span class="n">command</span> <span class="o">=</span> <span class="n">commands</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parse_and_run</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">command</span> <span class="k">if</span> <span class="n">return_command</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="print_help">
+<a class="viewcode-back" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.print_help">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">print_help</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">Command</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">exit</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">file</span><span class="p">:</span> <span class="n">TextIO</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    User-callable version of the ``--help`` / ``-h`` action.  Prints help text, then optionally exits.</span>
+
+<span class="sd">    :param command: The command for which help text should be printed.</span>
+<span class="sd">    :param exit: Whether a :class:`~.ParserExit` exception should be raised after help text is printed.  If True (the</span>
+<span class="sd">      default), the program will exit with code 0 (success).  If False, no exception will be raised.</span>
+<span class="sd">    :param file: The file-like object (stream) to write to; defaults to the current sys.stdout.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">(),</span> <span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">exit</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ParserExit</span></div>
 
 </pre></div>
 
