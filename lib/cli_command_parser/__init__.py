@@ -4,7 +4,7 @@ Command Parser
 :author: Doug Skrypa
 """
 
-from .commands import AsyncCommand, Command, main
+from .commands import AsyncCommand, Command, main, print_help
 from .config import (
     AllowLeadingDash,
     AmbiguousComboMode,

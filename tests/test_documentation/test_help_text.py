@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import sys
 from abc import ABC
 from contextlib import contextmanager
+from io import StringIO
 from typing import TYPE_CHECKING, Any, Iterable, Iterator, Sequence
 from unittest import TestCase, main
 from unittest.mock import Mock, patch
 
-from cli_command_parser import Command, Context, ShowDefaults, no_exit_handler
+from cli_command_parser import Command, Context, ShowDefaults, no_exit_handler, print_help
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
@@ -262,6 +264,8 @@ Optional arguments:
         """.lstrip()
         self.assert_strings_equal(expected, get_help_text(Foo), trim=True)
 
+    # region Option Name Modes
+
     def test_underscore_and_dash_enabled(self):
         class Foo(Command, option_name_mode='both'):
             foo_bar = Flag()
@@ -306,6 +310,8 @@ Optional arguments:
                 self.assertTrue(all(exp in help_text for exp in base_expected))
                 self.assertTrue(all(exp in help_text for exp in expected_a))
                 self.assertTrue(all(val not in help_text for val in never_expected))
+
+    # endregion
 
     def test_tri_flag_no_alt_short(self):
         class Foo(Command):
@@ -437,6 +443,8 @@ usage: foo_bar.py [--abcdef ABCDEF]
 
     # endregion
 
+    # region Long Usage Parts
+
     def test_long_usage_parts_with_no_desc_wrapped(self):
         class Foo(Command, strict_usage_column_width=True):
             bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR')
@@ -463,7 +471,7 @@ usage: foo_bar.py [--abcdef ABCDEF]
 
         self.assert_str_contains('\n  --bar BAR_BAR_BAR_BAR_BAR_  The bar to baz\n', get_help_text(Foo))
 
-    def test_test_long_usage_parts_with_long_desc_wrapped(self):
+    def test_long_usage_parts_with_long_desc_wrapped(self):
         class Foo(Command, strict_usage_column_width=True):
             bar = Option('-b', metavar='BAR_BAR_BAR_BAR_BAR', help='The bar to baz or the foo to bar and baz')
 
@@ -474,6 +482,8 @@ usage: foo_bar.py [--abcdef ABCDEF]
         )
         # fmt: on
         self.assert_str_contains(expected, get_help_text(Foo, terminal_width=52))
+
+    # endregion
 
 
 class SubcommandHelpAndRstTest(ParserTest):
@@ -971,6 +981,41 @@ Optional arguments:
   --help, -h                  Show this help message and exit
         """.rstrip()
         self.assert_str_contains(expected, get_help_text(Foo))
+
+
+class PrintHelpTest(ParserTest):
+    def test_print_help(self):
+        class Foo(Command):
+            bar = Flag(help='Include bar')
+
+            def main(self):
+                print_help(self)
+
+        with RedirectStreams() as streams, self.assertRaises(SystemExit):
+            Foo.parse_and_run([])
+
+        self.assert_str_contains('Optional arguments:\n  --bar                       Include bar\n', streams.stdout)
+
+    def test_stderr_help(self):
+        class Foo(Command):
+            bar = Flag(help='Include bar')
+
+        with RedirectStreams() as streams:
+            print_help(Foo(), exit=False, file=sys.stderr)
+
+        self.assert_str_contains('Optional arguments:\n  --bar                       Include bar\n', streams.stderr)
+
+    def test_string_io_help(self):
+        class Foo(Command):
+            bar = Flag(help='Include bar')
+
+        sio = StringIO()
+        with RedirectStreams() as streams:
+            print_help(Foo(), exit=False, file=sio)
+
+        self.assertEqual('', streams.stdout)
+        self.assertEqual('', streams.stderr)
+        self.assert_str_contains('Optional arguments:\n  --bar                       Include bar\n', sio.getvalue())
 
 
 def _get_output(command: CommandCls, args: Sequence[str]) -> tuple[str, str]:
