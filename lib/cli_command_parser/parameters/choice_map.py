@@ -126,14 +126,14 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         self.nargs = Nargs(lengths)
 
     @classmethod
-    def _validate_positional(cls, value: str, prefix: str = 'choice'):
+    def _validate_positional(cls, value: str):
         if not value or value.startswith('-'):
             raise cls._choice_validation_exc(
-                f"Invalid {cls.__name__} {prefix}={value!r} - may not be empty or start with '-'"
+                f"Invalid {cls.__name__} choice={value!r} - may not be empty or start with '-'"
             )
 
         if bad := {c for c in value if (c in whitespace and c != ' ') or c not in printable}:
-            raise cls._choice_validation_exc(f'Invalid {cls.__name__} {prefix}={value!r} - invalid characters: {bad}')
+            raise cls._choice_validation_exc(f'Invalid {cls.__name__} choice={value!r} - invalid characters: {bad}')
 
     def register_choice(self, choice: str, target: T = _NotSet, help: str = None):  # noqa
         self._validate_positional(choice)
