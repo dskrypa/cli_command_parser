@@ -7,7 +7,7 @@ Utilities for extracting types from annotations.
 from collections.abc import Collection, Iterable
 from functools import lru_cache
 from inspect import isclass
-from types import NoneType
+from types import NoneType, UnionType
 from typing import Union, get_args, get_origin, get_type_hints as _get_type_hints
 
 __all__ = ['get_descriptor_value_type']
@@ -33,7 +33,7 @@ def get_annotation_value_type(annotation, from_union: bool = True, from_collecti
         return annotation
     elif from_collection and isclass(origin) and issubclass(origin, (Collection, Iterable)):
         return _type_from_collection(origin, annotation)
-    elif from_union and origin is Union:
+    elif from_union and (origin is Union or origin is UnionType):
         return _type_from_union(annotation)
     return None
 
