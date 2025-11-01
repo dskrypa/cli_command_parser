@@ -3,7 +3,7 @@ CLI Command Parser
 
 |downloads| |py_version| |coverage_badge| |build_status| |Ruff| |OpenSSF Best Practices|
 
-.. |py_version| image:: https://img.shields.io/badge/python-3.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20-blue
+.. |py_version| image:: https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14%20-blue
     :target: https://pypi.org/project/cli-command-parser/
 
 .. |coverage_badge| image:: https://codecov.io/gh/dskrypa/cli_command_parser/branch/main/graph/badge.svg
@@ -88,8 +88,8 @@ with optional dependencies::
 Python Version Compatibility
 ============================
 
-Python versions 3.9 and above are currently supported.  The last release of CLI Command Parser that supported 3.8 was
-2024-09-07.  Support for Python 3.8 `officially ended on 2024-10-07 <https://devguide.python.org/versions/>`__.
+Python versions 3.10 and above are currently supported.  The last release of CLI Command Parser that supported 3.9 was
+2025-09-27.  Support for Python 3.9 `officially ended on 2025-10-31 <https://devguide.python.org/versions/>`__.
 
 
 Links
