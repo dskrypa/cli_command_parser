@@ -1,3 +1,56 @@
+[build-system]
+requires = ['setuptools']
+build-backend = 'setuptools.build_meta'
+
+[project]
+dynamic = ['version']
+name = 'cli_command_parser'
+description = 'CLI Command Parser'
+readme = 'readme.rst'
+authors = [{name='Doug Skrypa', email='dskrypa@gmail.com'}]
+license-files = ['LICENSE']
+classifiers = [
+    'Development Status :: 5 - Production/Stable',
+    'Environment :: Console',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: Apache Software License',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
+    'Programming Language :: Python :: 3.14',
+    'Topic :: Software Development :: User Interfaces',
+    'Topic :: Text Processing',
+]
+requires-python = '>=3.10'
+
+[project.urls]
+Source = 'https://github.com/dskrypa/cli_command_parser'
+Documentation = 'https://dskrypa.github.io/cli_command_parser'
+Issues = 'https://github.com/dskrypa/cli_command_parser/issues'
+
+[project.optional-dependencies]
+wcwidth = ['wcwidth']
+
+[project.scripts]
+'argparse_to_command.py' = 'cli_command_parser.conversion.cli:main'
+
+
+[tool.setuptools]
+include-package-data = true
+package-dir = {'' = 'lib'}
+
+[tool.setuptools.dynamic]
+version = {attr='cli_command_parser.__version__.__version__'}
+
+[tool.setuptools.packages.find]
+where = ['lib']
+namespaces = false
+
+
 [tool.ruff]
 # https://docs.astral.sh/ruff/configuration/
 exclude = [
