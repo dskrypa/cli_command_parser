@@ -592,18 +592,19 @@ def dt_repr(dt: datetime | date | time, use_repr: bool = True) -> str:
 
 
 def normalize_dt(value: TimeBound, now: datetime = None) -> datetime | None:
-    if value is None or isinstance(value, datetime):
-        return value
-    elif isinstance(value, timedelta):
-        if now is None:
-            now = datetime.now()
-        return now + value
-    elif isinstance(value, date):
-        return datetime.combine(value, time())
-    elif isinstance(value, time):
-        today = date.today() if now is None else now.date()
-        return datetime.combine(today, value)
-    raise TypeError(
-        f'Unexpected datetime specifier type={value.__class__.__name__} for {value=}'
-        ' (expected datetime, date, time, timedelta, or None)'
-    )
+    match value:
+        case None | datetime():
+            return value
+        case timedelta():
+            if now is None:
+                now = datetime.now()
+            return now + value
+        case date():
+            return datetime.combine(value, time())
+        case time():
+            return datetime.combine(date.today() if now is None else now.date(), value)
+        case _:
+            raise TypeError(
+                f'Unexpected datetime specifier type={value.__class__.__name__} for {value=}'  # noqa
+                ' (expected datetime, date, time, timedelta, or None)'
+            )

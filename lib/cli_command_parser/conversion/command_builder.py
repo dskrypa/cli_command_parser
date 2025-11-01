@@ -3,7 +3,7 @@ from __future__ import annotations
 import keyword
 import logging
 from abc import ABC, abstractmethod
-from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, SetComp, Str, Subscript, literal_eval
+from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, SetComp, Subscript, literal_eval
 from dataclasses import dataclass, fields
 from functools import cached_property
 from itertools import count

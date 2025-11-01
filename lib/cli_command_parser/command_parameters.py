@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Collection, Iterator, Optional
+from typing import TYPE_CHECKING, Collection, Iterator
 
 from .config import AmbiguousComboMode, CommandConfig
 from .exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError, ParameterDefinitionError
@@ -34,11 +34,11 @@ class CommandParameters:
     # fmt: off
     command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
-    command_parent: Optional[CommandCls]                 #: The parent Command, if any
-    parent: Optional[CommandParameters]                  #: The parent Command's CommandParameters
-    action: Optional[Action] = None                      #: An Action Parameter, if specified
-    _pass_thru: Optional[PassThru] = None                #: A PassThru Parameter, if specified
-    sub_command: Optional[SubCommand] = None             #: A SubCommand Parameter, if specified
+    command_parent: CommandCls | None                    #: The parent Command, if any
+    parent: CommandParameters | None                     #: The parent Command's CommandParameters
+    action: Action | None = None                         #: An Action Parameter, if specified
+    _pass_thru: PassThru | None = None                   #: A PassThru Parameter, if specified
+    sub_command: SubCommand | None = None                #: A SubCommand Parameter, if specified
     action_flags: ActionFlags                            #: List of action flags
     split_action_flags: tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
     options: list[BaseOption]                            #: List of optional Parameters
@@ -52,8 +52,8 @@ class CommandParameters:
     def __init__(
         self,
         command: CommandCls,
-        command_parent: Optional[CommandCls],
-        parent_params: Optional[CommandParameters],
+        command_parent: CommandCls | None,
+        parent_params: CommandParameters | None,
         config: CommandConfig,
     ):
         self.command = command
@@ -65,13 +65,12 @@ class CommandParameters:
     def __repr__(self) -> str:
         positionals = len(self.positionals)
         options = len(self.options)
-        cls_name = self.__class__.__name__
-        return f'<{cls_name}[command={self.command.__name__}, {positionals=}, {options=}]>'
+        return f'<{self.__class__.__name__}[command={self.command.__name__}, {positionals=}, {options=}]>'
 
     # region PassThru Properties
 
     @property
-    def pass_thru(self) -> Optional[PassThru]:
+    def pass_thru(self) -> PassThru | None:
         if self._pass_thru:
             return self._pass_thru
         elif self.parent:
@@ -143,23 +142,26 @@ class CommandParameters:
         groups = set()
 
         for param in self._iter_parameters():
-            if isinstance(param, BasePositional):
-                positionals.append(param)
-            elif isinstance(param, BaseOption):
-                options.append(param)
-            elif isinstance(param, ParamGroup):
-                # Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`
-                # Group members will always be discovered at the top level since context managers share the outer scope
-                groups.add(param)
-            elif isinstance(param, PassThru):
-                if self.pass_thru:
-                    raise CommandDefinitionError(f'Invalid PassThru {param=} - it cannot follow another PassThru param')
-                self._pass_thru = param
-            else:
-                raise CommandDefinitionError(
-                    f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
-                    ' BasePositional, BaseOption, or ParamGroup'
-                )
+            match param:
+                case BasePositional():
+                    positionals.append(param)
+                case BaseOption():
+                    options.append(param)
+                case ParamGroup():
+                    # Groups will only be discovered here when defined with `as` - ex: `with ParamGroup(...) as foo:`
+                    # Members will always be discovered at the top level since context managers share the outer scope
+                    groups.add(param)
+                case PassThru():
+                    if self.pass_thru:
+                        raise CommandDefinitionError(
+                            f'Invalid PassThru {param=} - it cannot follow another PassThru param'
+                        )
+                    self._pass_thru = param
+                case _:
+                    raise CommandDefinitionError(
+                        f'Unexpected type={param.__class__} for {param=} - custom parameters must extend'
+                        ' BasePositional, BaseOption, or ParamGroup'
+                    )
 
             param_group = param
             while param_group := param_group.group:
@@ -204,7 +206,7 @@ class CommandParameters:
                     if param.has_choices and 0 in param.nargs:  # It has local choices or is not required
                         unfollowable = param
                 else:  # It's an Action
-                    self.action = action_or_sub_cmd = param
+                    self.action = action_or_sub_cmd = param  # type: ignore
                     if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
             elif 0 in param.nargs or (param.nargs.variable and not param.has_choices):
@@ -264,7 +266,7 @@ class CommandParameters:
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
-            grouped_ordered_flags[param.before_main][param.order].append(param)  # noqa  # PyCharm infers the wrong type
+            grouped_ordered_flags[param.before_main][param.order].append(param)
 
         found_non_always = False
         invalid = {}
@@ -301,6 +303,7 @@ class CommandParameters:
 
     @cached_property
     def _classified_combo_options(self) -> tuple[OptionMap, OptionMap]:
+        """Tuple of (single char short:Option map, multi-char short:Option map) for options available in this command"""
         multi_char_combos = {}
         items = self.combo_option_map.items()
         for combo, param in items:
@@ -315,14 +318,9 @@ class CommandParameters:
 
     @cached_property
     def _nested_potentially_ambiguous_combo_options(self):
-        single_char_combos, multi_char_combos = (xcc.copy() for xcc in self._classified_combo_options)
-        for params in self._iter_nested_params():
-            nested_single_char_combos, nested_multi_char_combos = params._classified_combo_options
-            single_char_combos.update(nested_single_char_combos)
-            multi_char_combos.update(nested_multi_char_combos)
-        return _find_ambiguous_combos(single_char_combos, multi_char_combos)
+        return _find_ambiguous_combos(*self.nested_single_and_multi_char_short_options)
 
-    def _is_combo_potentially_ambiguous(self, option: str) -> Optional[bool]:
+    def _is_combo_potentially_ambiguous(self, option: str) -> bool | None:
         # Called by short_option_to_param_value_pairs after ensuring the length is > 1
         to_check = option[1:]  # Strip leading '-'
         # Note: len(to_check) will never be 2 here - this is only called if len(option) > 2
@@ -345,21 +343,34 @@ class CommandParameters:
 
     # endregion
 
+    @cached_property
+    def nested_single_and_multi_char_short_options(self) -> tuple[OptionMap, OptionMap]:
+        single_char_shorts, multi_char_shorts = (xcs.copy() for xcs in self._classified_combo_options)
+        for params in self._iter_nested_params():
+            nested_single_char_shorts, nested_multi_char_shorts = params._classified_combo_options
+            single_char_shorts |= nested_single_char_shorts
+            multi_char_shorts |= nested_multi_char_shorts
+
+        return single_char_shorts, multi_char_shorts
+
     def _iter_nested_params(self) -> Iterator[CommandParameters]:
         if not self.sub_command:
             return
+
         get_params = self.command.__class__.params
+        seen = set()
         for choice in self.sub_command.choices.values():
-            if choice.target is not None:  # None indicates it's a subcommand's local choice
+            # choice.target is the (sub-)Command class that will be used if that choice was selected.  Being None
+            # indicates it's a subcommand's local choice (i.e., get_params would return this CommandParameters object)
+            if choice.target is not None and choice.target not in seen:
+                seen.add(choice.target)  # Some choices may be aliases for the same target Command
                 params: CommandParameters = get_params(choice.target)
                 yield params
                 yield from params._iter_nested_params()
 
     # region Option Processing
 
-    def short_option_to_param_value_pairs(
-        self, option: str
-    ) -> tuple[list[tuple[str, BaseOption, Optional[str]]], bool]:
+    def short_option_to_param_value_pairs(self, option: str) -> tuple[list[tuple[str, BaseOption, str | None]], bool]:
         option, eq, value = option.partition('=')
         if eq:  # An `=` was present in the string
             # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
@@ -393,6 +404,7 @@ class CommandParameters:
         else:
             yield from self.all_positionals
             yield from self.options
+
         if self.pass_thru and self.pass_thru not in exclude:
             yield self.pass_thru
 

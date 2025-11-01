@@ -6,17 +6,19 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Any, Collection, FrozenSet, Sequence
+from collections.abc import Sequence
+from typing import Any, Collection, FrozenSet
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER']
 
 REMAINDER = type('REMAINDER', (), {})()
+_RemainderType = type(REMAINDER)
 _UNBOUND = (None, REMAINDER)
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0, REMAINDER)}
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
-NargsValue = str | int | tuple[int, int | None] | Sequence[int] | set[int] | FrozenSet[int] | range | type(REMAINDER)
+NargsValue = str | int | tuple[int, int | None] | Sequence[int] | set[int] | FrozenSet[int] | range | _RemainderType
 
 
 class Nargs:
@@ -39,49 +41,51 @@ class Nargs:
     def __init__(self, nargs: NargsValue):  # pylint: disable=R0912
         self._orig = nargs
         self.range = None
-        if isinstance(nargs, int):
-            if nargs < 0:
-                raise ValueError(f'Invalid {nargs=} integer - must be >= 0')
-            self.min = self.max = nargs
-            self.allowed = (nargs,)
-        elif isinstance(nargs, str):
-            try:
-                self.min, self.max = self.allowed = NARGS_STR_RANGES[nargs]
-            except KeyError as e:
-                raise ValueError(f'Invalid {nargs=} string - expected one of ?, *, or +') from e
-        elif isinstance(nargs, range):
-            if not 0 <= nargs.start < nargs.stop or nargs.step < 0:
-                raise ValueError(f'Invalid {nargs=} range - expected positive step and 0 <= start < stop')
-            self.range = nargs
-            self.allowed = nargs
-            self.min = nargs.start
-            # As long as range.start < range.stop and range.step > 0, it will yield at least 1 value
-            self.max = next(reversed(nargs))  # simpler than calculating, especially for step!=1
-        elif isinstance(nargs, set):
-            if not nargs:
-                raise ValueError(SET_ERROR_FMT.format(nargs))
-            elif not all(isinstance(v, int) for v in nargs):
-                raise TypeError(SET_ERROR_FMT.format(nargs))
 
-            self.allowed = self._orig = frozenset(nargs)  # Prevent modification after init
-            self.min = min(nargs)
-            if self.min < 0:
-                raise ValueError(SET_ERROR_FMT.format(nargs))
-            self.max = max(nargs)
-        elif isinstance(nargs, Sequence):
-            try:
-                self.min, self.max = self.allowed = a, b = nargs
-            except (ValueError, TypeError) as e:
-                raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
+        match nargs:
+            case int():
+                if nargs < 0:
+                    raise ValueError(f'Invalid {nargs=} integer - must be >= 0')
+                self.min = self.max = nargs
+                self.allowed = (nargs,)
+            case str():
+                try:
+                    self.min, self.max = self.allowed = NARGS_STR_RANGES[nargs]
+                except KeyError as e:
+                    raise ValueError(f'Invalid {nargs=} string - expected one of ?, *, or +') from e
+            case range():
+                if not 0 <= nargs.start < nargs.stop or nargs.step < 0:
+                    raise ValueError(f'Invalid {nargs=} range - expected positive step and 0 <= start < stop')
+                self.range = nargs
+                self.allowed = nargs
+                self.min = nargs.start
+                # As long as range.start < range.stop and range.step > 0, it will yield at least 1 value
+                self.max = next(reversed(nargs))  # simpler than calculating, especially for step!=1
+            case set():
+                if not nargs:
+                    raise ValueError(SET_ERROR_FMT.format(nargs))
+                elif not all(isinstance(v, int) for v in nargs):
+                    raise TypeError(SET_ERROR_FMT.format(nargs))
 
-            if not (isinstance(a, int) and (b in _UNBOUND or isinstance(b, int))):
-                raise TypeError(SEQ_ERROR_FMT.format(nargs))
-            elif 0 > a or (b not in _UNBOUND and a > b):
-                raise ValueError(SEQ_ERROR_FMT.format(nargs))
-        elif nargs is REMAINDER:
-            self.min, self.max = self.allowed = (0, REMAINDER)
-        else:
-            raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
+                self.allowed = self._orig = frozenset(nargs)  # Prevent modification after init
+                self.min = min(nargs)
+                if self.min < 0:
+                    raise ValueError(SET_ERROR_FMT.format(nargs))
+                self.max = max(nargs)
+            case Sequence():
+                try:
+                    self.min, self.max = self.allowed = a, b = nargs
+                except (ValueError, TypeError) as e:
+                    raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
+
+                if not (isinstance(a, int) and (b in _UNBOUND or isinstance(b, int))):
+                    raise TypeError(SEQ_ERROR_FMT.format(nargs))
+                elif 0 > a or (b not in _UNBOUND and a > b):
+                    raise ValueError(SEQ_ERROR_FMT.format(nargs))
+            case _RemainderType():
+                self.min, self.max = self.allowed = (0, REMAINDER)
+            case _:
+                raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
 
         self.variable = self.min != self.max
         self._has_upper_bound = self.max not in _UNBOUND
@@ -107,12 +111,13 @@ class Nargs:
         return self.satisfied(num)
 
     def __eq__(self, other: Nargs | int) -> bool:
-        if isinstance(other, Nargs):
-            return self._eq_nargs(other)
-        elif isinstance(other, int):
-            return self.min == self.max == other
-        else:
-            return NotImplemented
+        match other:
+            case Nargs():
+                return self._eq_nargs(other)
+            case int():
+                return self.min == self.max == other
+            case _:
+                return NotImplemented
 
     def _eq_nargs(self, other: Nargs) -> bool:
         if not self._has_upper_bound:
@@ -136,12 +141,12 @@ class Nargs:
         Used internally to determine whether 2 Nargs instances are equivalent when they were initialized with different
         types of arguments.
         """
-        allowed = self.allowed
         if other.range is not None:
+            allowed = self.allowed
             try_all = other.min in allowed and other.max in allowed
             return try_all and all(v in allowed for v in other.range)  # less mem than large set(other.range)
         else:
-            return allowed == set(other.allowed)
+            return self.allowed == set(other.allowed)
 
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._orig)
