@@ -6,7 +6,7 @@ Containers for option strings
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Iterator, Optional, Union
+from typing import TYPE_CHECKING, Collection, Iterator
 
 from ..config import DEFAULT_CONFIG, OptionNameMode
 from ..exceptions import ParameterDefinitionError
@@ -22,13 +22,13 @@ class OptionStrings:
     """Container for the option strings registered for a given BaseOption (or subclass thereof)."""
 
     __slots__ = ('name_mode', '_long', '_short', 'combinable', '_display_long')
-    name_mode: Optional[OptionNameMode]
+    name_mode: OptionNameMode | None
     combinable: set[str]
     _display_long: set[str]
     _long: set[str]
     _short: set[str]
 
-    def __init__(self, option_strs: Collection[str], name_mode: Union[OptionNameMode, str, None] = _NotSet):
+    def __init__(self, option_strs: Collection[str], name_mode: OptionNameMode | str | None = _NotSet):
         self.name_mode = OptionNameMode(name_mode) if name_mode is not _NotSet else None
         long_opts, short_opts = _split_options(option_strs)
         self._display_long = self._long = long_opts
@@ -98,9 +98,9 @@ class TriFlagOptionStrings(OptionStrings):
     """Container for the option strings registered for a given TriFlag."""
 
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
-    _alt_prefix: Optional[str]
-    _alt_short: Optional[str]
-    _alt_long: Union[set[str], tuple[str]]
+    _alt_prefix: str | None
+    _alt_short: str | None
+    _alt_long: set[str] | tuple[str, ...]
 
     def has_long(self) -> Bool:
         """Whether any primary / non-alternate long option strings were defined"""
@@ -109,7 +109,7 @@ class TriFlagOptionStrings(OptionStrings):
     def has_min_opts(self) -> Bool:
         return next(self.option_strs(False), None) and next(self.option_strs(True), None)
 
-    def add_alts(self, prefix: Optional[str], long: Optional[str], short: Optional[str]):
+    def add_alts(self, prefix: str | None, long: str | None, short: str | None):
         self._alt_prefix = prefix
         self._alt_long = (long,) if long else set()
         self._alt_short = short

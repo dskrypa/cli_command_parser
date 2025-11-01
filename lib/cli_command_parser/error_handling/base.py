@@ -6,14 +6,14 @@ from __future__ import annotations
 
 import sys
 from collections import ChainMap
-from typing import Callable, Iterator, Type, TypeVar, Union
+from typing import Callable, Iterator, Type, TypeVar
 
 from ..exceptions import CommandParserException
 
 __all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler', 'NullErrorHandler']
 
 E = TypeVar('E', bound=BaseException)
-HandlerFunc = Callable[[E], Union[bool, int, None]]
+HandlerFunc = Callable[[E], bool | int | None]
 
 
 class ErrorHandler:
@@ -39,7 +39,7 @@ class ErrorHandler:
                 pass
 
     def __call__(self, *exceptions: Type[BaseException]):
-        def _handler(handler: Union[HandlerFunc, staticmethod]):
+        def _handler(handler: HandlerFunc | staticmethod):
             self.register(handler, *exceptions)
             return handler
 
@@ -47,7 +47,7 @@ class ErrorHandler:
 
     @classmethod
     def cls_handler(cls, *exceptions: Type[E]):
-        def _cls_handler(handler: Union[HandlerFunc, staticmethod]):
+        def _cls_handler(handler: HandlerFunc | staticmethod):
             for exc in exceptions:
                 cls._exc_handler_map[exc] = Handler(exc, handler)
             return handler

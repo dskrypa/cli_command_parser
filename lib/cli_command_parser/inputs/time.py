@@ -22,7 +22,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Collection, Iterator, Literal, Optional, Sequence, Type, TypeVar, Union, overload
+from typing import Collection, Iterator, Literal, Sequence, Type, TypeVar, overload
 
 from ..typing import Bool, Locale, Number, T, TimeBound
 from ..utils import MissingMixin
@@ -51,7 +51,7 @@ class different_locale:
     _lock = RLock()
     __slots__ = ('locale', 'original')
 
-    def __init__(self, locale: Optional[Locale]):
+    def __init__(self, locale: Locale | None):
         self.locale = locale
 
     def __enter__(self):
@@ -76,7 +76,7 @@ class different_locale:
 class DTInput(InputType[T], ABC):
     __slots__ = ('locale',)
     dt_type: str
-    locale: Optional[Locale]
+    locale: Locale | None
 
     def __init_subclass__(cls, dt_type: str = None, **kwargs):
         """
@@ -93,7 +93,7 @@ class DTInput(InputType[T], ABC):
     def choice_str(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         raise NotImplementedError
 
-    def fix_default(self, value: Union[str, T, None]) -> Optional[T]:
+    def fix_default(self, value: str | T | None) -> T | None:
         if value is None or not isinstance(value, str) or not self._fix_default:
             return value
         return self(value)
@@ -111,7 +111,7 @@ class DTFormatMode(MissingMixin, Enum):
     # fmt: on
 
 
-class CalendarUnitInput(DTInput[Union[str, int]], ABC):
+class CalendarUnitInput(DTInput[str | int], ABC):
     """
     Input type representing a date/time unit.
 
@@ -125,7 +125,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
     """
 
     __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
-    _formats: dict[DTFormatMode, Sequence[Union[str, int]]]
+    _formats: dict[DTFormatMode, Sequence[str | int]]
     _min_index: int = 0
 
     def __init_subclass__(cls, min_index: int = 0, **kwargs):
@@ -139,7 +139,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
         abbreviation: Bool = True,
         numeric: Bool = False,
         locale: Locale = None,
-        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
+        out_format: str | DTFormatMode = DTFormatMode.FULL,
         out_locale: Locale = None,
         fix_default: Bool = True,
     ):
@@ -211,7 +211,7 @@ class CalendarUnitInput(DTInput[Union[str, int]], ABC):
 
         raise InvalidChoiceError(value, self.choices(), self.dt_type)
 
-    def __call__(self, value: str) -> Union[str, int]:
+    def __call__(self, value: str) -> str | int:
         normalized = self.parse(value)
         if normalized < self._min_index:
             raise InvalidChoiceError(value, self.choices(), self.dt_type)
@@ -256,7 +256,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         numeric: Bool = False,
         iso: Bool = False,
         locale: Locale = None,
-        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
+        out_format: str | DTFormatMode = DTFormatMode.FULL,
         out_locale: Locale = None,
         fix_default: Bool = True,
     ): ...
@@ -311,7 +311,7 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         abbreviation: Bool = True,
         numeric: Bool = True,
         locale: Locale = None,
-        out_format: Union[str, DTFormatMode] = DTFormatMode.FULL,
+        out_format: str | DTFormatMode = DTFormatMode.FULL,
         out_locale: Locale = None,
         fix_default: Bool = True,
     ): ...
@@ -366,7 +366,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
         self.include_max = include_max
         self.int_only = int_only
 
-    def __call__(self, value: Union[str, int, float]) -> timedelta:
+    def __call__(self, value: str | int | float) -> timedelta:
         if isinstance(value, str):
             try:
                 value = float(value.replace(',', '').replace('_', ''))  # allow comma or _ between thousands
@@ -387,7 +387,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
     def _range_str(self) -> str:
         return range_str(self.min, self.max, self.include_min, self.include_max, self.unit)
 
-    def fix_default(self, value: Union[int, float, timedelta, None]) -> Optional[timedelta]:
+    def fix_default(self, value: int | float | timedelta | None) -> timedelta | None:
         if value is None or isinstance(value, timedelta) or not self._fix_default:
             return value
         return self(value)
@@ -431,7 +431,7 @@ class DateTimeInput(DTInput[DT], ABC):
             return dt
 
     @property
-    def earliest(self) -> Optional[DT]:
+    def earliest(self) -> DT | None:
         return self._fix_type(normalize_dt(self._earliest))
 
     @earliest.setter
@@ -440,7 +440,7 @@ class DateTimeInput(DTInput[DT], ABC):
         self._earliest = value
 
     @property
-    def latest(self) -> Optional[DT]:
+    def latest(self) -> DT | None:
         return self._fix_type(normalize_dt(self._latest))
 
     @latest.setter
@@ -583,7 +583,7 @@ class Time(DateTimeInput[time], type=time):
 # endregion
 
 
-def dt_repr(dt: Union[datetime, date, time], use_repr: bool = True) -> str:
+def dt_repr(dt: datetime | date | time, use_repr: bool = True) -> str:
     try:
         dt_str = dt.isoformat(' ')
     except (TypeError, ValueError):  # TypeError for date objects, ValueError for time objects
@@ -591,7 +591,7 @@ def dt_repr(dt: Union[datetime, date, time], use_repr: bool = True) -> str:
     return repr(dt_str) if use_repr else dt_str
 
 
-def normalize_dt(value: TimeBound, now: datetime = None) -> Optional[datetime]:
+def normalize_dt(value: TimeBound, now: datetime = None) -> datetime | None:
     if value is None or isinstance(value, datetime):
         return value
     elif isinstance(value, timedelta):

@@ -7,7 +7,7 @@ from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, Set
 from dataclasses import dataclass, fields
 from functools import cached_property
 from itertools import count
-from typing import TYPE_CHECKING, Generic, Iterable, Iterator, Optional, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Generic, Iterable, Iterator, Type, TypeVar
 
 from cli_command_parser.nargs import Nargs
 
@@ -45,12 +45,12 @@ class Converter(Generic[AC], ABC):
         if newline_between_members is not None:
             cls.newline_between_members = newline_between_members
 
-    def __init__(self, ast_obj: Union[AC, Script], parent: Optional[Converter] = None):
+    def __init__(self, ast_obj: AC | Script, parent: Converter | None = None):
         self.ast_obj = ast_obj
         self.parent = parent
 
     @classmethod
-    def for_ast_callable(cls, ast_obj: Union[AC, Type[AC]]) -> Type[Converter[AC]]:
+    def for_ast_callable(cls, ast_obj: AC | Type[AC]) -> Type[Converter[AC]]:
         if not isinstance(ast_obj, type):
             ast_obj = ast_obj.__class__
         try:

@@ -6,7 +6,7 @@ Helpers for handling ``nargs=...`` for Parameters.
 
 from __future__ import annotations
 
-from typing import Any, Collection, FrozenSet, Optional, Sequence, Set, Tuple, Union
+from typing import Any, Collection, FrozenSet, Sequence
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER']
 
@@ -16,7 +16,7 @@ NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
-NargsValue = Union[str, int, Tuple[int, Optional[int]], Sequence[int], Set[int], FrozenSet[int], range, type(REMAINDER)]
+NargsValue = str | int | tuple[int, int | None] | Sequence[int] | set[int] | FrozenSet[int] | range | type(REMAINDER)
 
 
 class Nargs:
@@ -30,9 +30,9 @@ class Nargs:
 
     __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable', '_has_upper_bound')
     _orig: NargsValue
-    range: Optional[range]
-    min: Optional[int]
-    max: Optional[int]
+    range: range | None
+    min: int | None
+    max: int | None
     allowed: Collection[int]
     variable: bool
 
@@ -106,7 +106,7 @@ class Nargs:
         """See :meth:`.satisfied`"""
         return self.satisfied(num)
 
-    def __eq__(self, other: Union[Nargs, int]) -> bool:
+    def __eq__(self, other: Nargs | int) -> bool:
         if isinstance(other, Nargs):
             return self._eq_nargs(other)
         elif isinstance(other, int):
@@ -175,5 +175,5 @@ class Nargs:
         return self._has_upper_bound
 
     @property
-    def upper_bound(self) -> Union[int, float]:
+    def upper_bound(self) -> int | float:
         return self.max if self._has_upper_bound else float('inf')

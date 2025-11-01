@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Optional, Type, Union
+from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Type
 
 from ..context import NoActiveContext, ctx
 from ..core import get_metadata, get_params
@@ -57,7 +57,7 @@ class CommandHelpFormatter:
     def maybe_add_positionals(self, params: Iterable[BasePositional]):
         self.pos_group.extend(param for param in params if not param.group)
 
-    def maybe_add_option(self, param: Optional[Parameter]):
+    def maybe_add_option(self, param: Parameter | None):
         if param is not None and not param.group:
             if param.required:
                 self.req_group.add(param)
@@ -68,7 +68,7 @@ class CommandHelpFormatter:
         for param in params:
             self.maybe_add_option(param)
 
-    def _iter_params(self) -> Iterator[Union[BasePositional, BaseOption, PassThru]]:
+    def _iter_params(self) -> Iterator[BasePositional | BaseOption | PassThru]:
         params = self.params
         yield from params.all_positionals
         # TODO: Add configurable option to reduce usage line noise, so something like [options] is displayed instead of

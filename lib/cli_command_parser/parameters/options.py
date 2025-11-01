@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, TypeVar
 
 from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
@@ -41,7 +41,7 @@ TA = TypeVar('TA')
 ConstAct = Literal['store_const', 'append_const']
 
 
-class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
+class Option(BaseOption[T_co | TD], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -118,7 +118,7 @@ class Option(BaseOption[Union[T_co, TD]], actions=(Store, Append)):
         super()._handle_bad_action(action)
 
 
-class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
+class Flag(BaseOption[TD | TC], actions=(StoreConst, AppendConst)):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -197,7 +197,7 @@ class Flag(BaseOption[Union[TD, TC]], actions=(StoreConst, AppendConst)):
         return parsed, self.use_env_value
 
 
-class TriFlag(BaseOption[Union[TD, TC, TA]], actions=(StoreConst, AppendConst)):
+class TriFlag(BaseOption[TD | TC | TA], actions=(StoreConst, AppendConst)):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a

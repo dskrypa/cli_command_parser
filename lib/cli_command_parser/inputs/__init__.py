@@ -37,7 +37,7 @@ _INVALID_CHOICES_TYPES = (_t.Pattern, InputType)
 _INVALID_TYPES_WITH_CHOICES = (Range, range, Regex, _t.Pattern, Glob)
 
 
-def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -> _t.Optional[TypeFunc]:
+def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -> TypeFunc | None:
     if choices_provided := param_choices is not None:
         if not param_choices:
             raise _ParameterDefinitionError(

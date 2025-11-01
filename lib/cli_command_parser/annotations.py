@@ -7,19 +7,15 @@ Utilities for extracting types from annotations.
 from collections.abc import Collection, Iterable
 from functools import lru_cache
 from inspect import isclass
-from typing import Optional, Union, get_args, get_origin, get_type_hints as _get_type_hints
-
-try:
-    from types import NoneType
-except ImportError:  # Added in 3.10
-    NoneType = type(None)
+from types import NoneType
+from typing import Union, get_args, get_origin, get_type_hints as _get_type_hints
 
 __all__ = ['get_descriptor_value_type']
 
 get_type_hints = lru_cache()(_get_type_hints)  # Cache the attr:annotation mapping for each Command class
 
 
-def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
+def get_descriptor_value_type(command_cls: type, attr: str) -> type | None:
     try:
         annotation = get_type_hints(command_cls)[attr]
     except (KeyError, NameError):  # KeyError due to attr missing; NameError for forward references
@@ -30,7 +26,7 @@ def get_descriptor_value_type(command_cls: type, attr: str) -> Optional[type]:
     return get_annotation_value_type(annotation)
 
 
-def get_annotation_value_type(annotation, from_union: bool = True, from_collection: bool = True) -> Optional[type]:
+def get_annotation_value_type(annotation, from_union: bool = True, from_collection: bool = True) -> type | None:
     origin = get_origin(annotation)
     # Note: get_origin returns `list` for `List[str]`, `List`, and `list[str]`; it returns `None` for `list`
     if origin is None and isinstance(annotation, type):
@@ -42,7 +38,7 @@ def get_annotation_value_type(annotation, from_union: bool = True, from_collecti
     return None
 
 
-def _type_from_union(annotation) -> Optional[type]:
+def _type_from_union(annotation) -> type | None:
     args = get_args(annotation)
     # Note: Unions of a single argument return the argument; i.e., Union[T] returns T, so the len can never be 1
     if len(args) == 2 and NoneType in args:
@@ -50,7 +46,7 @@ def _type_from_union(annotation) -> Optional[type]:
     return None
 
 
-def _type_from_collection(origin, annotation) -> Optional[type]:
+def _type_from_collection(origin, annotation) -> type | None:
     if not (args := get_args(annotation)):
         return origin  # The annotation was a collection with no content types specified
     n_args = len(args)

@@ -13,7 +13,7 @@ from difflib import unified_diff
 from io import BytesIO, StringIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import IO, TYPE_CHECKING, Any, Callable, Iterable, Iterator, Type, Union
+from typing import IO, TYPE_CHECKING, Any, Callable, Iterable, Iterator, Type
 from unittest import TestCase
 from unittest.mock import Mock, patch, seal
 
@@ -46,9 +46,9 @@ Env = dict[str, str]
 Case = tuple[Argv, Expected]
 EnvCase = tuple[Argv, Env, Expected]
 ExcType = Type[Exception]
-ExceptionCase = Union[Argv, tuple[Argv, ExcType], tuple[Argv, ExcType, str]]
+ExceptionCase = Argv | tuple[Argv, ExcType] | tuple[Argv, ExcType, str]
 ExcCases = Iterable[ExceptionCase]
-CallExceptionCase = Union[tuple[Kwargs, ExcType], tuple[Kwargs, ExcType, str]]
+CallExceptionCase = tuple[Kwargs, ExcType] | tuple[Kwargs, ExcType, str]
 CallExceptionCases = Iterable[CallExceptionCase]
 
 OPT_ENV_MOD = 'cli_command_parser.parser.environ'
@@ -198,7 +198,7 @@ class ParserTest(TestCase):
             yield
 
 
-def _iter_exc_cases(cases: Union[ExcCases, CallExceptionCases], exc: ExcType = None):
+def _iter_exc_cases(cases: ExcCases | CallExceptionCases, exc: ExcType = None):
     if exc is not None:
         for args in cases:
             yield args, exc, None
@@ -268,9 +268,9 @@ def format_dict_diff(a: dict[str, Any], b: dict[str, Any]) -> str:
 
 
 class RedirectStreams(AbstractContextManager):
-    _stdin: Union[IO, str, bytes, None] = None
+    _stdin: IO | str | bytes | None = None
 
-    def __init__(self, stdin: Union[IO, str, bytes, None] = None):
+    def __init__(self, stdin: IO | str | bytes | None = None):
         self._old = {}
         if stdin is not None:
             if isinstance(stdin, bytes):
@@ -315,7 +315,7 @@ def get_usage_text(cmd: Type[Command]) -> str:
         return get_params(cmd).formatter.format_usage()
 
 
-def get_help_text(cmd: Union[Type[Command], Command], terminal_width: int = 199) -> str:
+def get_help_text(cmd: Type[Command] | Command, terminal_width: int = 199) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
 
@@ -324,7 +324,7 @@ def get_help_text(cmd: Union[Type[Command], Command], terminal_width: int = 199)
         return get_params(cmd).formatter.format_help()
 
 
-def get_rst_text(cmd: Union[Type[Command], Command]) -> str:
+def get_rst_text(cmd: Type[Command] | Command) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
 

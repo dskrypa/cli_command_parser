@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import ChainMap
 from enum import Enum
 from string import whitespace
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, Sequence, Type, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Sequence, Type, TypeVar, overload
 
 from .exceptions import CommandDefinitionError
 from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
@@ -33,7 +33,7 @@ __all__ = [
 
 CV = TypeVar('CV')
 DV = TypeVar('DV')
-ConfigValue = Union[CV, DV]
+ConfigValue = CV | DV
 
 
 # region Config Option Enums
@@ -60,7 +60,7 @@ class ShowDefaults(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: Union[str, int]) -> ShowDefaults:
+    def _missing_(cls, value: str | int) -> ShowDefaults:
         if isinstance(value, str):
             try:
                 return cls._member_map_[value.upper().replace('-', '_')]  # noqa
@@ -119,7 +119,7 @@ class OptionNameMode(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: Union[str, int, None]) -> OptionNameMode:
+    def _missing_(cls, value: str | int | None) -> OptionNameMode:
         try:
             return OPT_NAME_MODE_ALIASES[value]
         except KeyError:
@@ -166,7 +166,7 @@ class SubcommandAliasHelpMode(MissingMixin, Enum):
     # fmt: on
 
 
-CmdAliasMode = Union[SubcommandAliasHelpMode, str]
+CmdAliasMode = SubcommandAliasHelpMode | str
 
 
 class AmbiguousComboMode(MissingMixin, Enum):
@@ -313,7 +313,7 @@ class CommandConfig:
     # region Error Handling Options
 
     #: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`
-    error_handler: Optional[ErrorHandler] = ConfigItem(_NotSet)
+    error_handler: ErrorHandler | None = ConfigItem(_NotSet)
 
     #: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in
     #: :meth:`.Command.main` (similar to a ``finally`` block)
@@ -443,7 +443,7 @@ class CommandConfig:
     strict_usage_column_width: bool = ConfigItem(False, bool)
 
     @config_item(False)
-    def wrap_usage_str(self, value: Any) -> Union[int, bool]:
+    def wrap_usage_str(self, value: Any) -> int | bool:
         """
         Wrap the basic usage line after the specified number of characters, or automatically based on terminal size
         if ``True`` is specified instead.
@@ -467,7 +467,7 @@ class CommandConfig:
 
     # endregion
 
-    def __init__(self, parent: Optional[CommandConfig] = None, read_only: bool = False, **kwargs):
+    def __init__(self, parent: CommandConfig | None = None, read_only: bool = False, **kwargs):
         self._data = parent._data.new_child() if parent else ChainMap()
         self._read_only = read_only
         if kwargs:

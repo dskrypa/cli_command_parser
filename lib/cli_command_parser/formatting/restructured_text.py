@@ -6,7 +6,7 @@ Utilities for formatting data using RST markup
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence, TypeVar
 
 if TYPE_CHECKING:
     from ..typing import Bool, OptStr, Strings
@@ -40,7 +40,7 @@ MODULE_TEMPLATE = """
 # endregion
 
 
-def rst_bar(text: Union[str, int], level: int = 1) -> str:
+def rst_bar(text: str | int, level: int = 1) -> str:
     bar_len = text if isinstance(text, int) else len(text)
     c = BAR_CHAR_ORDER[level]
     return c * bar_len

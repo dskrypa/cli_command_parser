@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 from ast import AST, Attribute, Call, Dict, List, Name, Set, Tuple, expr, unparse
-from typing import Iterator, List as _List, Union
+from typing import Iterator
 
 __all__ = ['get_name_repr', 'iter_module_parents', 'collection_contents']
 
 
-def get_name_repr(node: Union[AST, expr]) -> str:
+def get_name_repr(node: AST | expr) -> str:
     if isinstance(node, Call):
         node = node.func
 
@@ -29,7 +29,7 @@ def iter_module_parents(module: str) -> Iterator[str]:
         module = parent
 
 
-def collection_contents(node: AST) -> _List[str]:
+def collection_contents(node: AST) -> list[str]:
     if isinstance(node, Dict):
         return [unparse(key) for key in node.keys]  # noqa
     elif isinstance(node, (List, Set, Tuple)):

@@ -8,7 +8,7 @@ Exceptions for Command Parser
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Any, Collection, Mapping, Optional
+from typing import TYPE_CHECKING, Any, Collection, Mapping
 
 from .utils import _parse_tree_target_repr
 
@@ -128,7 +128,7 @@ class UsageError(CommandParserException):
 class ParamUsageError(UsageError):
     """Error raised when a Parameter was not used correctly"""
 
-    def __init__(self, param: Optional[ParamOrGroup], message: str = None):
+    def __init__(self, param: ParamOrGroup | None, message: str = None):
         self.param = param
         self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
@@ -211,7 +211,7 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: Optional[Parameter], invalid: Any, choices: Collection[Any], env_var: str = None):
+    def __init__(self, param: Parameter | None, invalid: Any, choices: Collection[Any], env_var: str = None):
         src = f' from env var={env_var!r}' if env_var else ''
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = f'choices{src}: {", ".join(map(repr, invalid))}'

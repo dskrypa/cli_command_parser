@@ -5,7 +5,7 @@ Custom input handlers for Parameters
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Generic, Optional
+from typing import Any, Generic
 
 from ..typing import Bool, T
 
@@ -37,7 +37,7 @@ class InputType(Generic[T], ABC):
         """
         return True
 
-    def fix_default(self, value: Any) -> Optional[T]:
+    def fix_default(self, value: Any) -> T | None:
         return value
 
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:

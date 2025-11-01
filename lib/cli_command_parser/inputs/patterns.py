@@ -11,7 +11,7 @@ import re
 from abc import ABC
 from enum import Enum
 from fnmatch import translate
-from typing import Collection, Dict, Match, Pattern, Sequence, Tuple, TypeVar, Union
+from typing import Collection, Match, Pattern, Sequence, TypeVar
 
 from ..utils import MissingMixin
 from .base import InputType, T
@@ -19,7 +19,7 @@ from .exceptions import InputValidationError
 
 __all__ = ['Regex', 'RegexMode', 'Glob']
 
-RegexResult = TypeVar('RegexResult', str, Match, Tuple[str, ...], Dict[str, str])
+RegexResult = TypeVar('RegexResult', str, Match, tuple[str, ...], dict[str, str])
 
 
 class PatternInput(InputType[T], ABC):
@@ -54,7 +54,7 @@ class RegexMode(MissingMixin, Enum):
     # fmt: on
 
     @classmethod
-    def normalize(cls, value: Union[str, RegexMode, None], group, groups) -> RegexMode:
+    def normalize(cls, value: str | RegexMode | None, group, groups) -> RegexMode:
         if value is None:
             if group is not None:
                 return cls.GROUP
@@ -96,10 +96,10 @@ class Regex(PatternInput[RegexResult]):
 
     def __init__(
         self,
-        *patterns: Union[str, Pattern],
-        group: Union[str, int] = None,
-        groups: Collection[Union[str, int]] = None,
-        mode: Union[RegexMode, str] = None,
+        *patterns: str | Pattern,
+        group: str | int = None,
+        groups: Collection[str | int] = None,
+        mode: RegexMode | str = None,
     ):
         if not patterns:
             raise TypeError('At least one regex pattern is required')
