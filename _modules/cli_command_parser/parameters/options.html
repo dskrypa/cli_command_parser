@@ -234,6 +234,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -999,7 +1000,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParserExit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_input_type</span>
@@ -1034,7 +1035,7 @@
 
 <div class="viewcode-block" id="Option">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">T_co</span><span class="p">,</span> <span class="n">TD</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">T_co</span> <span class="o">|</span> <span class="n">TD</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic option that can be specified as ``--foo bar`` or by using other similar forms.</span>
 
@@ -1114,7 +1115,7 @@
 
 <div class="viewcode-block" id="Flag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">TD</span> <span class="o">|</span> <span class="n">TC</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A (typically boolean) option that does not accept any values.</span>
 
@@ -1202,7 +1203,7 @@
 
 <div class="viewcode-block" id="TriFlag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">TD</span><span class="p">,</span> <span class="n">TC</span><span class="p">,</span> <span class="n">TA</span><span class="p">]],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">TD</span> <span class="o">|</span> <span class="n">TC</span> <span class="o">|</span> <span class="n">TA</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not</span>
 <span class="sd">    provided, this class accepts a pair of constants for the primary and alternate values to store, along with a</span>

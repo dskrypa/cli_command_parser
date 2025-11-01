@@ -237,6 +237,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -1086,7 +1087,7 @@ a given command overrides the <code class="docutils literal notranslate"><span c
 <span class="go">}</span>
 </pre></div>
 </div>
-<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.13)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
+<p>As an added convenience, this helper function accepts a <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.14)"><code class="docutils literal notranslate"><span class="pre">collections.abc.Callable</span></code></a> object to filter the
 parsed dict to only the keys that match that callable’s signature.  Only VAR_KEYWORD parameters (i.e., <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>) are
 excluded - if any parameters of the given callable cannot be passed as a keyword argument, that must be handled after
 calling get_parsed.</p>

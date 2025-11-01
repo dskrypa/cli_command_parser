@@ -234,6 +234,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -998,7 +999,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">count</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamsMissing</span>
@@ -1038,7 +1039,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">_num</span><span class="p">:</span> <span class="nb">int</span>
-    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">members</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">]</span>
     <span class="n">mutually_exclusive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">mutually_dependent</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1061,6 +1062,12 @@
         <span class="c1">#  mutual_dependent / required handling needs to be refined.</span>
         <span class="c1">#  Concrete example: fluentbit parser name/format are both required if either is specified, and a regex pattern</span>
         <span class="c1">#  / type MAY be provided, but only if the name/format is also provided</span>
+
+        <span class="c1"># TODO: When a subclass/subcommand has a ParamGroup with the same name/description as the parent, merge by</span>
+        <span class="c1">#  default (with a config to modify behavior?)</span>
+        <span class="c1">#  -&gt; This would be complicated by the mutually_(exclusive|dependent) and required/hide args...  It would</span>
+        <span class="c1">#     probably be easier to implement a new `with parent_group(name):` approach, where a name for the parent</span>
+        <span class="c1">#     ParamGroup would be required</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_num</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">_GROUP_COUNTER</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>

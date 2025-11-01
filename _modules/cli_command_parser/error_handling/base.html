@@ -234,6 +234,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -997,14 +998,14 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainMap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParserException</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">,</span> <span class="s1">&#39;error_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;extended_error_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;no_exit_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;NullErrorHandler&#39;</span><span class="p">]</span>
 
 <span class="n">E</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="ne">BaseException</span><span class="p">)</span>
-<span class="n">HandlerFunc</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">E</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]]</span>
+<span class="n">HandlerFunc</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">E</span><span class="p">],</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ErrorHandler">
@@ -1040,7 +1041,7 @@
 <div class="viewcode-block" id="ErrorHandler.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.error_handling.base.html#cli_command_parser.error_handling.base.ErrorHandler.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]):</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HandlerFunc</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span> <span class="o">|</span> <span class="nb">staticmethod</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>
 
@@ -1051,7 +1052,7 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.error_handling.base.html#cli_command_parser.error_handling.base.ErrorHandler.cls_handler">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cls_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">E</span><span class="p">]):</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_cls_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">HandlerFunc</span><span class="p">,</span> <span class="nb">staticmethod</span><span class="p">]):</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_cls_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span> <span class="o">|</span> <span class="nb">staticmethod</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_exc_handler_map</span><span class="p">[</span><span class="n">exc</span><span class="p">]</span> <span class="o">=</span> <span class="n">Handler</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>

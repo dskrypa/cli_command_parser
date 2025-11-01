@@ -234,6 +234,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -998,12 +999,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">lru_cache</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">isclass</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span><span class="p">,</span> <span class="n">get_type_hints</span> <span class="k">as</span> <span class="n">_get_type_hints</span>
-
-<span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoneType</span>
-<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># Added in 3.10</span>
-    <span class="n">NoneType</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoneType</span><span class="p">,</span> <span class="n">UnionType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">get_args</span><span class="p">,</span> <span class="n">get_origin</span><span class="p">,</span> <span class="n">get_type_hints</span> <span class="k">as</span> <span class="n">_get_type_hints</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;get_descriptor_value_type&#39;</span><span class="p">]</span>
 
@@ -1012,7 +1009,7 @@
 
 <div class="viewcode-block" id="get_descriptor_value_type">
 <a class="viewcode-back" href="../../api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_descriptor_value_type">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_descriptor_value_type</span><span class="p">(</span><span class="n">command_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_descriptor_value_type</span><span class="p">(</span><span class="n">command_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">,</span> <span class="n">attr</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">annotation</span> <span class="o">=</span> <span class="n">get_type_hints</span><span class="p">(</span><span class="n">command_cls</span><span class="p">)[</span><span class="n">attr</span><span class="p">]</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">NameError</span><span class="p">):</span>  <span class="c1"># KeyError due to attr missing; NameError for forward references</span>
@@ -1026,20 +1023,20 @@
 
 <div class="viewcode-block" id="get_annotation_value_type">
 <a class="viewcode-back" href="../../api/cli_command_parser.annotations.html#cli_command_parser.annotations.get_annotation_value_type">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_annotation_value_type</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">from_union</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">from_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_annotation_value_type</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="n">from_union</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">from_collection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">origin</span> <span class="o">=</span> <span class="n">get_origin</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
     <span class="c1"># Note: get_origin returns `list` for `List[str]`, `List`, and `list[str]`; it returns `None` for `list`</span>
     <span class="k">if</span> <span class="n">origin</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">annotation</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">annotation</span>
     <span class="k">elif</span> <span class="n">from_collection</span> <span class="ow">and</span> <span class="n">isclass</span><span class="p">(</span><span class="n">origin</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="p">(</span><span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">_type_from_collection</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">annotation</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">from_union</span> <span class="ow">and</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">Union</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">from_union</span> <span class="ow">and</span> <span class="p">(</span><span class="n">origin</span> <span class="ow">is</span> <span class="n">Union</span> <span class="ow">or</span> <span class="n">origin</span> <span class="ow">is</span> <span class="n">UnionType</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">_type_from_union</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_type_from_union</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_type_from_union</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="n">args</span> <span class="o">=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)</span>
     <span class="c1"># Note: Unions of a single argument return the argument; i.e., Union[T] returns T, so the len can never be 1</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">NoneType</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
@@ -1047,7 +1044,7 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_type_from_collection</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_type_from_collection</span><span class="p">(</span><span class="n">origin</span><span class="p">,</span> <span class="n">annotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">type</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span> <span class="o">:=</span> <span class="n">get_args</span><span class="p">(</span><span class="n">annotation</span><span class="p">)):</span>
         <span class="k">return</span> <span class="n">origin</span>  <span class="c1"># The annotation was a collection with no content types specified</span>
     <span class="n">n_args</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>

@@ -234,6 +234,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.all_positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.all_positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.get_positionals_to_parse"><code class="docutils literal notranslate"><span class="pre">CommandParameters.get_positionals_to_parse()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.formatter"><code class="docutils literal notranslate"><span class="pre">CommandParameters.formatter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.nested_single_and_multi_char_short_options"><code class="docutils literal notranslate"><span class="pre">CommandParameters.nested_single_and_multi_char_short_options</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.short_option_to_param_value_pairs"><code class="docutils literal notranslate"><span class="pre">CommandParameters.short_option_to_param_value_pairs()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.iter_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.iter_params()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.required_check_params"><code class="docutils literal notranslate"><span class="pre">CommandParameters.required_check_params()</span></code></a></li>
@@ -1005,7 +1006,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">inspect</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span> <span class="k">as</span> <span class="n">_Parameter</span><span class="p">,</span> <span class="n">Signature</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_CONFIG</span><span class="p">,</span> <span class="n">CommandConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.error_handling</span><span class="w"> </span><span class="kn">import</span> <span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">,</span> <span class="n">extended_error_handler</span>
@@ -1015,15 +1016,15 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.command_parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParameters</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">Parameter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActionFlag</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">Parameter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyConfig</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">ParamOrGroup</span><span class="p">,</span> <span class="n">PathLike</span><span class="p">,</span> <span class="n">StrSeq</span>  <span class="c1"># noqa</span>
+
+    <span class="n">Argv</span> <span class="o">=</span> <span class="n">StrSeq</span> <span class="o">|</span> <span class="kc">None</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="s1">&#39;get_current_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_or_create_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_context&#39;</span><span class="p">,</span> <span class="s1">&#39;get_parsed&#39;</span><span class="p">,</span> <span class="s1">&#39;get_raw_arg&#39;</span><span class="p">]</span>
 
 <span class="n">_context_stack</span> <span class="o">=</span> <span class="n">ContextVar</span><span class="p">(</span><span class="s1">&#39;cli_command_parser.context.stack&#39;</span><span class="p">)</span>
 <span class="n">_TERMINAL</span> <span class="o">=</span> <span class="n">Terminal</span><span class="p">()</span>
-
-<span class="n">Argv</span> <span class="o">=</span> <span class="n">Optional</span><span class="p">[</span><span class="s1">&#39;StrSeq&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Context">
@@ -1040,19 +1041,19 @@
     <span class="n">prog</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">allow_argv_prog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">_command_obj</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">_terminal_width</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
+    <span class="n">_terminal_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_provided</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">argv</span><span class="p">:</span> <span class="n">Argv</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">command_cls</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandType</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command_cls</span><span class="p">:</span> <span class="n">CommandType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">parent</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">terminal_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_argv_prog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">command</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandObj</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command_cls</span> <span class="o">=</span> <span class="n">command_cls</span>
@@ -1121,7 +1122,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
         <span class="n">_context_stack</span><span class="o">.</span><span class="n">get</span><span class="p">()</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ParamOrGroup</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">ParamOrGroup</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_parsed</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -1197,7 +1198,7 @@
 <div class="viewcode-block" id="Context.params">
 <a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.params">[docs]</a>
     <span class="nd">@cached_property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">CommandParameters</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandParameters</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated</span>
 <span class="sd">        with this Context.</span>
@@ -1209,7 +1210,7 @@
 
 <div class="viewcode-block" id="Context.get_error_handler">
 <a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.Context.get_error_handler">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">ErrorHandler</span><span class="p">,</span> <span class="n">NullErrorHandler</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_error_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ErrorHandler</span> <span class="o">|</span> <span class="n">NullErrorHandler</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the :class:`.ErrorHandler` configured to be used.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">error_handler</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">error_handler</span><span class="p">)</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">extended_error_handler</span>
@@ -1503,7 +1504,7 @@
 
 <div class="viewcode-block" id="get_current_context">
 <a class="viewcode-back" href="../../api/cli_command_parser.context.html#cli_command_parser.context.get_current_context">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_current_context</span><span class="p">(</span><span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Context</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_current_context</span><span class="p">(</span><span class="n">silent</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get the currently active parsing context.</span>
 
