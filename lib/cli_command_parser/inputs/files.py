@@ -9,7 +9,6 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import Optional, Union
 
 from ..typing import FP, Bool, Converter, PathLike, T
 from .base import InputType
@@ -35,7 +34,7 @@ class FileInput(InputType[T], ABC):
         exists: Bool = None,
         expand: Bool = True,
         resolve: Bool = False,
-        type: Union[StatMode, str] = StatMode.ANY,  # noqa
+        type: StatMode | str = StatMode.ANY,  # noqa
         readable: Bool = False,
         writable: Bool = False,
         allow_dash: Bool = False,
@@ -56,7 +55,7 @@ class FileInput(InputType[T], ABC):
         non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
         return f'<{self.__class__.__name__}({non_defaults})>'
 
-    def fix_default(self, value: Optional[T]) -> Optional[T]:
+    def fix_default(self, value: T | None) -> T | None:
         """
         Fixes the default value to conform to the expected return type for this input.  Allows the default value for a
         path to be provided as a string, for example.
@@ -122,7 +121,7 @@ class Path(FileInput[_Path]):
         return self.validated_path(value)
 
 
-class File(FileInput[Union[FileWrapper, str, bytes]]):
+class File(FileInput[FileWrapper | str | bytes]):
     """
     :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.
     :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
@@ -165,7 +164,7 @@ class File(FileInput[Union[FileWrapper, str, bytes]]):
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, self.encoding, self.errors, parents=self.parents)
 
-    def __call__(self, value: PathLike) -> Union[FileWrapper, str, bytes]:
+    def __call__(self, value: PathLike) -> FileWrapper | str | bytes:
         wrapper = self._prep_file_wrapper(self.validated_path(value))
         if self.lazy:
             return wrapper

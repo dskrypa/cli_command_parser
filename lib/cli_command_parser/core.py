@@ -8,7 +8,7 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, Optional, TypeVar, Union
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, TypeVar
 from warnings import warn
 from weakref import WeakSet
 
@@ -20,9 +20,9 @@ from .metadata import ProgramMetadata
 if TYPE_CHECKING:
     from .typing import AnyConfig, CommandAny, CommandCls, Config, OptStr
 
-    Bases = Union[tuple[type, ...], Iterable[type]]
-    Choices = Union[Mapping[str, Optional[str]], Collection[str]]
-    OptChoices = Optional[Choices]
+    Bases = tuple[type, ...] | Iterable[type]
+    Choices = Mapping[str, str | None] | Collection[str]
+    OptChoices = Choices | None
     T = TypeVar('T')
 
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadata', 'get_top_level_commands']
@@ -134,7 +134,7 @@ class CommandMeta(ABCMeta, type):
             _no_choices_registered_warning(choice, choices, cls, 'it has no parent Command')
 
     @classmethod
-    def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> Optional[T]:
+    def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> T | None:
         for base in bases:
             if isinstance(base, mcs):
                 return meth(base)
@@ -159,7 +159,7 @@ class CommandMeta(ABCMeta, type):
         return None
 
     @classmethod
-    def config(mcs, cls: CommandAny, default: T = None) -> Union[CommandConfig, T]:
+    def config(mcs, cls: CommandAny, default: T = None) -> CommandConfig | T:
         try:
             return cls.__config  # This attr is not overwritten for every subclass
         except AttributeError:  # This means that the Command and all of its parents have no custom config
@@ -170,7 +170,7 @@ class CommandMeta(ABCMeta, type):
     # region Metaclass-Managed Command Attributes
 
     @classmethod
-    def parent(mcs, cls: CommandAny, include_abc: bool = True) -> Optional[CommandCls]:
+    def parent(mcs, cls: CommandAny, include_abc: bool = True) -> CommandCls | None:
         """
         :param cls: A Command class or object
         :param include_abc: If True, the first Command parent class in the given Command's mro will be returned,

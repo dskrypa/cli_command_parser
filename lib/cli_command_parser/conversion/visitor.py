@@ -5,7 +5,7 @@ import re
 from ast import AST, Assign, Attribute, Call, For, Import, ImportFrom, Name, NodeVisitor, expr
 from collections import ChainMap, defaultdict
 from functools import partial, wraps
-from typing import TYPE_CHECKING, Callable, Collection, Iterator, Union
+from typing import TYPE_CHECKING, Callable, Collection, Iterator
 
 from .argparse_ast import AstArgumentParser
 from .utils import get_name_repr
@@ -156,7 +156,7 @@ class ScriptVisitor(NodeVisitor):
 
     # endregion
 
-    def resolve_ref(self, name: Union[str, AST, Attribute, Name, expr]):
+    def resolve_ref(self, name: str | AST | Attribute | Name | expr):
         if isinstance(name, Attribute) and isinstance(name.value, Call):
             obj = self.visit_Call(name.value)
             attr = name.attr

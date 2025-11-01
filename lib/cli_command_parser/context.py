@@ -14,7 +14,7 @@ from contextvars import ContextVar
 from enum import Enum
 from functools import cached_property
 from inspect import Parameter as _Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Optional, Sequence, Union, cast
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Sequence, cast
 
 from .config import DEFAULT_CONFIG, CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
@@ -24,15 +24,15 @@ from .utils import Terminal, _NotSet
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
-    from .parameters import ActionFlag, BaseOption, Option, Parameter
+    from .parameters import ActionFlag, BaseOption, Parameter
     from .typing import AnyConfig, Bool, CommandObj, CommandType, OptStr, ParamOrGroup, PathLike, StrSeq  # noqa
+
+    Argv = StrSeq | None
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
 _context_stack = ContextVar('cli_command_parser.context.stack')
 _TERMINAL = Terminal()
-
-Argv = Optional['StrSeq']
 
 
 class Context(AbstractContextManager):  # Extending AbstractContextManager to make PyCharm's type checker happy
@@ -47,19 +47,19 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     prog: OptStr = None
     allow_argv_prog: Bool = True
     _command_obj: CommandObj = None
-    _terminal_width: Optional[int]
+    _terminal_width: int | None
     _provided: dict[ParamOrGroup, int]
 
     def __init__(
         self,
         argv: Argv = None,
-        command_cls: Optional[CommandType] = None,
+        command_cls: CommandType | None = None,
         *,
-        parent: Optional[Context] = None,
+        parent: Context | None = None,
         config: AnyConfig = None,
         terminal_width: int = None,
         allow_argv_prog: Bool = None,
-        command: Optional[CommandObj] = None,
+        command: CommandObj | None = None,
         **kwargs,
     ):
         self.command_cls = command_cls
@@ -125,7 +125,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def __exit__(self, exc_type, exc_val, exc_tb):
         _context_stack.get().pop()
 
-    def __contains__(self, param: Union[ParamOrGroup, str, Any]) -> bool:
+    def __contains__(self, param: ParamOrGroup | str | Any) -> bool:
         try:
             self._parsed[param]
         except KeyError:
@@ -193,7 +193,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         return parsed
 
     @cached_property
-    def params(self) -> Optional[CommandParameters]:
+    def params(self) -> CommandParameters | None:
         """
         The :class:`.CommandParameters` object that contains the categorized Parameters from the Command associated
         with this Context.
@@ -202,7 +202,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
             return self.command_cls.__class__.params(self.command_cls)
         return None
 
-    def get_error_handler(self) -> Union[ErrorHandler, NullErrorHandler]:
+    def get_error_handler(self) -> ErrorHandler | NullErrorHandler:
         """Returns the :class:`.ErrorHandler` configured to be used."""
         if (error_handler := self.config.error_handler) is _NotSet:
             return extended_error_handler
@@ -426,7 +426,7 @@ ctx: Context = cast(Context, ContextProxy())
 # region Public / Semi-Public Functions
 
 
-def get_current_context(silent: bool = False) -> Optional[Context]:
+def get_current_context(silent: bool = False) -> Context | None:
     """
     Get the currently active parsing context.
 

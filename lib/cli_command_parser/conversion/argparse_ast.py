@@ -8,7 +8,7 @@ from ast import AST, Assign, Call, withitem
 from functools import cached_property, partial
 from inspect import BoundArguments, Signature
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Collection, Generic, Iterator, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Callable, Collection, Generic, Iterator, Type, TypeVar
 
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
 from .utils import get_name_repr, iter_module_parents, unparse
@@ -21,8 +21,8 @@ if TYPE_CHECKING:
 __all__ = ['ParserArg', 'ArgGroup', 'MutuallyExclusiveGroup', 'AstArgumentParser', 'SubParser', 'Script']
 log = logging.getLogger(__name__)
 
-InitNode = Union[Call, Assign, withitem]
-OptCall = Union[Call, None]
+InitNode = Call | Assign | withitem
+OptCall = Call | None
 ParserCls = Type['AstArgumentParser']
 ParserObj = TypeVar('ParserObj', bound='AstArgumentParser')
 RepresentedCallable = TypeVar('RepresentedCallable', bound=Callable)
@@ -33,7 +33,7 @@ _NotSet = object()
 
 class Script:
     _parser_classes = {}
-    path: Union[Path, None]
+    path: Path | None
 
     def __init__(self, src_text: str, smart_loop_handling: bool = True, path: PathLike = None):
         self.smart_loop_handling = smart_loop_handling
@@ -162,7 +162,7 @@ class AstCallable:
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[{self.init_call_repr()}]>'
 
-    def get_tracked_refs(self, module: str, name: str, default: D = _NotSet) -> Union[set[str], D]:
+    def get_tracked_refs(self, module: str, name: str, default: D = _NotSet) -> set[str] | D:
         for tracked_ref, refs in self._tracked_refs.items():
             if tracked_ref.module == module and tracked_ref.name == name:
                 return refs

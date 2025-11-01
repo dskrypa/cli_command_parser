@@ -16,7 +16,7 @@ from inspect import getmodule
 from pathlib import Path
 from sys import modules
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Type
 from urllib.parse import urlparse
 
 from .context import NoActiveContext, ctx
@@ -43,7 +43,7 @@ class MetadataBase:
         self.name = name
         owner._fields.add(name)
 
-    def __get__(self, instance: Optional[ProgramMetadata], owner: Type[ProgramMetadata]):
+    def __get__(self, instance: ProgramMetadata | None, owner: Type[ProgramMetadata]):
         try:
             return instance.__dict__[self.name]
         except AttributeError:  # instance is None
@@ -54,7 +54,7 @@ class MetadataBase:
             return getattr(parent, self.name)
         return self.get_value(instance)
 
-    def __set__(self, instance: ProgramMetadata, value: Union[str, Path, None]):
+    def __set__(self, instance: ProgramMetadata, value: str | Path | None):
         if value is not None:
             instance.__dict__[self.name] = value
 
@@ -68,7 +68,7 @@ class MetadataBase:
                     value = getattr(self, attr)
                     yield attr, (getattr(value, '__qualname__', value) if attr == 'func' else repr(value))
 
-    def get_parent(self, instance: ProgramMetadata) -> Optional[ProgramMetadata]:
+    def get_parent(self, instance: ProgramMetadata) -> ProgramMetadata | None:
         # if (parent := instance.parent) and parent.distribution == instance.distribution:
         if (parent := instance.parent) and parent.package == instance.package:
             return parent
@@ -113,7 +113,7 @@ def dynamic_metadata(func=None, *, inheritable: bool = True):
 
 class ProgramMetadata:
     _fields = {'parent'}
-    parent: Optional[ProgramMetadata] = None
+    parent: ProgramMetadata | None = None
     distribution: Distribution | None = Metadata(None, inheritable=False)
     path: Path = Metadata(None, inheritable=False)
     package: str = Metadata(None, inheritable=False)
@@ -226,6 +226,7 @@ class ProgramMetadata:
     @dynamic_metadata
     def email(self) -> OptStr:
         if dist := self.distribution:
+            # TODO: This is `First Last <email>` when using pyproject.toml
             if email := dist.metadata['Author-email']:
                 # TODO: `Maintainer-email` instead if it's defined?  Is there a more appropriate key?
                 # https://packaging.python.org/en/latest/specifications/core-metadata/#core-metadata
@@ -313,7 +314,7 @@ class ProgFinder:
     def normalize(
         self,
         cmd_path: Path,
-        parent: Optional[ProgramMetadata],
+        parent: ProgramMetadata | None,
         allow_sys_argv: Bool,
         cmd_module: str,
         cmd_name: str,

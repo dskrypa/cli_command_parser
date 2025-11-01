@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Collection, Generic, Iterator, NoReturn, Type, TypeVar, Union, overload
+from typing import TYPE_CHECKING, Any, Callable, Collection, Generic, Iterator, NoReturn, Type, TypeVar, overload
 
 from ..annotations import get_descriptor_value_type
 from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
@@ -81,7 +81,7 @@ class ParamBase(ABC):
         return self._default_name()
 
     @name.setter
-    def name(self, value: Union[str, None]):
+    def name(self, value: str | None):
         if value is not None:
             self._name = value
 
@@ -107,7 +107,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 
-    def _ctx(self, command: CommandAny = None) -> Union[Context, None]:
+    def _ctx(self, command: CommandAny = None) -> Context | None:
         if context := get_current_context(True):
             return context
         if command is None:
@@ -187,11 +187,11 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # fmt: off
     # Class attributes
     _action_map: dict[str, Type[ParamAction]] = {}
-    _repr_attrs: Union[Strings, None] = None                            #: Attributes to include in ``repr()`` output
+    _repr_attrs: Strings | None = None                                  #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
     metavar: str = None
     nargs: Nargs                                                        # Expected to be set in subclasses
-    type: Union[Callable[[str], T_co], None] = None                     # Expected to be set in subclasses
+    type: Callable[[str], T_co] | None = None                           # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
     default = _NotSet
     default_cb: DefaultCallback | None = None
@@ -356,7 +356,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         else:
             return self.prepare_value(value, short_combo)
 
-    def validate(self, value: Union[T_co, None], joined: Bool = False):
+    def validate(self, value: T_co | None, joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
@@ -381,7 +381,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def __get__(self: Param, command: None, owner: CommandCls) -> Param: ...
 
     @overload
-    def __get__(self, command: CommandObj, owner: CommandCls) -> Union[T_co, None]: ...
+    def __get__(self, command: CommandObj, owner: CommandCls) -> T_co | None: ...
 
     def __get__(self, command, owner):
         if command is None:
@@ -394,7 +394,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
         return value
 
-    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> Union[T_co, TD, None]:
+    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> T_co | TD | None:
         """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
         if (value := ctx.get_parsed_value(self)) is not _NotSet:
             return self.action.finalize_value(value)
@@ -509,7 +509,7 @@ class BaseOption(Parameter[T_co], ABC):
         self,
         *option_strs: str,
         action: str,
-        name_mode: Union[OptionNameMode, str, None] = _NotSet,
+        name_mode: OptionNameMode | str | None = _NotSet,
         env_var: OptStrs = None,
         strict_env: bool = True,
         use_env_value: Bool = None,
@@ -561,7 +561,7 @@ class AllowLeadingDashProperty:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def __get__(self, instance: Union[Parameter, None], owner) -> Union[AllowLeadingDash, AllowLeadingDashProperty]:
+    def __get__(self, instance: Parameter | None, owner) -> AllowLeadingDash | AllowLeadingDashProperty:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)

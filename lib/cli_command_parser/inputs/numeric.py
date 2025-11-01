@@ -8,7 +8,6 @@ Custom numeric input handlers for Parameters
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
 
 from ..typing import NT, Bool, Number, NumType, RngType
 from .base import InputType
@@ -46,7 +45,7 @@ class NumericInput(InputType[NT], ABC):
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         return f'{{{self._range_str()}}}'
 
-    def fix_default(self, value: Union[str, NT, None]) -> Optional[NT]:
+    def fix_default(self, value: str | NT | None) -> NT | None:
         if value is None or not isinstance(value, str) or not self._fix_default:
             return value
         return self(value)
@@ -67,7 +66,7 @@ class Range(NumericInput[NT]):
     """
 
     type: NumType = int
-    range: Optional[_range]
+    range: _range | None
     snap: bool
 
     def __init__(self, range: RngType, snap: Bool = False, type: NumType = None, fix_default: Bool = True):  # noqa

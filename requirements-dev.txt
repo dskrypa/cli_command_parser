@@ -4,9 +4,13 @@ pre-commit
 ruff
 
 # QoL
-ipython
+ipython>=9.6.0
 rich
 
 # Testing
-testtools
 coverage
+pytest
+pytest-cov
+# Note: testtools is only used for faster local testing when using unittest (with or without coverage); it isn't used
+# when running tests via pytest or in CI test jobs.
+testtools

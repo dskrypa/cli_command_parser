@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping, Optional, Union
+from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping
 
 from .exceptions import AmbiguousParseTree
 from .utils import _parse_tree_target_repr
@@ -15,6 +15,8 @@ if TYPE_CHECKING:
     from .parameters.choice_map import Choice
     from .typing import CommandCls, OptStr
 
+    Target = BasePositional | CommandCls | None
+
 __all__ = ['PosNode']
 
 
@@ -23,9 +25,9 @@ class AnyWord:
 
     nargs: Nargs
     n: int
-    remaining: Union[int, float]
+    remaining: int | float
 
-    def __init__(self, nargs: Nargs, remaining: Union[int, float, None] = None, n: int = 1):
+    def __init__(self, nargs: Nargs, remaining: int | float | None = None, n: int = 1):
         self.nargs = nargs
         self.n = n
         if remaining is None:
@@ -52,22 +54,19 @@ class AnyWord:
         return hash(self.__class__) ^ hash(self.nargs) ^ hash(self.remaining) ^ hash(self.n)
 
 
-Word = Union[str, AnyWord, None]
-Target = Union['BasePositional', 'CommandCls', None]
+Word = str | AnyWord | None
 
 
 class PosNode(MutableMapping[Word, 'PosNode']):
     __slots__ = ('links', 'param', 'parent', 'target', 'word', '_any_word', '_any_node')
 
     links: dict[Word, PosNode]
-    param: Optional[BasePositional]
-    parent: Optional[PosNode]
+    param: BasePositional | None
+    parent: PosNode | None
     target: Target
     word: Word
 
-    def __init__(
-        self, word: Word, param: Optional[BasePositional], target: Target = None, parent: Optional[PosNode] = None
-    ):
+    def __init__(self, word: Word, param: BasePositional | None, target: Target = None, parent: PosNode | None = None):
         self.links = {}
         self.param = param
         self.parent = parent

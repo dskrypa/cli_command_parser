@@ -138,6 +138,7 @@ class CommandParser:
         elif n > 2:  # arg starts with at least 1 dash, and may be a long option or invalid
             return self.handle_long(arg) if arg[2] != '-' else self._handle_many_dashes(arg)
         else:  # arg == '--'
+            # TODO: Maybe bug?  `arg` could technically be `'-'` here...
             return self._handle_double_dash(arg)
 
     def _handle_double_dash(self, arg: str):

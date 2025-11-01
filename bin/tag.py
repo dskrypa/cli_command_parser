@@ -6,7 +6,6 @@ from datetime import datetime
 from pathlib import Path
 from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
-from typing import Optional
 
 from cli_command_parser import Command, Counter, Flag, Option
 
@@ -45,7 +44,7 @@ class TagUpdater(Command):
             check_call(['git', 'tag', next_version])
             check_call(['git', 'push', '--tags'])
 
-    def update_version(self) -> Optional[str]:
+    def update_version(self) -> str | None:
         version_pat = re.compile(r'^(\s*__version__\s?=\s?)(["\'])(\d{4}\.\d{2}\.\d{2}(?:-\d+)?)\2$')
         path = self.version_file_path
         found = False

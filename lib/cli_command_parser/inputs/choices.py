@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Collection, Iterator, Mapping, Optional, Set, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Mapping, Type, TypeVar
 
 from ..typing import T, TypeFunc
 from .base import InputType
@@ -25,7 +25,7 @@ EnumT = TypeVar('EnumT', bound=Enum)
 class _ChoicesBase(InputType[T], ABC):
     __slots__ = ('choices', 'type', 'case_sensitive')
     choices: Collection[T]
-    type: Optional[TypeFunc]
+    type: TypeFunc | None
     case_sensitive: bool
 
     def __contains__(self, value: str) -> bool:
@@ -61,7 +61,7 @@ class _ChoicesBase(InputType[T], ABC):
 
     def _iter_normalized(self, value: Any, choices: Collection = None) -> Iterator[T]:
         yield value
-        if not self.case_sensitive and (choices is None or isinstance(choices, (Set, Mapping))):
+        if not self.case_sensitive and (choices is None or isinstance(choices, (set, Mapping))):
             yield value.lower()
             yield value.upper()
 

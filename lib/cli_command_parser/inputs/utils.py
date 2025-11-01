@@ -11,7 +11,7 @@ import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S_IFSOCK
-from typing import TYPE_CHECKING, Any, BinaryIO, Iterator, TextIO, Union
+from typing import TYPE_CHECKING, Any, BinaryIO, Iterator, TextIO
 from weakref import finalize
 
 from ..utils import FixedFlag
@@ -104,7 +104,7 @@ class FileWrapper:
         self.converter = converter
         self.pass_file = pass_file
         self.parents = parents
-        self._fp: Union[TextIO, BinaryIO, None] = None
+        self._fp: TextIO | BinaryIO | None = None
         self._finalizer = None
 
     def __eq__(self, other: FileWrapper) -> bool:
@@ -175,7 +175,7 @@ class FileWrapper:
         finally:
             self.close()
 
-    def __enter__(self) -> Union[FP, FileWrapper]:
+    def __enter__(self) -> FP | FileWrapper:
         if self.converter is not None:
             return self
         return self._open()

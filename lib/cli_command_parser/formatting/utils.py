@@ -6,7 +6,7 @@ Utils for usage / help text formatters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Collection, Iterator, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Sequence
 
 from ..compat import WCTextWrapper
 from ..config import ShowDefaults
@@ -171,7 +171,7 @@ def _normalize_column_width(lines: Sequence[str], column_width: int) -> Iterator
                 yield line
 
 
-def _should_add_default(default: Any, help_text: Optional[str], param_show_default: Optional[Bool]) -> bool:
+def _should_add_default(default: Any, help_text: str | None, param_show_default: Bool | None) -> bool:
     if default is _NotSet:
         return False
     elif param_show_default is not None:

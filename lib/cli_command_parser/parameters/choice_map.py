@@ -298,14 +298,17 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
           ``choice`` string value.
         :param help: (Keyword-only) The help text / description to be displayed for this choice
         """
-        if command_or_choice is None:
-            return partial(self.register_command, choice, help=help)
-        elif isinstance(command_or_choice, str):
-            if choice is not None:
-                raise CommandDefinitionError(f'Cannot combine a positional {command_or_choice=} choice with {choice=}')
-            return partial(self.register_command, command_or_choice, help=help)
-        else:
-            return self.register_command(choice, command_or_choice, help=help)  # noqa
+        match command_or_choice:
+            case None:
+                return partial(self.register_command, choice, help=help)
+            case str():
+                if choice is not None:
+                    raise CommandDefinitionError(
+                        f'Cannot combine a positional {command_or_choice=} choice with {choice=}'
+                    )
+                return partial(self.register_command, command_or_choice, help=help)
+            case _:
+                return self.register_command(choice, command_or_choice, help=help)
 
     def _no_choices_error(self) -> NoReturn:
         raise CommandDefinitionError(f'{ctx.command_cls}.{self.name} = {self} has no sub Commands')

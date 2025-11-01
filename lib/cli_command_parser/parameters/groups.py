@@ -7,7 +7,7 @@ Parameter Groups
 from __future__ import annotations
 
 from itertools import count
-from typing import TYPE_CHECKING, Iterable, Iterator, Optional
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from ..context import ctx
 from ..exceptions import CommandDefinitionError, ParamConflict, ParameterDefinitionError, ParamsMissing
@@ -45,7 +45,7 @@ class ParamGroup(ParamBase):
     """
 
     _num: int
-    description: Optional[str]
+    description: str | None
     members: list[ParamOrGroup]
     mutually_exclusive: Bool = False
     mutually_dependent: Bool = False
@@ -68,6 +68,12 @@ class ParamGroup(ParamBase):
         #  mutual_dependent / required handling needs to be refined.
         #  Concrete example: fluentbit parser name/format are both required if either is specified, and a regex pattern
         #  / type MAY be provided, but only if the name/format is also provided
+
+        # TODO: When a subclass/subcommand has a ParamGroup with the same name/description as the parent, merge by
+        #  default (with a config to modify behavior?)
+        #  -> This would be complicated by the mutually_(exclusive|dependent) and required/hide args...  It would
+        #     probably be easier to implement a new `with parent_group(name):` approach, where a name for the parent
+        #     ParamGroup would be required
 
         self._num = next(_GROUP_COUNTER)
         self.description = description

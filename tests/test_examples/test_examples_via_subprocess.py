@@ -22,8 +22,8 @@ else:
 
     def load_tests(loader, suite, pattern):
         """
-        Called by unittest both when invoked via main and via ``coverage run -m unittest``, but not via pytest.  Returns a
-        testtools.ConcurrentTestSuite to run the above methods in parallel instead of in series.
+        Called by unittest both when invoked via main and via ``coverage run -m unittest``, but not via pytest.
+        Returns a testtools.ConcurrentTestSuite to run the above methods in parallel instead of in series.
         """
         suites = [HashableSuite((test,)) for test in iterate_tests(suite)]
         # tests = list(iterate_tests(suite))
