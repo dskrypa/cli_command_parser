@@ -227,7 +227,6 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.positionals"><code class="docutils literal notranslate"><span class="pre">CommandParameters.positionals</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.option_map"><code class="docutils literal notranslate"><span class="pre">CommandParameters.option_map</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command"><code class="docutils literal notranslate"><span class="pre">CommandParameters.command</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.command_parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.command_parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.parent"><code class="docutils literal notranslate"><span class="pre">CommandParameters.parent</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.pass_thru</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.command_parameters.html#cli_command_parser.command_parameters.CommandParameters.has_nested_pass_thru"><code class="docutils literal notranslate"><span class="pre">CommandParameters.has_nested_pass_thru</span></code></a></li>
@@ -1028,7 +1027,6 @@
     <span class="c1"># fmt: off</span>
     <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span>                                  <span class="c1">#: The Command associated with this CommandParameters object</span>
     <span class="n">formatter</span><span class="p">:</span> <span class="n">CommandHelpFormatter</span>                      <span class="c1">#: The formatter used for this Command&#39;s help text</span>
-    <span class="n">command_parent</span><span class="p">:</span> <span class="n">CommandCls</span> <span class="o">|</span> <span class="kc">None</span>                    <span class="c1">#: The parent Command, if any</span>
     <span class="n">parent</span><span class="p">:</span> <span class="n">CommandParameters</span> <span class="o">|</span> <span class="kc">None</span>                     <span class="c1">#: The parent Command&#39;s CommandParameters</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">Action</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>                         <span class="c1">#: An Action Parameter, if specified</span>
     <span class="n">_pass_thru</span><span class="p">:</span> <span class="n">PassThru</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>                   <span class="c1">#: A PassThru Parameter, if specified</span>
@@ -1043,15 +1041,8 @@
     <span class="n">option_map</span><span class="p">:</span> <span class="n">OptionMap</span>                                <span class="c1">#: Mapping of {--opt / -opt: Parameter}</span>
     <span class="c1"># fmt: on</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span>
-        <span class="n">command_parent</span><span class="p">:</span> <span class="n">CommandCls</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parent_params</span><span class="p">:</span> <span class="n">CommandParameters</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">parent_params</span><span class="p">:</span> <span class="n">CommandParameters</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="o">=</span> <span class="n">command_parent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_parameters</span><span class="p">()</span>
@@ -1176,7 +1167,7 @@
             <span class="k">while</span> <span class="n">param_group</span> <span class="o">:=</span> <span class="n">param_group</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
                 <span class="n">groups</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param_group</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">command_parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_has_help</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_help</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">_has_help</span><span class="p">:</span>
             <span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">help_action</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_process_positionals</span><span class="p">(</span><span class="n">positionals</span><span class="p">)</span>
