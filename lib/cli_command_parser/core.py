@@ -211,7 +211,7 @@ class CommandMeta(ABCMeta, type):
                 cls = cls.__class__
             parent = mcs.parent(cls, True)
             parent_params = mcs.params(parent) if parent is not None else None
-            cls.__params = params = CommandParameters(cls, parent, parent_params, mcs.config(cls, DEFAULT_CONFIG))
+            cls.__params = params = CommandParameters(cls, parent_params, mcs.config(cls, DEFAULT_CONFIG))
         return params
 
     @classmethod

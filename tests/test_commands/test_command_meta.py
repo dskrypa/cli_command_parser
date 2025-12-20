@@ -4,7 +4,7 @@ from abc import ABC
 from unittest import TestCase, main
 
 from cli_command_parser import Command, CommandConfig
-from cli_command_parser.core import CommandMeta, _choice_items, get_config, get_params, get_parent
+from cli_command_parser.core import CommandMeta, _choice_items, get_config, get_parent
 from cli_command_parser.exceptions import CommandDefinitionError
 
 _get_config = CommandMeta.config
@@ -49,7 +49,7 @@ class TestCommandMeta(TestCase):
         class Bar(Foo):
             pass
 
-        self.assertEqual(get_params(Bar).command_parent, Foo)
+        self.assertEqual(get_parent(Bar), Foo)
 
     def test_choice_items_results(self):
         cases = [
