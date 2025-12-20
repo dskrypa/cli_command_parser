@@ -34,7 +34,6 @@ class CommandParameters:
     # fmt: off
     command: CommandCls                                  #: The Command associated with this CommandParameters object
     formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
-    command_parent: CommandCls | None                    #: The parent Command, if any
     parent: CommandParameters | None                     #: The parent Command's CommandParameters
     action: Action | None = None                         #: An Action Parameter, if specified
     _pass_thru: PassThru | None = None                   #: A PassThru Parameter, if specified
@@ -49,15 +48,8 @@ class CommandParameters:
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
     # fmt: on
 
-    def __init__(
-        self,
-        command: CommandCls,
-        command_parent: CommandCls | None,
-        parent_params: CommandParameters | None,
-        config: CommandConfig,
-    ):
+    def __init__(self, command: CommandCls, parent_params: CommandParameters | None, config: CommandConfig):
         self.command = command
-        self.command_parent = command_parent
         self.parent = parent_params
         self.config = config
         self._process_parameters()
@@ -167,7 +159,7 @@ class CommandParameters:
             while param_group := param_group.group:
                 groups.add(param_group)
 
-        if self.config.add_help and self.command_parent is not None and (not self.parent or not self.parent._has_help):
+        if self.config.add_help and self.parent is not None and not self.parent._has_help:
             options.append(help_action)
 
         self._process_positionals(positionals)
