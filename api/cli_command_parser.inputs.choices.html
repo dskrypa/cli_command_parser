@@ -8,15 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choices Module &mdash; CLI Command Parser 2025.11.01 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/sphinx_paramlinks.css" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=d7e125b1"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -123,9 +123,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../inputs.html#serialized-files">Serialized Files</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../inputs.html#numeric-ranges">Numeric Ranges</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../inputs.html#numeric-types-ranges">Numeric Types &amp; Ranges</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../inputs.html#range">Range</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../inputs.html#numrange">NumRange</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../inputs.html#bytes">Bytes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../inputs.html#choice-inputs">Choice Inputs</a><ul>
@@ -618,6 +619,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput"><code class="docutils literal notranslate"><span class="pre">NumericInput</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes"><code class="docutils literal notranslate"><span class="pre">Bytes</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
@@ -1004,7 +1006,7 @@
 </dl>
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.choices.Choices">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">Choices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TypeFunc</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#Choices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.Choices" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">Choices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Collection</span><span class="p"><span class="pre">[</span></span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">TypeFunc</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#Choices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.Choices" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ChoicesBase</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <p>Validates that values are members of the collection of allowed values.</p>
 <dl class="field-list simple">
@@ -1027,7 +1029,7 @@ all strings, then this cannot be set to False.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.choices.ChoiceMap">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">ChoiceMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.14)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#ChoiceMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.ChoiceMap" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">ChoiceMap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Mapping" title="(in Python v3.14)"><span class="pre">Mapping</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><span class="pre">Any</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">T</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#ChoiceMap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.ChoiceMap" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
 <p>Similar to <a class="reference internal" href="#cli_command_parser.inputs.choices.Choices" title="cli_command_parser.inputs.choices.Choices"><code class="xref py py-class docutils literal notranslate"><span class="pre">Choices</span></code></a>, but requires a mapping for allowed values.</p>
 <dl class="field-list simple">
@@ -1056,7 +1058,7 @@ all strings, then this cannot be set to False.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="cli_command_parser.inputs.choices.EnumChoices">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">EnumChoices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">EnumT</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#EnumChoices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.EnumChoices" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cli_command_parser.inputs.choices.</span></span><span class="sig-name descname"><span class="pre">EnumChoices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">EnumT</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">case_sensitive</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cli_command_parser/inputs/choices.html#EnumChoices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cli_command_parser.inputs.choices.EnumChoices" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">_ChoicesBase</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">EnumT</span></code>]</p>
 <p>Similar to <a class="reference internal" href="#cli_command_parser.inputs.choices.ChoiceMap" title="cli_command_parser.inputs.choices.ChoiceMap"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChoiceMap</span></code></a>, but uses an Enum to validate / normalize input instead of the keys in a dict.</p>
 <dl class="field-list simple">
@@ -1087,7 +1089,7 @@ all strings, then this cannot be set to False.</p></li>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Doug Skrypa.</p>
+    <p>&#169; Copyright 2026, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

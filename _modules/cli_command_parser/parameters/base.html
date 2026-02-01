@@ -7,15 +7,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>cli_command_parser.parameters.base &mdash; CLI Command Parser 2025.11.01 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
 
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../../_static/documentation_options.js?v=d7e125b1"></script>
-      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
@@ -120,9 +120,10 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#serialized-files">Serialized Files</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#numeric-ranges">Numeric Ranges</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#numeric-types-ranges">Numeric Types &amp; Ranges</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#range">Range</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#numrange">NumRange</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../inputs.html#bytes">Bytes</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../inputs.html#choice-inputs">Choice Inputs</a><ul>
@@ -615,6 +616,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput"><code class="docutils literal notranslate"><span class="pre">NumericInput</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range"><code class="docutils literal notranslate"><span class="pre">Range</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange"><code class="docutils literal notranslate"><span class="pre">NumRange</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes"><code class="docutils literal notranslate"><span class="pre">Bytes</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.patterns.html">Patterns Module</a><ul>
@@ -1011,6 +1013,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs.choices</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ChoicesBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..inputs.numeric</span><span class="w"> </span><span class="kn">import</span> <span class="n">NumericInput</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">REMAINDER</span><span class="p">,</span> <span class="n">Nargs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMethod</span><span class="p">,</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">T_co</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span>
@@ -1394,7 +1397,12 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">==</span> <span class="n">AllowLeadingDash</span><span class="o">.</span><span class="n">NUMERIC</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">joined</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_numeric</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="c1"># `joined` indicates the value was provided as --opt=val, so it&#39;s explicitly intended for this param.</span>
+            <span class="c1"># If the value is obviously numeric, that has been allowed via config.</span>
+            <span class="c1"># If this param&#39;s type is a numeric input type, it is allowed because `prepare_validation_value` is always</span>
+            <span class="c1"># called before this method, and the type is validated there (some of this validation should definitely be</span>
+            <span class="c1"># simplified).</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">joined</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_numeric</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">NumericInput</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">==</span> <span class="n">AllowLeadingDash</span><span class="o">.</span><span class="n">NEVER</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span></div>
@@ -1676,7 +1684,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Doug Skrypa.</p>
+    <p>&#169; Copyright 2026, Doug Skrypa.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
