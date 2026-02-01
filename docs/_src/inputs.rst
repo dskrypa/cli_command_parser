@@ -169,8 +169,8 @@ When using the generic :class:`.Serialized` directly, the specific (de)serializa
 
 
 
-Numeric Ranges
-==============
+Numeric Types & Ranges
+======================
 
 Range
 -----
@@ -217,6 +217,37 @@ exclusive.
 Example use cases:
     - Restrict input to only positive integers: ``NumRange(min=0)``
     - Allow floats between 0 and 1, inclusive: ``NumRange(type=float, min=0, max=1, include_max=True)``
+
+
+Bytes
+-----
+
+The :class:`.Bytes` input type can be used to accept a byte count/size with an optional unit.  Both base-2 and base-10
+formats are accepted.
+
+When a unit is provided via CLI, there must either be no space between the number and the unit, or the number and the
+unit must be passed as a single argument with quotes around it to support a space between them.
+
+Example invocations::
+
+    $ some_command.py --size 5MB
+    $ some_command.py --size '12 MiB'
+    $ some_command.py --size 12345678  # interpreted as bytes
+
+
+.. _bytes_init_params:
+
+**Bytes initialization parameters:**
+
+:base: Whether 2-character units (MB, GB, etc.) are treated as base 2 (historical interpretation) or
+  base 10 (the default) (following the International System of Units (SI) definition).  Regardless of the base
+  specified here, user-provided units that explicitly use an ``i`` to indicate binary (MiB, GiB, etc.) will always
+  be treated as base 2.
+:short: Whether single-letter units (other than ``B``, which is always valid) are accepted (default: True).  When
+  accepted, they use the ``base`` parameter to determine which base to use.
+:fractions: Whether fractional values are allowed (e.g., ``1.2 MB``).  By default, only integers / whole numbers
+  are accepted.
+:negative: Whether negative numeric values are accepted.
 
 
 Choice Inputs

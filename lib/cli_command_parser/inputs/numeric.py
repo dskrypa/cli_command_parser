@@ -198,6 +198,7 @@ class Bytes(NumericInput[NT]):
     A byte count/size.
 
     Types of user inputs that are accepted:
+
     - Simple integer representing an exact byte count
     - Number with a unit (KB, MiB, etc.), which will result in the processed value being the raw byte count after
       scaling based on the provided unit
