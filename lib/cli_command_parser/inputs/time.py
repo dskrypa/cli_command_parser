@@ -26,7 +26,7 @@ from typing import Collection, Iterator, Literal, Sequence, Type, TypeVar, overl
 
 from ..typing import Bool, Locale, Number, T, TimeBound
 from ..utils import MissingMixin
-from .base import InputType
+from .base import InputType, _FixedInputType
 from .exceptions import InputValidationError, InvalidChoiceError
 from .utils import RangeMixin, range_str
 
@@ -73,7 +73,7 @@ class different_locale:
         self._lock.release()
 
 
-class DTInput(InputType[T], ABC):
+class DTInput(_FixedInputType[T], ABC):
     __slots__ = ('locale',)
     dt_type: str
     locale: Locale | None
@@ -92,11 +92,6 @@ class DTInput(InputType[T], ABC):
     @abstractmethod
     def choice_str(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         raise NotImplementedError
-
-    def fix_default(self, value: str | T | None) -> T | None:
-        if value is None or not isinstance(value, str) or not self._fix_default:
-            return value
-        return self(value)
 
 
 # region Calendar Unit Inputs

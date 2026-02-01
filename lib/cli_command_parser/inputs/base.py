@@ -43,3 +43,12 @@ class InputType(Generic[T], ABC):
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         # TODO: Optional/required arg, or handle wrapping in []/{} in formatter
         return NotImplemented
+
+
+class _FixedInputType(InputType[T], ABC):
+    __slots__ = ()
+
+    def fix_default(self, value: str | T | None) -> T | None:
+        if value is None or not isinstance(value, str) or not self._fix_default:
+            return value
+        return self(value)

@@ -7,20 +7,25 @@ Custom numeric input handlers for Parameters
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
+from typing import Literal
 
 from ..typing import NT, Bool, Number, NumType, RngType
-from .base import InputType
+from .base import _FixedInputType
 from .exceptions import InputValidationError
 from .utils import RangeMixin, range_str
 
-__all__ = ['Range', 'NumRange']
+__all__ = ['NumericInput', 'Range', 'NumRange', 'Bytes']
 
 _range = range
 
 
-class NumericInput(InputType[NT], ABC):
+class NumericInput(_FixedInputType[NT], ABC):
     __slots__ = ()
+
+
+class _RangeInput(NumericInput[NT], ABC):
     type: NumType
 
     def is_valid_type(self, value: str) -> bool:
@@ -45,13 +50,8 @@ class NumericInput(InputType[NT], ABC):
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         return f'{{{self._range_str()}}}'
 
-    def fix_default(self, value: str | NT | None) -> NT | None:
-        if value is None or not isinstance(value, str) or not self._fix_default:
-            return value
-        return self(value)
 
-
-class Range(NumericInput[NT]):
+class Range(_RangeInput[NT]):
     """
     A range of integers that uses the builtin :class:`python:range`.  If a range object is passed to a
     :class:`.Parameter` as the ``type=`` value, it will automatically be wrapped by this class.
@@ -75,7 +75,7 @@ class Range(NumericInput[NT]):
         if isinstance(range, int):
             self.range = _range(range)
         elif not isinstance(range, _range):
-            self.range = _range(*range)
+            self.range = _range(*range)  # noqa
         else:
             self.range = range
         if type is not None:
@@ -102,7 +102,7 @@ class Range(NumericInput[NT]):
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
 
-class NumRange(RangeMixin, NumericInput[NT]):
+class NumRange(RangeMixin, _RangeInput[NT]):
     """
     A range of integers or floats, optionally only bounded on one side.
 
@@ -191,3 +191,117 @@ class NumRange(RangeMixin, NumericInput[NT]):
             return self.handle_invalid(self.max, self.include_max, -1)
         else:
             return value
+
+
+class Bytes(NumericInput[NT]):
+    """
+    A byte count/size.
+
+    Types of user inputs that are accepted:
+    - Simple integer representing an exact byte count
+    - Number with a unit (KB, MiB, etc.), which will result in the processed value being the raw byte count after
+      scaling based on the provided unit
+
+    :base: Whether 2-character units (MB, GB, etc.) are treated as base 2 (historical interpretation) or
+      base 10 (the default) (following the International System of Units (SI) definition).  Regardless of the base
+      specified here, user-provided units that explicitly use an ``i`` to indicate binary (MiB, GiB, etc.) will always
+      be treated as base 2.
+    :short: Whether single-letter units (other than ``B``, which is always valid) are accepted (default: True).  When
+      accepted, they use the ``base`` parameter to determine which base to use.
+    :fractions: Whether fractional values are allowed (e.g., ``1.2 MB``).  By default, only integers / whole numbers
+      are accepted.
+    :negative: Whether negative numeric values are accepted.
+    """
+
+    __slots__ = ('base', 'short', 'fractions', 'negative')
+    _pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*([KMGTPEZYRQ]?i?B?)$', re.IGNORECASE)
+    _PREFIXES = 'KMGTPEZYRQ'
+
+    def __init__(
+        self,
+        base: Literal[2, 10] = 10,
+        *,
+        short: Bool = True,
+        fractions: Bool = False,
+        negative: Bool = False,
+        fix_default: Bool = True,
+    ):
+        if base not in (2, 10):
+            raise ValueError(f'Invalid 2-character unit {base=} - expected 2 for binary or 10 for SI / decimal')
+        super().__init__(fix_default)
+        self.base = base
+        self.short = short
+        self.fractions = fractions
+        self.negative = negative
+
+    def __repr__(self) -> str:
+        base, short, fractions, negative = self.base, self.short, self.fractions, self.negative
+        return f'<{self.__class__.__name__}(({base=}, {short=}, {fractions=}, {negative=})>'
+
+    @classmethod
+    def is_valid_type(cls, value: str) -> bool:
+        """
+        Called during parsing when :meth:`.ParamAction.would_accept` is called to determine if the value would be
+        accepted later for processing / conversion when called.
+
+        :param value: The parsed argument to validate
+        :return: True if this input would accept it for processing later (where it may still be rejected), False if
+          it should be rejected before attempting to process / convert / store it.
+        """
+        try:
+            return bool(cls._pattern.match(value))
+        except TypeError:
+            return False
+
+    def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
+        return 'BYTES[B|KB|MiB|...]'
+
+    def _type_desc(self) -> str:
+        parts = ['a']
+        if not self.negative:
+            parts.append('positive')
+
+        if not self.fractions:
+            if len(parts) == 1:
+                parts[0] = 'an'
+            parts.append('integer')
+
+        parts.append('byte count/size')
+        return ' '.join(parts)
+
+    def __call__(self, value: str) -> NT:
+        try:
+            num, unit = self._pattern.match(value.strip()).groups()
+        except (TypeError, AttributeError):
+            raise InputValidationError(f'expected {self._type_desc()} with optional unit') from None
+
+        try:
+            num = float(num) if self.fractions else int(num)
+        except ValueError as e:  # This should only be caused when int is expected at this point
+            raise InputValidationError(f'expected {self._type_desc()}, but found {num!r}') from e
+
+        if not self.negative and num < 0:
+            raise InputValidationError(f'expected {self._type_desc()}, but found {num!r}')
+
+        return num * self._get_multiplier(unit)
+
+    def _get_multiplier(self, unit: str | None) -> int:
+        if not unit:
+            return 1
+
+        uc_unit = unit.upper()
+        if uc_unit == 'B':
+            return 1
+        elif uc_unit.endswith('I') or (not self.short and len(uc_unit) == 1):
+            # `i` alone or Ki/Mi/etc, or only a single character was provided
+            raise InputValidationError(f'invalid byte {unit=}')
+
+        try:
+            exp = self._PREFIXES.index(uc_unit[0]) + 1
+        except ValueError:
+            raise InputValidationError(f'invalid byte {unit=}')
+
+        if 'I' in uc_unit or self.base == 2:
+            return 1024**exp
+        else:
+            return 1000**exp

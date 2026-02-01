@@ -20,6 +20,7 @@ from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParameterD
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
+from ..inputs.numeric import NumericInput
 from ..nargs import REMAINDER, Nargs
 from ..typing import CommandMethod, DefaultFunc, T_co
 from ..utils import _NotSet
@@ -360,7 +361,12 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
-            if not joined and len(value) > 1 and not _is_numeric(value):
+            # `joined` indicates the value was provided as --opt=val, so it's explicitly intended for this param.
+            # If the value is obviously numeric, that has been allowed via config.
+            # If this param's type is a numeric input type, it is allowed because `prepare_validation_value` is always
+            # called before this method, and the type is validated there (some of this validation should definitely be
+            # simplified).
+            if not joined and len(value) > 1 and not _is_numeric(value) and not isinstance(self.type, NumericInput):
                 raise BadArgument(self, f'invalid {value=}')
         elif self.allow_leading_dash == AllowLeadingDash.NEVER:
             raise BadArgument(self, f'invalid {value=}')
