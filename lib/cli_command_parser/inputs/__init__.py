@@ -15,7 +15,7 @@ from .base import InputType
 from .choices import ChoiceMap, Choices, EnumChoices
 from .exceptions import InputValidationError, InvalidChoiceError
 from .files import File, Json, Path, Pickle, Serialized
-from .numeric import NumRange, Range
+from .numeric import Bytes, NumRange, Range
 from .patterns import Glob, Regex, RegexMode
 from .time import Date, DateTime, Day, DTFormatMode, Month, Time, TimeDelta
 from .utils import FileWrapper, StatMode
@@ -26,7 +26,7 @@ if _t.TYPE_CHECKING:
 # fmt: off
 __all__ = [
     'StatMode', 'FileWrapper', 'Path', 'File', 'Serialized', 'Json', 'Pickle',
-    'Range', 'NumRange',
+    'Bytes', 'Range', 'NumRange',
     'Choices', 'ChoiceMap', 'EnumChoices',
     'Regex', 'RegexMode', 'Glob',
     'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time', 'DTFormatMode',

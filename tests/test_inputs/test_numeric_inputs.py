@@ -4,7 +4,7 @@ from unittest import main
 
 from cli_command_parser import Command, Option
 from cli_command_parser.exceptions import BadArgument, ParameterDefinitionError
-from cli_command_parser.inputs import InputValidationError, NumRange, Range
+from cli_command_parser.inputs import Bytes, InputValidationError, NumRange, Range
 from cli_command_parser.testing import ParserTest
 
 
@@ -141,7 +141,74 @@ class NumericInputTest(ParserTest):
         self.assertEqual(range(1, 3), Range((1, 3)).range)
 
 
+class BytesInputTest(ParserTest):
+    def test_invalid_base_rejected(self):
+        for case in (1, 3, 5, 'foo', None):
+            with self.subTest(case=case), self.assert_raises_contains_str(ValueError, 'Invalid 2-character unit base='):
+                Bytes(base=case)  # noqa
+
+    def test_bytes_repr(self):
+        self.assertIn('base=10, short=True, fractions=False', repr(Bytes()))
+
+    def test_bytes_valid_type(self):
+        cases = {
+            '-12.34kb': True,
+            '-12.34 kB': True,
+            '1234 MiB': True,
+            '12GiB': True,
+            '5T': True,
+            '0 B': True,
+            '1234': True,
+            '-100': True,
+            'G1234': False,
+            'foo': False,
+            '': False,
+        }
+        for value, valid in cases.items():
+            with self.subTest(value=value, valid=valid):
+                self.assertEqual(valid, Bytes.is_valid_type(value))
+
+    def test_bytes_metavar(self):
+        self.assertEqual('BYTES[B|KB|MiB|...]', Bytes().format_metavar())
+
+    def test_type_descriptions(self):
+        cases = [
+            (Bytes(), 'a positive integer byte count/size'),
+            (Bytes(negative=True), 'an integer byte count/size'),
+            (Bytes(negative=True, fractions=True), 'a byte count/size'),
+        ]
+        for obj, expected in cases:
+            with self.subTest(expected=expected):
+                self.assertEqual(expected, obj._type_desc())
+
+    def test_invalid_bytes_type_error(self):
+        self.assertFalse(Bytes.is_valid_type(None))  # noqa
+
+    def test_invalid_bytes_call(self):
+        with self.assert_raises_contains_str(InputValidationError, 'with optional unit'):
+            Bytes()('')
+
+    def test_invalid_byte_unit_multiplier(self):
+        with self.assert_raises_contains_str(InputValidationError, "invalid byte unit='A'"):
+            Bytes()._get_multiplier('A')
+
+
 class ParseInputTest(ParserTest):
+    def test_num_range_validation(self):
+        class Foo(Command):
+            bar = Option('-b', type=NumRange(int, min=-10, max=10))
+
+        success_cases = [
+            ([], {'bar': None}),
+            (['-b0'], {'bar': 0}),
+            (['-b', '-1'], {'bar': -1}),
+            (['--bar', '-9'], {'bar': -9}),
+            (['--bar', '-10'], {'bar': -10}),
+            (['--bar', '9'], {'bar': 9}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_argv_parse_fails_cases(Foo, [['-ba'], ['-b', '-11'], ['-b', '11']])
+
     def test_range_type_validation(self):
         class Foo(Command):
             bar = Option('-b', type=Range(range(10)), default='3')
@@ -165,6 +232,62 @@ class ParseInputTest(ParserTest):
             Foo().bar  # noqa
 
         self.assertEqual('-10', Foo().baz)
+
+    def test_bytes_validation_base_10(self):
+        class Foo(Command):
+            bar = Option(type=Bytes(base=10, fractions=True, negative=True))
+            baz = Option(type=Bytes(short=False))
+
+        success_cases = [
+            ([], {'bar': None, 'baz': None}),
+            (['--bar', '-1.2MB'], {'bar': -1_200_000, 'baz': None}),
+            (['--bar', '-1.23 KiB'], {'bar': -1_259.52, 'baz': None}),
+            (['--bar', '-1.2k'], {'bar': -1_200, 'baz': None}),
+            (['--bar', '1.2k'], {'bar': 1_200, 'baz': None}),
+            (['--bar', '12kb'], {'bar': 12_000, 'baz': None}),
+            (['--bar', '10MiB'], {'bar': 10_485_760, 'baz': None}),
+            (['--bar', '12'], {'bar': 12, 'baz': None}),
+            (['--baz', '12b'], {'bar': None, 'baz': 12}),
+            (['--baz', '0QB'], {'bar': None, 'baz': 0}),
+        ]
+        fail_cases = [
+            ['--baz', '-1.2MB'],
+            ['--baz', '-1.23 KiB'],
+            ['--baz', '-1.2k'],
+            ['--baz', '1.2k'],
+            ['--baz', '12k'],
+            ['--baz', '-10'],
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_bytes_validation_base_2(self):
+        class Foo(Command):
+            bar = Option(type=Bytes(base=2, fractions=True, negative=True))
+            baz = Option(type=Bytes(base=2, short=False))
+
+        success_cases = [
+            ([], {'bar': None, 'baz': None}),
+            (['--bar', '-1.2MB'], {'bar': -1_258_291.2, 'baz': None}),
+            (['--bar', '-1.23 KiB'], {'bar': -1_259.52, 'baz': None}),
+            (['--bar', '-1.2k'], {'bar': -1_228.8, 'baz': None}),
+            (['--bar', '1.2k'], {'bar': 1_228.8, 'baz': None}),
+            (['--bar', '12kb'], {'bar': 12_288, 'baz': None}),
+            (['--bar', '10MiB'], {'bar': 10_485_760, 'baz': None}),
+            (['--bar', '12'], {'bar': 12, 'baz': None}),
+            (['--baz', '12b'], {'bar': None, 'baz': 12}),
+            (['--baz', '0QB'], {'bar': None, 'baz': 0}),
+        ]
+        fail_cases = [
+            ['--baz', '-1.2MB'],
+            ['--baz', '-1.23 KiB'],
+            ['--baz', '-1.2k'],
+            ['--baz', '1.2k'],
+            ['--baz', '12k'],
+            ['--baz', '-10'],
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
 
 
 if __name__ == '__main__':
