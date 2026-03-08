@@ -11,7 +11,7 @@ from .base import extended_error_handler
 
 __all__ = ['handle_kb_interrupt']
 
-RtlGetLastNtStatus = ctypes.WinDLL('ntdll').RtlGetLastNtStatus
+RtlGetLastNtStatus = ctypes.WinDLL('ntdll').RtlGetLastNtStatus  # type: ignore[attr-defined]
 RtlGetLastNtStatus.restype = ctypes.c_ulong
 NT_STATUSES = {0xC000_00B1: 'STATUS_PIPE_CLOSING', 0xC000_014B: 'STATUS_PIPE_BROKEN'}
 

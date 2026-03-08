@@ -109,7 +109,9 @@ class Handler:
         self.exc_cls = exc_cls
         self.handler = handler
 
-    def __eq__(self, other: Handler) -> bool:
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, Handler):
+            return False
         return other.exc_cls == self.exc_cls and other.handler == self.handler
 
     def __lt__(self, other: Handler) -> bool:
