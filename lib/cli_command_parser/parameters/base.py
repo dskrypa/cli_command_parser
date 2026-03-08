@@ -69,7 +69,13 @@ class ParamBase(ABC):
     hide: Bool                      #: Whether this param/group should be hidden in ``--help`` text
     # fmt: on
 
-    def __init__(self, name: str = None, required: Bool = False, help: str = None, hide: Bool = False):  # noqa
+    def __init__(
+        self,
+        name: str | None = None,
+        required: Bool = False,
+        help: str | None = None,  # noqa
+        hide: Bool = False,
+    ):
         self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
         self.required = required
         self.help = help

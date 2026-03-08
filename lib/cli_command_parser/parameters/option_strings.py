@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Collection, Iterator
 
 from ..config import DEFAULT_CONFIG, OptionNameMode
 from ..exceptions import ParameterDefinitionError
-from ..utils import _NotSet
+from ..utils import _NotSet, _NotSetType
 
 if TYPE_CHECKING:
     from ..typing import Bool
@@ -28,7 +28,7 @@ class OptionStrings:
     _long: set[str]
     _short: set[str]
 
-    def __init__(self, option_strs: Collection[str], name_mode: OptionNameMode | str | None = _NotSet):
+    def __init__(self, option_strs: Collection[str], name_mode: OptionNameMode | str | None | _NotSetType = _NotSet):
         self.name_mode = OptionNameMode(name_mode) if name_mode is not _NotSet else None
         long_opts, short_opts = _split_options(option_strs)
         self._display_long = self._long = long_opts
@@ -100,7 +100,7 @@ class TriFlagOptionStrings(OptionStrings):
     __slots__ = ('_alt_prefix', '_alt_long', '_alt_short')
     _alt_prefix: str | None
     _alt_short: str | None
-    _alt_long: set[str] | tuple[str, ...]
+    _alt_long: set[str]
 
     def has_long(self) -> Bool:
         """Whether any primary / non-alternate long option strings were defined"""
@@ -111,7 +111,7 @@ class TriFlagOptionStrings(OptionStrings):
 
     def add_alts(self, prefix: str | None, long: str | None, short: str | None):
         self._alt_prefix = prefix
-        self._alt_long = (long,) if long else set()
+        self._alt_long = {long} if long else set()
         self._alt_short = short
 
     def update_alts(self, name: str):
@@ -144,10 +144,6 @@ class TriFlagOptionStrings(OptionStrings):
             allowed.add(self._alt_short[1:])
         return allowed
 
-    # @property
-    # def long_primary(self) -> List[str]:
-    #     return [opt for opt in self.long if opt not in self._alt_long]
-
     @property
     def display_long_primary(self) -> list[str]:
         return [opt for opt in self.display_long if opt not in self._alt_long]
@@ -155,10 +151,6 @@ class TriFlagOptionStrings(OptionStrings):
     @property
     def short_primary(self) -> list[str]:
         return [opt for opt in self.short if opt != self._alt_short]
-
-    # @property
-    # def long_alt(self) -> List[str]:
-    #     return sorted(self._alt_long, key=_options_sort_key)
 
     @property
     def display_long_alt(self) -> list[str]:

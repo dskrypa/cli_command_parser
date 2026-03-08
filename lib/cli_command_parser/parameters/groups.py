@@ -53,9 +53,9 @@ class ParamGroup(ParamBase):
 
     def __init__(
         self,
-        name: str = None,
+        name: str | None = None,
         *,
-        description: str = None,
+        description: str | None = None,
         mutually_exclusive: Bool = False,
         mutually_dependent: Bool = False,
         required: Bool = False,
@@ -99,7 +99,7 @@ class ParamGroup(ParamBase):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def __eq__(self, other: ParamGroup) -> bool:
+    def __eq__(self, other) -> bool:
         if isinstance(other, ParamGroup) and self.group == other.group:
             attrs = ('mutually_exclusive', 'mutually_dependent', 'name', 'description', 'members')
             return all(getattr(self, a) == getattr(other, a) for a in attrs)

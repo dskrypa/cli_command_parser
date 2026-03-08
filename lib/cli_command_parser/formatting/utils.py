@@ -64,7 +64,7 @@ class PartWrapper:
         self.max_width = max_width
         self.cont_indent = cont_indent
         self.delim = delim
-        self._widths = []
+        self._widths: list[int] = []
 
     def join(self, prefix: str, parts: StrIter) -> str:
         if prefix:
@@ -95,7 +95,7 @@ class PartWrapper:
         delim_len = len(self.delim)
         delim_end_len = len(delim_end)
         max_width = self.max_width - delim_end_len
-        line_parts = []
+        line_parts: list[str] = []
         last = None
         chunk_len = last_len = 0
 
@@ -187,7 +187,7 @@ def _should_add_default(default: Any, help_text: str | None, param_show_default:
         return bool(default)
 
 
-def line_iter(*columns: IStrs) -> Iterator[list[str, ...]]:
+def line_iter(*columns: IStrs) -> Iterator[list[str]]:
     """More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+"""
     exhausted = 0
     column_count = len(columns)

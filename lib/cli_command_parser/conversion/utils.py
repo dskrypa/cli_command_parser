@@ -31,7 +31,7 @@ def iter_module_parents(module: str) -> Iterator[str]:
 
 def collection_contents(node: AST) -> list[str]:
     if isinstance(node, Dict):
-        return [unparse(key) for key in node.keys]  # noqa
+        return [unparse(key) for key in node.keys]  # type: ignore[arg-type]
     elif isinstance(node, (List, Set, Tuple)):
         return [unparse(ele) for ele in node.elts]  # noqa
     else:
