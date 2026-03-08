@@ -3,7 +3,6 @@ Program metadata introspection for use in usage, help text, and documentation.
 
 :author: Doug Skrypa
 """
-# pylint: disable=R0801
 
 from __future__ import annotations
 
@@ -16,24 +15,32 @@ from inspect import getmodule
 from pathlib import Path
 from sys import modules
 from textwrap import dedent
-from typing import TYPE_CHECKING, Any, Callable, Iterator, Type
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, Type, TypeVar, overload
 from urllib.parse import urlparse
+
+try:
+    from typing import Self
+except ImportError:  # added in 3.11
+    Self = TypeVar('Self')  # type: ignore[misc,assignment]
 
 from .context import NoActiveContext, ctx
 
 if TYPE_CHECKING:
-    from .typing import Bool, CommandType, OptStr
+    from .core import CommandMeta
+    from .typing import Bool, OptStr
 
 __all__ = ['ProgramMetadata']
 
 WINDOWS = platform.system().lower() == 'windows'
 DEFAULT_FILE_NAME: str = 'UNKNOWN'
 
+_T = TypeVar('_T')
+
 
 # region Metadata Descriptors
 
 
-class MetadataBase:
+class MetadataBase(Generic[_T]):
     __slots__ = ('name', 'inheritable')
 
     def __init__(self, inheritable: bool = True):
@@ -43,18 +50,27 @@ class MetadataBase:
         self.name = name
         owner._fields.add(name)
 
-    def __get__(self, instance: ProgramMetadata | None, owner: Type[ProgramMetadata]):
+    @overload
+    def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
+
+    @overload
+    def __get__(self, instance: ProgramMetadata, owner: Any) -> _T: ...
+
+    def __get__(self, instance: ProgramMetadata | None, owner: Any) -> Self | _T:
+        if instance is None:
+            return self
+
         try:
             return instance.__dict__[self.name]
-        except AttributeError:  # instance is None
-            return self
         except KeyError:
             pass
-        if self.inheritable and (parent := self.get_parent(instance)):
+
+        if self.inheritable and (parent := self._get_parent(instance)):
             return getattr(parent, self.name)
+
         return self.get_value(instance)
 
-    def __set__(self, instance: ProgramMetadata, value: str | Path | None):
+    def __set__(self, instance: ProgramMetadata, value: _T):
         if value is not None:
             instance.__dict__[self.name] = value
 
@@ -62,13 +78,14 @@ class MetadataBase:
         return f'{self.__class__.__name__}({", ".join(f"{a}={v}" for a, v in self._attrs())})'
 
     def _attrs(self) -> Iterator[tuple[str, Any]]:
-        for base in self.__class__.mro()[:-1]:
-            for attr in base.__slots__:  # noqa
+        for base in self.__class__.mro()[:-2]:  # skip: Generic, object
+            for attr in base.__slots__:  # type: ignore[attr-defined]
                 if attr != 'name':
                     value = getattr(self, attr)
                     yield attr, (getattr(value, '__qualname__', value) if attr == 'func' else repr(value))
 
-    def get_parent(self, instance: ProgramMetadata) -> ProgramMetadata | None:
+    @classmethod
+    def _get_parent(cls, instance: ProgramMetadata) -> ProgramMetadata | None:
         # if (parent := instance.parent) and parent.distribution == instance.distribution:
         if (parent := instance.parent) and parent.package == instance.package:
             return parent
@@ -78,25 +95,25 @@ class MetadataBase:
         raise NotImplementedError
 
 
-class Metadata(MetadataBase):
+class Metadata(MetadataBase[_T]):
     __slots__ = ('default',)
 
-    def __init__(self, default, inheritable: bool = True):
+    def __init__(self, default: _T, inheritable: bool = True):
         super().__init__(inheritable)
         self.default = default
 
-    def get_value(self, instance: ProgramMetadata):
+    def get_value(self, instance: ProgramMetadata) -> _T:
         return self.default
 
 
-class DynamicMetadata(MetadataBase):
+class DynamicMetadata(MetadataBase[_T]):
     __slots__ = ('func',)
 
-    def __init__(self, func: Callable[[ProgramMetadata], Any], inheritable: bool = True):
+    def __init__(self, func: Callable[[ProgramMetadata], _T], inheritable: bool = True):
         super().__init__(inheritable)
         self.func = func
 
-    def get_value(self, instance: ProgramMetadata):
+    def get_value(self, instance: ProgramMetadata) -> _T:
         instance.__dict__[self.name] = result = self.func(instance)
         return result
 
@@ -114,17 +131,18 @@ def dynamic_metadata(func=None, *, inheritable: bool = True):
 class ProgramMetadata:
     _fields = {'parent'}
     parent: ProgramMetadata | None = None
-    distribution: Distribution | None = Metadata(None, inheritable=False)
-    path: Path = Metadata(None, inheritable=False)
-    package: str = Metadata(None, inheritable=False)
-    module: str = Metadata(None, inheritable=False)
-    cmd_module: str = Metadata(None, inheritable=False)
-    command: str = Metadata(None, inheritable=False)
-    usage: str = Metadata(None)
-    description: str = Metadata(None)
-    epilog: str = Metadata(None)
-    doc_str: str = Metadata('')
-    pkg_doc_str: str = Metadata('')  # Set by :func:`~.documentation.load_commands` to capture package docstrings
+    distribution: Metadata[Distribution | None] = Metadata(None, inheritable=False)
+    path: Metadata[Path | None] = Metadata(None, inheritable=False)
+    package: Metadata[str | None] = Metadata(None, inheritable=False)
+    module: Metadata[str | None] = Metadata(None, inheritable=False)
+    cmd_module: Metadata[str | None] = Metadata(None, inheritable=False)
+    command: Metadata[str | None] = Metadata(None, inheritable=False)
+    usage: Metadata[str | None] = Metadata(None)
+    description: Metadata[str | None] = Metadata(None)
+    epilog: Metadata[str | None] = Metadata(None)
+    doc_str: Metadata[str | str] = Metadata('')
+    # pkg_doc_str is set by :func:`~.documentation.load_commands` to capture package docstrings
+    pkg_doc_str: Metadata[str | str] = Metadata('')
 
     def __init__(self, **kwargs):
         fields = self._fields
@@ -141,19 +159,19 @@ class ProgramMetadata:
     @classmethod
     def for_command(  # pylint: disable=R0914
         cls,
-        command: CommandType,
+        command: CommandMeta,
         *,
-        parent: ProgramMetadata = None,
-        path: Path = None,
-        prog: str = None,
-        url: str = None,
-        docs_url: str = None,
-        email: str = None,
-        version: str = None,
-        usage: str = None,
-        description: str = None,
-        epilog: str = None,
-        doc_name: str = None,
+        parent: ProgramMetadata | None = None,
+        path: Path | None = None,
+        prog: str | None = None,
+        url: str | None = None,
+        docs_url: str | None = None,
+        email: str | None = None,
+        version: str | None = None,
+        usage: str | None = None,
+        description: str | None = None,
+        epilog: str | None = None,
+        doc_name: str | None = None,
     ) -> ProgramMetadata:
         path, g = _path_and_globals(command, path)
         if command.__module__ != 'cli_command_parser.commands':
@@ -188,11 +206,21 @@ class ProgramMetadata:
 
     # region Program Name Properties
 
-    @cached_property
-    def _prog_and_src(self) -> tuple[str, str]:
+    def _get_prog_and_src(self, allow_sys_argv: bool | None) -> tuple[str, str]:
         if prog := self.__dict__.get('prog'):
             return prog, 'class kwargs'
-        return _prog_finder.normalize(self.path, self.parent, None, self.cmd_module, self.command)
+
+        return _prog_finder.normalize(
+            self.path,  # type: ignore[arg-type]
+            self.parent,
+            allow_sys_argv,
+            self.cmd_module,  # type: ignore[arg-type]
+            self.command,  # type: ignore[arg-type]
+        )
+
+    @cached_property
+    def _prog_and_src(self) -> tuple[str, str]:
+        return self._get_prog_and_src(None)
 
     @dynamic_metadata
     def prog(self) -> str:
@@ -200,9 +228,7 @@ class ProgramMetadata:
 
     @cached_property
     def _doc_prog_and_src(self) -> tuple[str, str]:
-        if prog := self.__dict__.get('prog'):
-            return prog, 'class kwargs'
-        return _prog_finder.normalize(self.path, self.parent, False, self.cmd_module, self.command)
+        return self._get_prog_and_src(False)
 
     def get_prog(self, allow_sys_argv: Bool = None) -> str:
         return self._get_prog(allow_sys_argv)[0]
@@ -295,21 +321,18 @@ def _repr(obj, indent=0) -> str:
 class ProgFinder:
     @cached_property
     def mod_obj_prog_map(self) -> dict[str, dict[str, str]]:
-        mod_obj_prog_map = defaultdict(dict)
+        mod_obj_prog_map: dict[str, dict[str, str]] = defaultdict(dict)
         for entry_point in self._get_console_scripts():
             module, obj = map(str.strip, entry_point.value.split(':', 1))
             obj = obj.split('[', 1)[0].strip()  # Strip extras, if any
             mod_obj_prog_map[module][obj] = entry_point.name
 
-        mod_obj_prog_map.default_factory = None  # Disable automatic defaults
+        mod_obj_prog_map.default_factory = None  # type: ignore[attr-defined]  # Disable automatic defaults
         return mod_obj_prog_map
 
     @classmethod
     def _get_console_scripts(cls) -> tuple[EntryPoint, ...]:
-        try:
-            return entry_points(group='console_scripts')  # noqa
-        except TypeError:  # Python 3.9
-            return entry_points()['console_scripts']  # noqa
+        return entry_points(group='console_scripts')
 
     def normalize(
         self,
@@ -318,7 +341,7 @@ class ProgFinder:
         allow_sys_argv: Bool,
         cmd_module: str,
         cmd_name: str,
-    ) -> tuple[OptStr, str]:
+    ) -> tuple[str, str]:
         if ep_name := self._from_entry_point(cmd_module, cmd_name):
             return ep_name, 'entry_points'
 
@@ -391,7 +414,9 @@ class DistributionFinder:
 
     @cached_property
     def _all_distributions(self) -> tuple[dict[str, Distribution], dict[str, tuple[Distribution, Path]]]:
-        normal, editable = {}, {}
+        normal: dict[str, Distribution] = {}
+        editable: dict[str, tuple[Distribution, Path]] = {}
+
         for dist in Distribution.discover():
             # Note: Distribution.name was not added until 3.10, and it returns `self.metadata['Name']`
             if not (name := dist.metadata.get('Name')):
@@ -426,8 +451,9 @@ class DistributionFinder:
             return top_levels
 
         # Below logic is copied from importlib.metadata._top_level_inferred from 3.10+
+        files = dist.files or ()  # Distribution.files may be None
         self._dist_top_levels[dist_name] = inferred = {
-            f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name for f in dist.files if f.suffix == '.py'
+            f.parts[0] if len(f.parts) > 1 else f.with_suffix('').name for f in files if f.suffix == '.py'
         }
         return inferred
 
@@ -455,7 +481,7 @@ class DistributionFinder:
             # This may occur for top-level scripts that are in a bin/ directory or similar, with a Command that was
             # defined in that file instead of in the package that represents the library code for that project
             try:
-                path = module.__loader__.path  # noqa
+                path = module.__loader__.path  # type: ignore[union-attr]
             except AttributeError:
                 return None
             else:
@@ -482,12 +508,15 @@ class DistributionFinder:
             return urls
 
         urls = {}
-        for key, val in metadata.items():
+        # TODO: metadata is annotated as PackageMetadata, which doesn't define .items, but the actual type is Message,
+        #  which does...  Need to investigate further.
+        for key, val in metadata.items():  # type: ignore[attr-defined]
             if key == 'Home-page':
                 urls[key] = val
             elif key == 'Project-URL':
                 url_type, url = val.split(',', 1)
                 urls[url_type.strip()] = url.strip()
+
         self._dist_urls[dist_name] = urls
         return urls
 
@@ -514,11 +543,11 @@ def _get_editable_path(dist: Distribution) -> Path | None:
 _dist_finder = DistributionFinder()
 
 
-def _path_and_globals(command: CommandType, path: Path = None) -> tuple[Path, dict[str, Any]]:
+def _path_and_globals(command: CommandMeta, path: Path | None = None) -> tuple[Path, dict[str, Any]]:
     module = getmodule(command)  # Returns the module object (obj.__module__ just provides the name of the module)
     if path is None:
         try:
-            path = Path(module.__file__).resolve()
+            path = Path(module.__file__).resolve()  # type: ignore[union-attr,arg-type]
         except AttributeError:  # module is None
             path = Path.cwd().joinpath(DEFAULT_FILE_NAME)
 

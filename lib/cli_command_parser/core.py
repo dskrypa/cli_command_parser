@@ -8,7 +8,7 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, TypeVar, Union, overload
 from warnings import warn
 from weakref import WeakSet
 
@@ -16,18 +16,21 @@ from .command_parameters import CommandParameters
 from .config import DEFAULT_CONFIG, CommandConfig
 from .exceptions import CommandDefinitionError
 from .metadata import ProgramMetadata
+from .utils import _NotSet, _NotSetType
 
 if TYPE_CHECKING:
-    from .typing import AnyConfig, CommandAny, CommandCls, Config, OptStr
+    from .commands import Command
+    from .typing import AnyConfig, CommandCls, Config, OptStr
 
-    Bases = tuple[type, ...] | Iterable[type]
+    Bases = tuple[type, ...]
+    CommandAny = Union['CommandMeta', Command]
+    Choice = str | None | _NotSetType
     Choices = Mapping[str, str | None] | Collection[str]
     OptChoices = Choices | None
     T = TypeVar('T')
 
 __all__ = ['CommandMeta', 'get_parent', 'get_config', 'get_params', 'get_metadata', 'get_top_level_commands']
 
-_NotSet = object()
 META_KEYS = {'prog', 'usage', 'description', 'epilog', 'doc_name', 'path', 'url', 'docs_url', 'email', 'version'}
 
 
@@ -65,10 +68,14 @@ class CommandMeta(ABCMeta, type):
       exception was raised in :meth:`Command.main`
     """
 
-    _commands = WeakSet()
+    _commands: WeakSet[CommandMeta] = WeakSet()
+    __config: CommandConfig
+    __metadata: ProgramMetadata
+    __params: CommandParameters
+    __parents: tuple[CommandMeta | None, CommandMeta | None]
 
     @classmethod
-    def __prepare__(mcs, name: str, bases: Bases, **kwargs) -> dict[str, Any]:
+    def __prepare__(mcs, name: str, bases: Bases, /, **kwargs) -> dict[str, Any]:
         """Called before ``__new__`` and before evaluating the contents of a class."""
         return {
             '_CommandMeta__params': None,  # Prevent commands from inheriting parent params
@@ -83,12 +90,12 @@ class CommandMeta(ABCMeta, type):
         bases: Bases,
         namespace: dict[str, Any],
         *,
-        choice: str = _NotSet,
-        choices: Choices = None,
-        help: str = None,  # noqa
+        choice: Choice = _NotSet,
+        choices: Choices | None = None,
+        help: str | None = None,  # noqa
         config: AnyConfig = None,
         **kwargs,
-    ) -> CommandCls:
+    ) -> CommandMeta:
         metadata = {k: v for k in META_KEYS.intersection(kwargs) if (v := kwargs.pop(k))}
         if config := mcs._prepare_config(bases, config, kwargs):
             namespace['_CommandMeta__config'] = config
@@ -106,7 +113,7 @@ class CommandMeta(ABCMeta, type):
         return cls
 
     @classmethod
-    def _maybe_register_sub_cmd(mcs, cls, choice: OptStr, choices: OptChoices, help: OptStr):  # noqa
+    def _maybe_register_sub_cmd(mcs, cls, choice: Choice, choices: OptChoices, help: OptStr):  # noqa
         """
         If the given class does not directly extend ABC, and it extends a Command subclass with a :class:`.SubCommand`
         parameter, then this method will register the class as a subcommand choice for that parameter.
@@ -127,14 +134,14 @@ class CommandMeta(ABCMeta, type):
         if parent := mcs.parent(cls, False):
             if sub_cmd := mcs.params(parent).sub_command:
                 for choice, choice_help in _choice_items(choice, choices):
-                    sub_cmd.register_command(choice, cls, choice_help or help)
+                    sub_cmd.register_command(choice, cls, choice_help or help)  # type: ignore[attr-defined]
             elif choices or (choice is not None and choice is not _NotSet):
                 _no_choices_registered_warning(choice, choices, cls, f'its {parent=} has no SubCommand parameter')
         elif choices or (choice is not None and choice is not _NotSet):
             _no_choices_registered_warning(choice, choices, cls, 'it has no parent Command')
 
     @classmethod
-    def _from_parent(mcs, meth: Callable[[CommandCls], T], bases: Bases) -> T | None:
+    def _from_parent(mcs, meth: Callable[[CommandMeta], T], bases: Bases | Iterable[type]) -> T | None:
         for base in bases:
             if isinstance(base, mcs):
                 return meth(base)
@@ -158,10 +165,18 @@ class CommandMeta(ABCMeta, type):
 
         return None
 
+    @overload
     @classmethod
-    def config(mcs, cls: CommandAny, default: T = None) -> CommandConfig | T:
+    def config(mcs, cls: CommandAny, default: None = None) -> CommandConfig | None: ...
+
+    @overload
+    @classmethod
+    def config(mcs, cls: CommandAny, default: T) -> CommandConfig | T: ...
+
+    @classmethod
+    def config(mcs, cls: CommandAny, default: T | None = None) -> CommandConfig | T | None:
         try:
-            return cls.__config  # This attr is not overwritten for every subclass
+            return cls.__config  # type: ignore[union-attr]  # This attr is not overwritten for every subclass
         except AttributeError:  # This means that the Command and all of its parents have no custom config
             return default
 
@@ -170,7 +185,7 @@ class CommandMeta(ABCMeta, type):
     # region Metaclass-Managed Command Attributes
 
     @classmethod
-    def parent(mcs, cls: CommandAny, include_abc: bool = True) -> CommandCls | None:
+    def parent(mcs, cls: CommandAny, include_abc: bool = True) -> CommandMeta | None:
         """
         :param cls: A Command class or object
         :param include_abc: If True, the first Command parent class in the given Command's mro will be returned,
@@ -180,13 +195,13 @@ class CommandMeta(ABCMeta, type):
           ``include_abc``).
         """
         try:
-            first, parent = cls.__parents  # Works for both Command objects and classes
+            first, parent = cls.__parents  # type: ignore[union-attr]  # Works for both Command objects and classes
         except TypeError:
             pass
         else:
             return first if include_abc else parent
 
-        cls, mro = _mro(cls)
+        cmd_cls, mro = _mro(cls)
         first = parent = None
         for parent_cls in mro:
             if isinstance(parent_cls, mcs):
@@ -196,26 +211,27 @@ class CommandMeta(ABCMeta, type):
                     parent = parent_cls
                     break
 
-        cls.__parents = first, parent
+        cmd_cls.__parents = first, parent
         return first if include_abc else parent
 
     @classmethod
     def params(mcs, cls: CommandAny) -> CommandParameters:
         # Late initialization is necessary to allow late assignment of Parameters for now
         try:
-            params = cls.__params
+            params = cls.__params  # type: ignore[union-attr]
         except AttributeError:
             raise TypeError('CommandParameters are only available for Command subclasses') from None
+
         if not params:
-            if not isinstance(cls, mcs):
-                cls = cls.__class__
-            parent = mcs.parent(cls, True)
+            cmd_cls: CommandMeta = cls if isinstance(cls, mcs) else cls.__class__  # type: ignore[assignment]
+            parent = mcs.parent(cmd_cls, True)
             parent_params = mcs.params(parent) if parent is not None else None
-            cls.__params = params = CommandParameters(cls, parent_params, mcs.config(cls, DEFAULT_CONFIG))
+            cmd_cls.__params = params = CommandParameters(cmd_cls, parent_params, mcs.config(cmd_cls, DEFAULT_CONFIG))
+
         return params
 
     @classmethod
-    def meta(mcs, cls: CommandCls) -> ProgramMetadata:
+    def meta(mcs, cls: CommandMeta) -> ProgramMetadata:
         if not (meta := cls.__metadata):
             parent_meta = mcs._from_parent(mcs.meta, type.mro(cls)[1:])
             cls.__metadata = meta = ProgramMetadata.for_command(cls, parent=parent_meta)
@@ -224,23 +240,24 @@ class CommandMeta(ABCMeta, type):
     # endregion
 
 
-def _mro(cmd_cls):
+def _mro(cmd_or_cls: CommandAny) -> tuple[CommandMeta, list[type]]:
+    # In the return value of type.mro(...), 0 is always the class itself, -1 is always object
     try:
-        return cmd_cls, type.mro(cmd_cls)[1:-1]  # 0 is always the class itself, -1 is always object
+        return cmd_or_cls, type.mro(cmd_or_cls)[1:-1]  # type: ignore[arg-type,return-value]
     except TypeError:  # a Command object was provided instead of a Command class
-        cmd_cls = cmd_cls.__class__
+        cmd_cls: CommandMeta = cmd_or_cls.__class__  # type: ignore[assignment]
         return cmd_cls, type.mro(cmd_cls)[1:-1]
 
 
-def _choice_items(choice: OptStr, choices: OptChoices) -> Iterator[tuple[OptStr, OptStr]]:
+def _choice_items(choice: Choice, choices: OptChoices) -> Iterator[tuple[OptStr, OptStr]]:
     if not choices:
         # Automatic use of the subcommand class name is handled by SubCommand.register_command when choice is None
         if choice is not None:  # Allow an explicit None to be used to prevent registration
             yield (None if choice is _NotSet else choice), None
     else:
         try:
-            items = choices.items()
-        except AttributeError:  # Choices is not a dict of choice:help
+            items = choices.items()  # type: ignore[attr-defined]
+        except AttributeError:  # it's not a dict of choice:help
             items = ((c, None) for c in choices)
 
         if choice and choice is not _NotSet and choice not in choices:
@@ -248,7 +265,7 @@ def _choice_items(choice: OptStr, choices: OptChoices) -> Iterator[tuple[OptStr,
         yield from items
 
 
-def _no_choices_registered_warning(choice: OptStr, choices: OptChoices, cls, reason: str):
+def _no_choices_registered_warning(choice: Choice, choices: OptChoices, cls, reason: str):
     if choices and choice is not _NotSet:
         prefix = f'{choice=} and {choices=} were'
     else:
@@ -269,4 +286,4 @@ def get_top_level_commands() -> list[CommandCls]:
     This was implemented because ``Command.__subclasses__()`` does not release dead references to subclasses quickly
     enough for tests.
     """
-    return [cmd for cmd in CommandMeta._commands if not cmd._is_subcommand_]
+    return [cmd for cmd in CommandMeta._commands if not cmd._is_subcommand_]  # type: ignore[attr-defined]

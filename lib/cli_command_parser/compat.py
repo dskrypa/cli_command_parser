@@ -39,7 +39,7 @@ class WCTextWrapper(TextWrapper):
             if len(indent) + len(self.placeholder.lstrip()) > self.width:
                 raise ValueError('placeholder too large for max width')
 
-        lines = []
+        lines: list[str] = []
         # Arrange in reverse order so items can be efficiently popped from a stack of chucks.
         chunks.reverse()
         while chunks:

@@ -159,12 +159,6 @@ class MetadataProgTest(TestCase):
             with patch('sys.argv', [tmp_path.as_posix()]), Context():
                 self.assertEqual(name, _prog_finder.normalize(THIS_FILE, None, True, 'foo.bar', 'Baz')[0])
 
-    def test_entry_points_old(self):
-        entry_points = {'console_scripts': ep_scripts(('bar.py', 'foo:bar'), ('baz.py', 'foo:baz'))}
-        expected = {'foo': {'bar': 'bar.py', 'baz': 'baz.py'}}
-        with patch(f'{MODULE}.entry_points', side_effect=[TypeError, entry_points]):  # Simulate py 3.9
-            self.assertDictEqual(expected, ProgFinder().mod_obj_prog_map)
-
     def test_entry_points_new(self):
         entry_points = ep_scripts(('bar.py', 'foo:bar'), ('baz.py', 'foo:baz'))
         expected = {'foo': {'bar': 'bar.py', 'baz': 'baz.py'}}

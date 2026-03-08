@@ -57,7 +57,7 @@ class CommandParserException(Exception):
 class ParserExit(CommandParserException):
     """Exception used to exit with the given message and status code"""
 
-    def __init__(self, message: str = None, code: int = 0):
+    def __init__(self, message: str | None = None, code: int = 0):
         self.code = code
         self.message = message
 
@@ -111,7 +111,7 @@ class AmbiguousParseTree(CommandDefinitionError):
         nt, st = _parse_tree_target_repr(node.target), _parse_tree_target_repr(self.target)
         if not word or word == node.word:
             return f'Conflicting targets for parse path={node.path_repr()}: {nt}, {st}'
-        return f'Conflicting choices after parse path={node.parent.path_repr()}: {node.word}=>{nt}, {word}=>{st}'
+        return f'Conflicting choices after parse path={node.path_repr(True)}: {node.word}=>{nt}, {word}=>{st}'
 
 
 # endregion
@@ -122,13 +122,13 @@ class AmbiguousParseTree(CommandDefinitionError):
 class UsageError(CommandParserException):
     """Base exception for user errors"""
 
-    message: str = None
+    message: str | None = None
 
 
 class ParamUsageError(UsageError):
     """Error raised when a Parameter was not used correctly"""
 
-    def __init__(self, param: ParamOrGroup | None, message: str = None):
+    def __init__(self, param: ParamOrGroup | None, message: str | None = None):
         self.param = param
         self.usage_str = param.format_usage(full=True, delim=' / ') if param else ''
         if message:
@@ -145,7 +145,7 @@ class ParamUsageError(UsageError):
 class MultiParamUsageError(UsageError):
     """Error raised when a combination of Parameters was not used correctly"""
 
-    def __init__(self, params: Collection[ParamOrGroup], message: str = None):
+    def __init__(self, params: Collection[ParamOrGroup], message: str | None = None):
         self.params = params
         self.usage_str = ', '.join(sorted(param.format_usage(full=True, delim=' / ') for param in params))
         if message:
@@ -163,7 +163,7 @@ class MultiParamUsageError(UsageError):
 class AmbiguousCombo(MultiParamUsageError):
     """Error raised when an ambiguous combination of short options were provided"""
 
-    def __init__(self, params: Collection[ParamOrGroup], combo: str, message: str = None):
+    def __init__(self, params: Collection[ParamOrGroup], combo: str, message: str | None = None):
         super().__init__(params, message)
         self.combo = combo
 
@@ -184,7 +184,7 @@ class ParamConflict(MultiParamUsageError):
 class ParamsMissing(UsageError):
     """Error raised when one or more required Parameters were not provided"""
 
-    def __init__(self, params: Collection[ParamOrGroup], message: str = None, partial: bool = False):
+    def __init__(self, params: Collection[ParamOrGroup], message: str | None = None, partial: bool = False):
         self.params = params
         self.usage_str = ', '.join(param.format_usage(full=True, delim=' / ') for param in params)
         self.partial = partial
@@ -211,7 +211,7 @@ class BadArgument(ParamUsageError):
 class InvalidChoice(BadArgument):
     """Error raised when a value that does not match one of the pre-defined choices was provided for a Parameter"""
 
-    def __init__(self, param: Parameter | None, invalid: Any, choices: Collection[Any], env_var: str = None):
+    def __init__(self, param: Parameter | None, invalid: Any, choices: Collection[Any], env_var: str | None = None):
         src = f' from env var={env_var!r}' if env_var else ''
         if isinstance(invalid, Collection) and not isinstance(invalid, str):
             bad_str = f'choices{src}: {", ".join(map(repr, invalid))}'
@@ -229,7 +229,7 @@ class MissingArgument(BadArgument):
 class TooManyArguments(BadArgument):
     """Error raised when too many values were provided for a Parameter"""
 
-    def __init__(self, param: ParamOrGroup, message: str = None):
+    def __init__(self, param: Parameter, message: str | None = None):
         msg = f'expected {param.nargs} args - cannot accept any additional args'
         super().__init__(param, f'{msg} - {message}' if message else msg)
 

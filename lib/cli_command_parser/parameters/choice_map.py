@@ -16,7 +16,7 @@ from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, Par
 from ..formatting.utils import format_help_entry
 from ..nargs import Nargs
 from ..typing import CommandCls
-from ..utils import _NotSet, camel_to_snake_case, short_repr
+from ..utils import _NotSet, _NotSetType, camel_to_snake_case, short_repr
 from .actions import Concatenate
 from .base import BasePositional
 
@@ -41,7 +41,15 @@ class Choice(Generic[T]):
 
     __slots__ = ('choice', 'target', 'help', 'local')
 
-    def __init__(self, choice: OptStr, target: T = _NotSet, help: str = None, local: bool = False):  # noqa
+    target: T
+
+    def __init__(
+        self,
+        choice: OptStr,
+        target: T | _NotSetType = _NotSet,
+        help: str | None = None,  # noqa
+        local: bool = False,
+    ):
         self.choice = choice
         self.target = choice if target is _NotSet else target
         self.help = help
@@ -82,7 +90,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     _choice_validation_exc = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
-    choices: dict[str, Choice[T]]
+    choices: dict[OptStr, Choice[T]]
     title: OptStr
     description: OptStr
     formatter: ChoiceMapHelpFormatter

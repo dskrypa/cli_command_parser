@@ -9,17 +9,26 @@ from __future__ import annotations
 from collections import ChainMap
 from enum import Enum
 from string import whitespace
-from typing import TYPE_CHECKING, Any, Callable, Generic, Sequence, Type, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Sequence, Type, TypeAlias, TypeVar, overload
+
+try:
+    from typing import Self
+except ImportError:  # added in 3.11
+    Self = TypeVar('Self')  # type: ignore[misc,assignment]
 
 from .exceptions import CommandDefinitionError
-from .utils import FixedFlag, MissingMixin, _NotSet, positive_int
+from .utils import FixedFlag, MissingMixin, _NotSet, _NotSetType, positive_int
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
+    from .core import CommandMeta
     from .error_handling import ErrorHandler
     from .formatting.commands import CommandHelpFormatter
     from .formatting.params import ParamHelpFormatter
-    from .typing import Bool, CommandType, ParamOrGroup
+    from .typing import Bool, ParamOrGroup
+
+    _CmdHelpFormatter: TypeAlias = Callable[[CommandMeta, CommandParameters], CommandHelpFormatter]
+    _ParamHelpFormatter: TypeAlias = Callable[[ParamOrGroup], ParamHelpFormatter]
 
 __all__ = [
     'CommandConfig',
@@ -31,9 +40,7 @@ __all__ = [
     'DEFAULT_CONFIG',
 ]
 
-CV = TypeVar('CV')
-DV = TypeVar('DV')
-ConfigValue = CV | DV
+_T = TypeVar('_T')
 
 
 # region Config Option Enums
@@ -60,10 +67,10 @@ class ShowDefaults(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: str | int) -> ShowDefaults:
+    def _missing_(cls, value: str | int) -> Self:  # type: ignore[override]
         if isinstance(value, str):
             try:
-                return cls._member_map_[value.upper().replace('-', '_')]  # noqa
+                return cls._member_map_[value.upper().replace('-', '_')]  # type: ignore[return-value]
             except KeyError:
                 expected = ', '.join(cls._member_map_)
                 raise ValueError(f'Invalid {cls.__name__} {value=} - expected one of {expected}') from None
@@ -119,9 +126,9 @@ class OptionNameMode(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: str | int | None) -> OptionNameMode:
+    def _missing_(cls, value: str | int | None) -> OptionNameMode:  # type: ignore[override]
         try:
-            return OPT_NAME_MODE_ALIASES[value]
+            return OPT_NAME_MODE_ALIASES[value]  # type: ignore[index]
         except KeyError:
             pass
         return cls.NONE if value is None else super()._missing_(value)
@@ -210,15 +217,15 @@ class AllowLeadingDash(Enum):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value):
+    def _missing_(cls, value) -> Self:
         if isinstance(value, str):
             try:
-                return cls._member_map_[value.upper()]  # noqa
+                return cls._member_map_[value.upper()]  # type: ignore[return-value]
             except KeyError:
                 pass
-        elif value is True:
+        elif value is True:  # noqa  # Explicit True/False checks are done intentionally here
             return cls.ALWAYS
-        elif value is False:
+        elif value is False:  # noqa
             return cls.NEVER
         return super()._missing_(value)  # noqa
 
@@ -229,7 +236,7 @@ class AllowLeadingDash(Enum):
 # region Config Item Descriptors / Decorators
 
 
-class ConfigItem(Generic[CV, DV]):
+class ConfigItem(Generic[_T]):
     """
     A single configurable setting in the :class:`CommandConfig`.
 
@@ -239,7 +246,10 @@ class ConfigItem(Generic[CV, DV]):
 
     __slots__ = ('default', 'type', 'name')
 
-    def __init__(self, default: DV, type: Callable[..., CV] = None):  # noqa
+    default: _T
+    type: Callable[..., _T] | None
+
+    def __init__(self, default: _T, type: Callable[..., _T] | None = None):  # noqa
         self.default = default
         self.type = type
 
@@ -248,18 +258,17 @@ class ConfigItem(Generic[CV, DV]):
         owner.FIELDS.add(name)
 
     @overload
-    def __get__(self, instance: None, owner: Type[CommandConfig]) -> ConfigItem[CV, DV]: ...
+    def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
 
     @overload
-    def __get__(self, instance: CommandConfig, owner: Type[CommandConfig]) -> ConfigValue: ...
+    def __get__(self, instance: CommandConfig, owner: Any) -> _T: ...
 
-    def __get__(self, instance, owner):
-        try:
-            return instance._data.get(self.name, self.default)
-        except AttributeError:  # instance is None
+    def __get__(self, instance: CommandConfig | None, owner: Any) -> Self | _T:
+        if instance is None:
             return self
+        return instance._data.get(self.name, self.default)
 
-    def __set__(self, instance: CommandConfig, value: ConfigValue):
+    def __set__(self, instance: CommandConfig, value: _T):
         if instance._read_only:
             raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
         elif self.type is not None:
@@ -278,22 +287,24 @@ class ConfigItem(Generic[CV, DV]):
         return f'<{self.__class__.__name__}({self.default!r}, type={self.type!r})>'
 
 
-class DynamicConfigItem(ConfigItem):
+class DynamicConfigItem(ConfigItem[_T]):
     # A ConfigItem with a setter :paramref:`.ConfigItem.type` defined as a method in :class:`CommandConfig`.
 
     __slots__ = ('__doc__',)
 
-    def __init__(self, default: DV, type: Callable[..., CV]):  # noqa
+    type: Callable[..., _T]
+
+    def __init__(self, default: _T, type: Callable[..., _T]):  # noqa
         super().__init__(default, type)
         self.__doc__ = type.__doc__
 
-    def __set__(self, instance: CommandConfig, value: ConfigValue):
+    def __set__(self, instance: CommandConfig, value: _T):
         if instance._read_only:
             raise AttributeError(f'Unable to set attribute {self.name}={value!r} because {instance} is read-only')
         instance._data[self.name] = self.type(instance, value)
 
 
-def config_item(default: DV):
+def config_item(default: _T):
     return lambda func: DynamicConfigItem(default, func)
 
 
@@ -308,72 +319,74 @@ class CommandConfig:
     __slots__ = ('_data', '_read_only')
     _data: ChainMap
     _read_only: bool
-    FIELDS = set()
+    FIELDS: set[str] = set()
 
     # region Error Handling Options
 
     #: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`
-    error_handler: ErrorHandler | None = ConfigItem(_NotSet)
+    error_handler: ConfigItem[ErrorHandler | None | _NotSetType] = ConfigItem(_NotSet)
 
     #: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in
     #: :meth:`.Command.main` (similar to a ``finally`` block)
-    always_run_after_main: Bool = ConfigItem(False, bool)
+    always_run_after_main: ConfigItem[Bool] = ConfigItem(False, bool)
 
     # endregion
 
     # region Parameter Options
 
     #: Whether inferring Parameter types from type annotations should be enabled
-    allow_annotation_type: Bool = ConfigItem(True, bool)
+    allow_annotation_type: ConfigItem[Bool] = ConfigItem(True, bool)
 
     # endregion
 
     # region ActionFlag Options
 
     #: Whether multiple action_flag methods are allowed to run if they are all specified
-    multiple_action_flags: Bool = ConfigItem(True, bool)
+    multiple_action_flags: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation
-    action_after_action_flags: Bool = ConfigItem(True, bool)
+    action_after_action_flags: ConfigItem[Bool] = ConfigItem(True, bool)
 
     # endregion
 
     # region Parsing Options
 
     #: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)
-    ignore_unknown: Bool = ConfigItem(False, bool)
+    ignore_unknown: ConfigItem[Bool] = ConfigItem(False, bool)
 
     #: Whether missing required arguments should be allowed (default: raise an exception when they are missing)
-    allow_missing: Bool = ConfigItem(False, bool)
+    allow_missing: ConfigItem[Bool] = ConfigItem(False, bool)
 
     #: Whether backtracking is enabled for positionals following params with variable nargs
-    allow_backtrack: Bool = ConfigItem(True, bool)
+    allow_backtrack: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes
-    option_name_mode: OptionNameMode = ConfigItem(OptionNameMode.DASH, OptionNameMode)
+    option_name_mode: ConfigItem[OptionNameMode] = ConfigItem(OptionNameMode.DASH, OptionNameMode)
 
     #: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error
-    reject_ambiguous_pos_combos: Bool = ConfigItem(False, bool)  # EXPERIMENTAL
+    reject_ambiguous_pos_combos: ConfigItem[Bool] = ConfigItem(False, bool)  # EXPERIMENTAL
 
     #: How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should be handled
-    ambiguous_short_combos: AmbiguousComboMode = ConfigItem(AmbiguousComboMode.PERMISSIVE, AmbiguousComboMode)
+    ambiguous_short_combos: ConfigItem[AmbiguousComboMode] = ConfigItem(
+        AmbiguousComboMode.PERMISSIVE, AmbiguousComboMode
+    )
 
     # endregion
 
     # region Usage & Help Text Options
 
     #: Whether the ``--help`` / ``-h`` action_flag should be added
-    add_help: Bool = ConfigItem(True, bool)
+    add_help: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: Whether the metavar for Parameters that accept values should default to the name of the specified type
     #: (default: the name of the parameter)
-    use_type_metavar: Bool = ConfigItem(False, bool)
+    use_type_metavar: ConfigItem[Bool] = ConfigItem(False, bool)
 
     #: Whether the default value for Parameters should be shown in help text, and related behavior
-    show_defaults: ShowDefaults = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
+    show_defaults: ConfigItem[ShowDefaults] = ConfigItem(ShowDefaults.MISSING | ShowDefaults.NON_EMPTY, ShowDefaults)
 
     #: Whether Parameters that support reading their values from env variables should include the var names in help text
-    show_env_vars: Bool = ConfigItem(True, bool)
+    show_env_vars: ConfigItem[Bool] = ConfigItem(True, bool)
 
     @config_item(None)
     def cmd_alias_mode(self, value: CmdAliasMode) -> CmdAliasMode:
@@ -384,13 +397,13 @@ class CommandConfig:
             return value
 
     #: Whether Parameter `choices` values and Action / Subcommand choices should be sorted
-    sort_choices: Bool = ConfigItem(False, bool)
+    sort_choices: ConfigItem[Bool] = ConfigItem(False, bool)
 
     #: Delimiter to use between choices in usage / help text
-    choice_delim: str = ConfigItem('|', str)
+    choice_delim: ConfigItem[str] = ConfigItem('|', str)
 
     #: Whether there should be a visual indicator in help text for the parameters that are members of a given group
-    show_group_tree: Bool = ConfigItem(False, bool)
+    show_group_tree: ConfigItem[Bool] = ConfigItem(False, bool)
 
     @config_item(('\u00a6 ', '\u2551 ', '\u2502 '))
     def group_tree_spacers(self, value: tuple[str, str, str] | Sequence[str]) -> tuple[str, str, str]:
@@ -416,31 +429,31 @@ class CommandConfig:
         """
         # Note: extra spaces in the docstring table are intentional - the escape sequences each collapse to one char
         if isinstance(value, Sequence) and len(value) == 3 and all(isinstance(v, str) for v in value):
-            return tuple(f'{v} ' if v and v[-1] not in whitespace else v for v in value)  # noqa
+            return tuple(f'{v} ' if v and v[-1] not in whitespace else v for v in value)  # type: ignore[return-value]
         raise CommandDefinitionError(
             f'Invalid group_tree_spacers={value!r} - expected a 3-tuple of 2-character strings'
         )
 
     #: Whether mutually exclusive / dependent groups should include that fact in their descriptions
-    show_group_type: Bool = ConfigItem(True, bool)
+    show_group_type: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`
     #: object, and returns a :class:`.CommandHelpFormatter`
-    command_formatter: Callable[[CommandType, CommandParameters], CommandHelpFormatter] = ConfigItem(None)
+    command_formatter: ConfigItem[_CmdHelpFormatter | None] = ConfigItem(None)
 
     #: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`
-    param_formatter: Callable[[ParamOrGroup], ParamHelpFormatter] = ConfigItem(None)
+    param_formatter: ConfigItem[_ParamHelpFormatter | None] = ConfigItem(None)
 
     #: Whether the program version, author email, and documentation URL should be included in the help text epilog, if
     #: they were successfully detected
-    extended_epilog: Bool = ConfigItem(True, bool)
+    extended_epilog: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: Width (in characters) for the usage column in help text, after which the parameter descriptions begin.
-    usage_column_width: int = ConfigItem(30, int)
+    usage_column_width: ConfigItem[int] = ConfigItem(30, int)
 
     #: Whether the :attr:`.usage_column_width` should be enforced for parameters with usage text parts that exceed it.
     #: By default, that setting only defines where the parameter descriptions begin.
-    strict_usage_column_width: bool = ConfigItem(False, bool)
+    strict_usage_column_width: ConfigItem[bool] = ConfigItem(False, bool)
 
     @config_item(False)
     def wrap_usage_str(self, value: Any) -> int | bool:
@@ -457,13 +470,13 @@ class CommandConfig:
     # region Documentation Generation Options
 
     #: Whether the top level script's docstring should be included in generated documentation
-    show_docstring: Bool = ConfigItem(True, bool)
+    show_docstring: ConfigItem[Bool] = ConfigItem(True, bool)
 
     #: Whether inherited descriptions should be included in subcommand sections of generated documentation
-    show_inherited_descriptions: Bool = ConfigItem(False, bool)
+    show_inherited_descriptions: ConfigItem[Bool] = ConfigItem(False, bool)
 
     #: Maximum subcommand depth to include in generated documentation (default: include all)
-    sub_cmd_doc_depth: int = ConfigItem(None, positive_int)
+    sub_cmd_doc_depth: ConfigItem[int | None] = ConfigItem(None, positive_int)
 
     # endregion
 
