@@ -12,7 +12,12 @@ from collections.abc import Collection
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, NoReturn, Self, Type, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, NoReturn, Type, TypeVar, overload
+
+try:
+    from typing import Self
+except ImportError:  # added in 3.11
+    Self = TypeVar('Self')  # type: ignore[misc,assignment]
 
 from ..annotations import get_descriptor_value_type
 from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
