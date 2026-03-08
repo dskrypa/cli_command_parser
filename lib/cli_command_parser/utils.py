@@ -6,25 +6,22 @@ Utilities for working with terminals, strings, and Enums.
 
 from __future__ import annotations
 
-from enum import EnumMeta, Flag
+from enum import Enum, EnumMeta, Flag
 from inspect import isawaitable
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import Any, Awaitable, Callable, Self, TypeVar
 
 try:
     from enum import CONFORM
-except ImportError:
-    CONFORM = None
+except ImportError:  # added in 3.11
+    CONFORM = None  # type: ignore[misc,assignment]
 
 try:
     from wcwidth import wcwidth
 except ImportError:
     wcwidth = len
 
-FlagEnum = TypeVar('FlagEnum', bound='FixedFlag')
-T = TypeVar('T')
-_NotSet = object()
 
 # region Text Processing / Formatting
 
@@ -52,7 +49,7 @@ if wcwidth is len:
     wcswidth = len
 else:
 
-    def wcswidth(text: str, unicode_version: str = 'auto') -> int:
+    def wcswidth(text: str, unicode_version: str = 'auto') -> int:  # type: ignore[misc]
         """A version of wcswidth from the wcwidth library, optimized for how it is used in this repo."""
         width = 0
         for c in text:
@@ -94,11 +91,11 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
     def __repr__(self) -> str:
         # In 3.11, this needs to be declared in the parent of a Flag that actually has members - it breaks if it is
         # defined in a mixin or the class with members.
-        names = '|'.join(part._name_ for part in self._decompose())  # noqa
+        names = '|'.join(part._name_ for part in self._decompose() if part._name_ is not None)
         return f'<{self.__class__.__name__}:{names}>'
 
     @classmethod
-    def _missing_(cls, value) -> FlagEnum:
+    def _missing_(cls, value) -> Self:
         if isinstance(value, str):
             if value.startswith(('!', '~')):
                 invert = True
@@ -119,9 +116,9 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
         return super()._missing_(value)
 
     @classmethod
-    def _missing_str(cls, value: str) -> FlagEnum:
+    def _missing_str(cls, value: str) -> Self:
         try:
-            return cls._member_map_[value.upper()]  # noqa
+            return cls._member_map_[value.upper()]  # type: ignore[return-value]
         except KeyError:
             pass
         if '|' in value:
@@ -130,7 +127,7 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
                 if not part:
                     continue
                 try:
-                    tmp |= cls._member_map_[part.upper()]
+                    tmp |= cls._member_map_[part.upper()]  # type: ignore[operator]
                 except KeyError:
                     break
             else:
@@ -139,22 +136,22 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
 
         raise KeyError
 
-    def _decompose(self) -> list[FlagEnum]:
+    def _decompose(self) -> list[Self]:
         if self._name_ is None or '|' in self._name_:  # | check is for 3.11 where pseudo-members are assigned names
             val = self._value_
             return sorted(mem for mem in self.__class__ if mem._value_ & val == mem._value_)  # noqa
         return [self]
 
-    def __lt__(self, other: FlagEnum) -> bool:
+    def __lt__(self, other: Self) -> bool:
         return self._value_ < other._value_
 
 
-class Terminal:  # pylint: disable=R0903
+class Terminal:
     __slots__ = ('_cache_time', '_last_time', '_width')
 
     def __init__(self, cache_time: float = 1):
         self._cache_time = cache_time
-        self._last_time = 0
+        self._last_time: float = 0
         self._width = 80
 
     @property
@@ -188,7 +185,22 @@ def positive_int(value: Any, expected: str = 'a positive integer', min_val: int 
     return value
 
 
-async def maybe_await(obj: T | Awaitable[T]) -> T:
+_T = TypeVar('_T')
+
+
+async def maybe_await(obj: _T | Awaitable[_T]) -> _T:
     if isawaitable(obj):
         return await obj
     return obj
+
+
+class _NotSetType(Enum):
+    """Provides the sentinel value for _NotSet in a way that is fully compatible with type checkers."""
+
+    _NotSet = '_NotSet'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+_NotSet = _NotSetType._NotSet

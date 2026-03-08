@@ -4,18 +4,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping
+from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping, TypeAlias
 
 from .exceptions import AmbiguousParseTree
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
+    from .core import CommandMeta
     from .nargs import Nargs
     from .parameters.base import BasePositional
-    from .parameters.choice_map import Choice
-    from .typing import CommandCls, OptStr
+    from .parameters.choice_map import Choice, ChoiceMap
+    from .typing import OptStr
 
-    Target = BasePositional | CommandCls | None
+    Target: TypeAlias = BasePositional | CommandMeta | None
 
 __all__ = ['PosNode']
 
@@ -44,7 +45,7 @@ class AnyWord:
             raise ValueError(f'Unable to add {other} to {self!r} - {remaining=} is invalid')
         return AnyWord(self.nargs, remaining, self.n + other)
 
-    def __eq__(self, other: AnyWord) -> bool:
+    def __eq__(self, other) -> bool:
         try:
             return self.nargs == other.nargs and self.remaining == other.remaining and self.n == other.n
         except AttributeError:
@@ -65,6 +66,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     parent: PosNode | None
     target: Target
     word: Word
+    _any_word: AnyWord
 
     def __init__(self, word: Word, param: BasePositional | None, target: Target = None, parent: PosNode | None = None):
         self.links = {}
@@ -72,17 +74,17 @@ class PosNode(MutableMapping[Word, 'PosNode']):
         self.parent = parent
         self.target = target
         self.word = word
-        try:
+        if parent is not None:
             parent[word] = self
-        except TypeError:  # parent was None
-            pass
 
     def link_params(self, recursive: bool = False) -> set[BasePositional]:
         return set(self._link_params(recursive))
 
     def _link_params(self, recursive: bool = False) -> Iterator[BasePositional]:
         for node in self.values():
-            yield node.param
+            if node.param is not None:  # Technically, only the root node would actually have a param that is None
+                yield node.param
+
         if recursive:
             for node in self.values():
                 yield from node._link_params(_has_upper_bound(node))
@@ -92,10 +94,11 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     @property
     def any_word(self) -> AnyWord:
         try:
-            return self._any_word
+            return self._any_word  # setitem was called with an AnyWord object
         except AttributeError:
             try:
-                return self._create_child().word
+                # child word will be guaranteed to be an AnyWord if child creation succeeds
+                return self._create_child().word  # type: ignore[return-value]
             except (ValueError, TypeError):
                 pass
             raise
@@ -103,7 +106,7 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     @property
     def any_node(self) -> PosNode:
         try:
-            return self._any_node
+            return self._any_node  # setitem was called with an AnyWord object
         except AttributeError:
             try:
                 return self._create_child()
@@ -120,23 +123,31 @@ class PosNode(MutableMapping[Word, 'PosNode']):
         return True
 
     def _create_child(self) -> PosNode:
-        # Will raise ValueError if self.word has remaining < 1
-        word = self.word + 1
+        if not isinstance(self.word, AnyWord):
+            raise TypeError(f'Unable to create child for node with word={self.word!r}')
+
+        word = self.word + 1  # Will raise ValueError if self.word has remaining < 1
         return PosNode(word, self.param, self.target, self)
 
     # endregion
 
     # region Introspection
 
-    @property
-    def raw_path(self) -> tuple[Word, ...]:
-        word = self.word
-        if not word:
-            return ()
-        return (*self.parent.raw_path, word)  # noqa
+    def _raw_path(self) -> Iterator[Word]:
+        if self.parent:
+            yield from self.parent._raw_path()
+        if self.word:
+            yield self.word
 
-    def path_repr(self) -> str:
-        return '({})'.format(', '.join(str(n) if isinstance(n, AnyWord) else repr(n) for n in self.raw_path))
+    def path_repr(self, for_parent: bool = False) -> str:
+        if for_parent:
+            if self.parent is not None:
+                raw_path = self.parent._raw_path()
+            else:
+                return '()'
+        else:
+            raw_path = self._raw_path()
+        return '({})'.format(', '.join(str(n) if isinstance(n, AnyWord) else repr(n) for n in raw_path))
 
     # endregion
 
@@ -152,7 +163,10 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self.parent) ^ hash(self.word) ^ hash(self.param) ^ hash(self.target)
 
-    def __eq__(self, other: PosNode) -> bool:
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, PosNode):
+            return False
+
         return (
             self.parent == other.parent
             and self.param == other.param
@@ -169,13 +183,14 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     def __len__(self) -> int:
         return len(self.links) + self.has_any()
 
-    def __contains__(self, word: Word) -> bool:
+    def __contains__(self, word: Word) -> bool:  # type: ignore[override]
         try:
             self.links[word]
         except KeyError:
             pass
         else:
             return True
+
         try:
             return self.any_word == word
         except AttributeError:
@@ -187,8 +202,8 @@ class PosNode(MutableMapping[Word, 'PosNode']):
                 self._any_word
             except AttributeError:
                 try:
-                    next_word = self.word + 1
-                except (TypeError, ValueError):
+                    next_word = self.word + 1  # type: ignore[operator]
+                except (TypeError, ValueError):  # not an AnyWord or the AnyWord is full
                     pass
                 else:
                     if word != next_word or node.parent is not self or node.param is not self.param:
@@ -243,24 +258,23 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     # region Build Tree
 
     @classmethod
-    def build_tree(cls, command: CommandCls) -> PosNode:
+    def build_tree(cls, command: CommandMeta) -> PosNode:
         root = cls(None, None, target=command)
-        process_params(command, [root], command.__class__.params(command).all_positionals)
+        _process_params(command, [root], command.__class__.params(command).all_positionals)
         return root
 
     def update_node(self, word: Word, param: BasePositional, target: Target) -> PosNode:
-        try:
-            *parts, last = word.split()
-        except AttributeError:  # The choice is None or Any
-            if word:
+        match word:
+            case str():
+                *parts, last = word.split()
+                node = self
+                for part in parts:
+                    node = node._update(part, param, None)
+                return node._update(last, param, target)
+            case AnyWord():
                 return self._update_any(word, param, target)
-            else:
+            case _:  # Assume None
                 return self._set_target(target)
-        else:
-            node = self
-            for part in parts:
-                node = node._update(part, param, None)
-            return node._update(last, param, target)
 
     def _set_target(self, target: Target) -> PosNode:
         if not target:
@@ -320,23 +334,25 @@ def _has_upper_bound(node) -> bool:
         return True
 
 
-def process_params(command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]) -> set[PosNode]:
+def _process_params(
+    command: CommandMeta, nodes: Iterable[PosNode], params: Iterable[BasePositional]
+) -> Iterable[PosNode]:
     for param in params:
-        nodes = process_param(command, nodes, param)
+        nodes = _process_param(command, nodes, param)
 
     return nodes
 
 
-def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePositional) -> set[PosNode]:
+def _process_param(command: CommandMeta, nodes: Iterable[PosNode], param: BasePositional | ChoiceMap) -> set[PosNode]:
     # At each step, the number of branches grows
     try:
-        choices: dict[OptStr, Choice] = param.choices  # noqa
+        choices: dict[OptStr, Choice[CommandMeta]] = param.choices  # type: ignore[union-attr]
     except AttributeError:  # It was not a ChoiceMap param
         pass
     else:
         get_params = command.__class__.params
 
-        new_nodes = set()
+        new_nodes: set[PosNode] = set()
         for choice in choices.values():
             target = choice.target
             try:
@@ -345,16 +361,16 @@ def process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePosi
                 new_nodes.update(node.update_node(choice.choice, param, target) for node in nodes)
             else:
                 choice_nodes = {node.update_node(choice.choice, param, target) for node in nodes}
-                new_nodes.update(process_params(target, choice_nodes, params.all_positionals))
+                new_nodes.update(_process_params(target, choice_nodes, params.all_positionals))
 
         return new_nodes
 
     try:
-        choices: Collection[str] = param.type.choices  # noqa
+        type_choices: Collection[str] = param.type.choices  # type: ignore[union-attr]
     except AttributeError:  # It was not a _ChoicesBase input type
         pass
     else:
-        return {node.update_node(choice, param, param) for choice in choices for node in nodes}
+        return {node.update_node(choice, param, param) for choice in type_choices for node in nodes}
 
     # At this point, the param will take any word
     word = AnyWord(param.nargs)

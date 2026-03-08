@@ -8,10 +8,11 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
+from collections.abc import Collection
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Collection, Generic, Iterator, NoReturn, Type, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, NoReturn, Self, Type, TypeVar, overload
 
 from ..annotations import get_descriptor_value_type
 from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
@@ -28,7 +29,7 @@ from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import Bool, CommandAny, CommandCls, CommandObj, LeadingDash, OptStr, OptStrs, Param, Strings
+    from ..typing import Bool, CommandAny, CommandCls, CommandObj, LeadingDash, OptStr, OptStrs, Strings
     from .actions import ParamAction
     from .groups import ParamGroup
 
@@ -97,7 +98,7 @@ class ParamBase(ABC):
 
     # endregion
 
-    def __eq__(self, other: ParamBase) -> bool:
+    def __eq__(self, other) -> bool:
         return (
             self.__class__ == other.__class__
             and self._attr_name == other._attr_name
@@ -108,7 +109,7 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 
-    def _ctx(self, command: CommandAny = None) -> Context | None:
+    def _ctx(self, command: CommandAny | None = None) -> Context | None:
         if context := get_current_context(True):
             return context
         if command is None:
@@ -118,7 +119,7 @@ class ParamBase(ABC):
         except AttributeError:
             return None
 
-    def _config(self, command: CommandAny = None) -> CommandConfig:
+    def _config(self, command: CommandAny | None = None) -> CommandConfig:
         if context := self._ctx(command):
             return context.config
         if command is None:
@@ -200,7 +201,9 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     strict_default: Bool = False
     # fmt: on
 
-    def __init_subclass__(cls, repr_attrs: Strings = None, actions: Collection[Type[ParamAction]] = None, **kwargs):
+    def __init_subclass__(
+        cls, repr_attrs: Strings | None = None, actions: Collection[Type[ParamAction]] | None = None, **kwargs
+    ):
         """
         :param repr_attrs: Additional attributes to include in the repr.
         :param actions: Collection of ParamAction classes that this type of Parameter supports
@@ -217,10 +220,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         self,
         action: str,
         *,
-        help: str = None,  # noqa
+        help: str | None = None,  # noqa
         hide: Bool = False,
-        metavar: str = None,
-        name: str = None,
+        metavar: str | None = None,
+        name: str | None = None,
         required: Bool = False,
         default: Any = _NotSet,
         default_cb: DefaultFunc = None,
@@ -384,10 +387,10 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # region Parse Results / Argument Value Handling
 
     @overload
-    def __get__(self: Param, command: None, owner: CommandCls) -> Param: ...
+    def __get__(self, command: Literal[None], owner: Type[object]) -> Self: ...
 
     @overload
-    def __get__(self, command: CommandObj, owner: CommandCls) -> T_co | None: ...
+    def __get__(self, command: object, owner: Type[object]) -> T_co | None: ...
 
     def __get__(self, command, owner):
         if command is None:
