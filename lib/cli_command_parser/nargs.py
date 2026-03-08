@@ -7,18 +7,29 @@ Helpers for handling ``nargs=...`` for Parameters.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Collection, FrozenSet
+from enum import Enum
+from typing import Any, Collection, FrozenSet, TypeAlias
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER']
 
-REMAINDER = type('REMAINDER', (), {})()
-_RemainderType = type(REMAINDER)
+
+class _Remainder(Enum):
+    """Provides the sentinel value for REMAINDER in a way that is fully compatible with type checkers."""
+
+    REMAINDER = 'REMAINDER'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+REMAINDER = _Remainder.REMAINDER
 _UNBOUND = (None, REMAINDER)
+_Max: TypeAlias = int | None | _Remainder
 NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0, REMAINDER)}
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
-NargsValue = str | int | tuple[int, int | None] | Sequence[int] | set[int] | FrozenSet[int] | range | _RemainderType
+NargsValue: TypeAlias = str | int | tuple[int, _Max] | Sequence[int] | set[int] | FrozenSet[int] | range | _Remainder
 
 
 class Nargs:
@@ -30,15 +41,18 @@ class Nargs:
     Additionally, integers, a range of integers, or a set/tuple of integers are accepted for more specific requirements.
     """
 
+    # Note: most `type: ignore` comments are related to the use of _UNBOUND membership to determine that max is not
+    # None or REMAINDER without explicit type verification via isinstance/similar.
+
     __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable', '_has_upper_bound')
     _orig: NargsValue
     range: range | None
-    min: int | None
-    max: int | None
-    allowed: Collection[int]
+    min: int
+    max: _Max
+    allowed: Collection[int] | tuple[int, _Max]
     variable: bool
 
-    def __init__(self, nargs: NargsValue):  # pylint: disable=R0912
+    def __init__(self, nargs: NargsValue):
         self._orig = nargs
         self.range = None
 
@@ -74,15 +88,15 @@ class Nargs:
                 self.max = max(nargs)
             case Sequence():
                 try:
-                    self.min, self.max = self.allowed = a, b = nargs
+                    self.min, self.max = self.allowed = a, b = nargs  # type: ignore[misc,assignment]
                 except (ValueError, TypeError) as e:
                     raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
 
                 if not (isinstance(a, int) and (b in _UNBOUND or isinstance(b, int))):
                     raise TypeError(SEQ_ERROR_FMT.format(nargs))
-                elif 0 > a or (b not in _UNBOUND and a > b):
+                elif 0 > a or (b not in _UNBOUND and a > b):  # type: ignore[operator]
                     raise ValueError(SEQ_ERROR_FMT.format(nargs))
-            case _RemainderType():
+            case _Remainder():
                 self.min, self.max = self.allowed = (0, REMAINDER)
             case _:
                 raise TypeError(f'Unexpected type={nargs.__class__.__name__} for {nargs=}')
@@ -98,7 +112,7 @@ class Nargs:
         if rng is not None:
             return f'{rng.start} ~ {rng.stop}' if rng.step == 1 else f'{rng.start} ~ {rng.stop} (step={rng.step})'
         elif not self._has_upper_bound:
-            return f'{self.min} or more' if self.max is None else self.max.__class__.__name__
+            return f'{self.min} or more' if self.max is None else str(self.max)  # str(self.max) is for REMAINDER
         elif self.min == self.max:
             return str(self.min)
         elif isinstance(self.allowed, frozenset):
@@ -110,7 +124,7 @@ class Nargs:
         """See :meth:`.satisfied`"""
         return self.satisfied(num)
 
-    def __eq__(self, other: Nargs | int) -> bool:
+    def __eq__(self, other) -> bool:
         match other:
             case Nargs():
                 return self._eq_nargs(other)
@@ -172,7 +186,7 @@ class Nargs:
           False otherwise.
         """
         if self._has_upper_bound:
-            return len(parsed_values) >= self.max
+            return len(parsed_values) >= self.max  # type: ignore[operator]
         return False
 
     @property
@@ -181,4 +195,4 @@ class Nargs:
 
     @property
     def upper_bound(self) -> int | float:
-        return self.max if self._has_upper_bound else float('inf')
+        return self.max if self._has_upper_bound else float('inf')  # type: ignore[return-value]
