@@ -100,7 +100,7 @@ class FixedFlag(Flag, metaclass=FixedFlagMeta):
         return f'<{self.__class__.__name__}:{names}>'
 
     @classmethod
-    def _missing_(cls, value) -> Self:
+    def _missing_(cls, value: str | int) -> Self:  # type: ignore[override]
         if isinstance(value, str):
             if value.startswith(('!', '~')):
                 invert = True
