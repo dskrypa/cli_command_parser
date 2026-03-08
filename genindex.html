@@ -262,6 +262,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._pre_init_actions_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._pre_init_actions_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._before_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._before_main_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.ctx"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.ctx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._after_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._after_main_()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +658,6 @@
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -806,15 +806,12 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path"><code class="docutils literal notranslate"><span class="pre">PosNode.raw_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr"><code class="docutils literal notranslate"><span class="pre">PosNode.path_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.build_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.update_node"><code class="docutils literal notranslate"><span class="pre">PosNode.update_node()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.print_tree()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params"><code class="docutils literal notranslate"><span class="pre">process_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param"><code class="docutils literal notranslate"><span class="pre">process_param()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parser.html">Parser Module</a><ul>
@@ -2237,9 +2234,11 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter">Counter (class in cli_command_parser.parameters.options)</a>
 </li>
-      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.ctx">ctx (cli_command_parser.commands.Command attribute)</a>
+      <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.ctx">ctx (cli_command_parser.commands.AsyncCommand attribute)</a>
 
       <ul>
+        <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command.ctx">(cli_command_parser.commands.Command attribute)</a>
+</li>
         <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.ctx">(cli_command_parser.parser.CommandParser attribute)</a>
 </li>
       </ul></li>
@@ -2947,12 +2946,8 @@
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_params">get_params() (in module cli_command_parser.core)</a>
 </li>
-      <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent">get_parent() (cli_command_parser.metadata.MetadataBase method)</a>
-
-      <ul>
-        <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_parent">(in module cli_command_parser.core)</a>
+      <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_parent">get_parent() (in module cli_command_parser.core)</a>
 </li>
-      </ul></li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.Context.get_parsed">get_parsed() (cli_command_parser.context.Context method)</a>
 
       <ul>
@@ -4314,10 +4309,10 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.Script.parsers">parsers (cli_command_parser.conversion.argparse_ast.Script property)</a>
 </li>
-      <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.testing.html#cli_command_parser.testing.ParserTest">ParserTest (class in cli_command_parser.testing)</a>
+</li>
       <li><a href="api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper">PartWrapper (class in cli_command_parser.formatting.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized.pass_file">pass_file (cli_command_parser.inputs.files.Serialized attribute)</a>
@@ -4436,10 +4431,6 @@
 </li>
       <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree">print_tree() (cli_command_parser.parse_tree.PosNode method)</a>
 </li>
-      <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param">process_param() (in module cli_command_parser.parse_tree)</a>
-</li>
-      <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params">process_params() (in module cli_command_parser.parse_tree)</a>
-</li>
       <li><a href="api/cli_command_parser.commands.html#cli_command_parser.commands.CommandMeta.params.prog">prog (cli_command_parser.commands.CommandMeta parameter)</a>
 
       <ul>
@@ -4484,8 +4475,6 @@
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str">range_str() (in module cli_command_parser.inputs.utils)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.RangeMixin">RangeMixin (class in cli_command_parser.inputs.utils)</a>
-</li>
-      <li><a href="api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path">raw_path (cli_command_parser.parse_tree.PosNode property)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper.read">read() (cli_command_parser.inputs.utils.FileWrapper method)</a>
 </li>

@@ -262,6 +262,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._pre_init_actions_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._pre_init_actions_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._before_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._before_main_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.ctx"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.ctx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._after_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._after_main_()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +658,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -806,15 +806,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path"><code class="docutils literal notranslate"><span class="pre">PosNode.raw_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr"><code class="docutils literal notranslate"><span class="pre">PosNode.path_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.build_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.update_node"><code class="docutils literal notranslate"><span class="pre">PosNode.update_node()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.print_tree()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params"><code class="docutils literal notranslate"><span class="pre">process_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param"><code class="docutils literal notranslate"><span class="pre">process_param()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parser.html">Parser Module</a><ul>
@@ -1001,10 +998,16 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">contextvars</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContextVar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># added in 3.11</span>
+    <span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;Self&#39;</span><span class="p">)</span>  <span class="c1"># type: ignore[misc,assignment]</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..annotations</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_descriptor_value_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_CONFIG</span><span class="p">,</span> <span class="n">AllowLeadingDash</span><span class="p">,</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">OptionNameMode</span>
@@ -1021,7 +1024,7 @@
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..formatting.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStrs</span><span class="p">,</span> <span class="n">Param</span><span class="p">,</span> <span class="n">Strings</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStrs</span><span class="p">,</span> <span class="n">Strings</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamAction</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamGroup</span>
 
@@ -1095,7 +1098,7 @@
 
     <span class="c1"># endregion</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">ParamBase</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span>
             <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_attr_name</span>
@@ -1106,7 +1109,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_attr_name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Context</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="n">get_current_context</span><span class="p">(</span><span class="kc">True</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">context</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1116,7 +1119,7 @@
         <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">context</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ctx</span><span class="p">(</span><span class="n">command</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">context</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1215,7 +1218,9 @@
 
 <div class="viewcode-block" id="Parameter.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="p">:</span> <span class="n">Strings</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ParamAction</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">repr_attrs</span><span class="p">:</span> <span class="n">Strings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">actions</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">ParamAction</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param repr_attrs: Additional attributes to include in the repr.</span>
 <span class="sd">        :param actions: Collection of ParamAction classes that this type of Parameter supports</span>
@@ -1233,10 +1238,10 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1424,10 +1429,10 @@
     <span class="c1"># region Parse Results / Argument Value Handling</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Param</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Param</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="nb">object</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T_co</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">command</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>

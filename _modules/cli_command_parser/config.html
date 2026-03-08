@@ -262,6 +262,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._pre_init_actions_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._pre_init_actions_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._before_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._before_main_()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.main"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand.ctx"><code class="docutils literal notranslate"><span class="pre">AsyncCommand.ctx</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.commands.html#cli_command_parser.commands.AsyncCommand._after_main_"><code class="docutils literal notranslate"><span class="pre">AsyncCommand._after_main_()</span></code></a></li>
 </ul>
 </li>
@@ -657,7 +658,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.metadata.html">Metadata Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase"><code class="docutils literal notranslate"><span class="pre">MetadataBase</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.inheritable"><code class="docutils literal notranslate"><span class="pre">MetadataBase.inheritable</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_parent"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_parent()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.get_value"><code class="docutils literal notranslate"><span class="pre">MetadataBase.get_value()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.MetadataBase.name"><code class="docutils literal notranslate"><span class="pre">MetadataBase.name</span></code></a></li>
 </ul>
@@ -806,15 +806,12 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_word"><code class="docutils literal notranslate"><span class="pre">PosNode.any_word</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.any_node"><code class="docutils literal notranslate"><span class="pre">PosNode.any_node</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.has_any"><code class="docutils literal notranslate"><span class="pre">PosNode.has_any()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.raw_path"><code class="docutils literal notranslate"><span class="pre">PosNode.raw_path</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.path_repr"><code class="docutils literal notranslate"><span class="pre">PosNode.path_repr()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.build_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.build_tree()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.update_node"><code class="docutils literal notranslate"><span class="pre">PosNode.update_node()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.PosNode.print_tree"><code class="docutils literal notranslate"><span class="pre">PosNode.print_tree()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_params"><code class="docutils literal notranslate"><span class="pre">process_params()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parse_tree.html#cli_command_parser.parse_tree.process_param"><code class="docutils literal notranslate"><span class="pre">process_param()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.parser.html">Parser Module</a><ul>
@@ -1002,17 +999,26 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainMap</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">whitespace</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># added in 3.11</span>
+    <span class="n">Self</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;Self&#39;</span><span class="p">)</span>  <span class="c1"># type: ignore[misc,assignment]</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandDefinitionError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">MissingMixin</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">positive_int</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FixedFlag</span><span class="p">,</span> <span class="n">MissingMixin</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">,</span> <span class="n">positive_int</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.command_parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParameters</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMeta</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.error_handling</span><span class="w"> </span><span class="kn">import</span> <span class="n">ErrorHandler</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.formatting.commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandHelpFormatter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.formatting.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ParamOrGroup</span>
+
+    <span class="n">_CmdHelpFormatter</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandMeta</span><span class="p">,</span> <span class="n">CommandParameters</span><span class="p">],</span> <span class="n">CommandHelpFormatter</span><span class="p">]</span>
+    <span class="n">_ParamHelpFormatter</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">ParamHelpFormatter</span><span class="p">]</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;CommandConfig&#39;</span><span class="p">,</span>
@@ -1024,9 +1030,7 @@
     <span class="s1">&#39;DEFAULT_CONFIG&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">CV</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;CV&#39;</span><span class="p">)</span>
-<span class="n">DV</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;DV&#39;</span><span class="p">)</span>
-<span class="n">ConfigValue</span> <span class="o">=</span> <span class="n">CV</span> <span class="o">|</span> <span class="n">DV</span>
+<span class="n">_T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_T&#39;</span><span class="p">)</span>
 
 
 <span class="c1"># region Config Option Enums</span>
@@ -1055,10 +1059,10 @@
     <span class="c1"># fmt: on</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ShowDefaults</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span>  <span class="c1"># noqa</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)]</span>  <span class="c1"># type: ignore[return-value]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="n">expected</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> - expected one of </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
@@ -1117,9 +1121,9 @@
     <span class="c1"># fmt: on</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptionNameMode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptionNameMode</span><span class="p">:</span>  <span class="c1"># type: ignore[override]</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">OPT_NAME_MODE_ALIASES</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">OPT_NAME_MODE_ALIASES</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>  <span class="c1"># type: ignore[index]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">pass</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NONE</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
@@ -1217,15 +1221,15 @@
     <span class="c1"># fmt: on</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_missing_</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>  <span class="c1"># noqa</span>
+                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_member_map_</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>  <span class="c1"># type: ignore[return-value]</span>
             <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                 <span class="k">pass</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># noqa  # Explicit True/False checks are done intentionally here</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ALWAYS</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>  <span class="c1"># noqa</span>
             <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NEVER</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">_missing_</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span></div>
 
@@ -1239,7 +1243,7 @@
 
 <div class="viewcode-block" id="ConfigItem">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.ConfigItem">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigItem</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A single configurable setting in the :class:`CommandConfig`.</span>
 
@@ -1249,7 +1253,10 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">_T</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>  <span class="c1"># noqa</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">default</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
@@ -1258,18 +1265,17 @@
         <span class="n">owner</span><span class="o">.</span><span class="n">FIELDS</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">CV</span><span class="p">,</span> <span class="n">DV</span><span class="p">]:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
     <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandConfig</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ConfigValue</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>  <span class="c1"># instance is None</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span> <span class="o">|</span> <span class="n">_T</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to set attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> because </span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="s1"> is read-only&#39;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1291,16 +1297,18 @@
 
 <div class="viewcode-block" id="DynamicConfigItem">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.DynamicConfigItem">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DynamicConfigItem</span><span class="p">(</span><span class="n">ConfigItem</span><span class="p">[</span><span class="n">_T</span><span class="p">]):</span>
     <span class="c1"># A ConfigItem with a setter :paramref:`.ConfigItem.type` defined as a method in :class:`CommandConfig`.</span>
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;__doc__&#39;</span><span class="p">,)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">CV</span><span class="p">]):</span>  <span class="c1"># noqa</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">_T</span><span class="p">]):</span>  <span class="c1"># noqa</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="vm">__doc__</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">ConfigValue</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">_T</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">_read_only</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to set attribute </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> because </span><span class="si">{</span><span class="n">instance</span><span class="si">}</span><span class="s1"> is read-only&#39;</span><span class="p">)</span>
         <span class="n">instance</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
@@ -1309,7 +1317,7 @@
 
 <div class="viewcode-block" id="config_item">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.config_item">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">config_item</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">DV</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">config_item</span><span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="n">_T</span><span class="p">):</span>
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">func</span><span class="p">:</span> <span class="n">DynamicConfigItem</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
@@ -1327,72 +1335,74 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_data&#39;</span><span class="p">,</span> <span class="s1">&#39;_read_only&#39;</span><span class="p">)</span>
     <span class="n">_data</span><span class="p">:</span> <span class="n">ChainMap</span>
     <span class="n">_read_only</span><span class="p">:</span> <span class="nb">bool</span>
-    <span class="n">FIELDS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">FIELDS</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="c1"># region Error Handling Options</span>
 
     <span class="c1">#: The :class:`.ErrorHandler` to be used by :meth:`.Command.__call__`</span>
-    <span class="n">error_handler</span><span class="p">:</span> <span class="n">ErrorHandler</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">_NotSet</span><span class="p">)</span>
+    <span class="n">error_handler</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">ErrorHandler</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">_NotSetType</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">_NotSet</span><span class="p">)</span>
 
     <span class="c1">#: Whether :meth:`.Command._after_main_` should always be called, even if an exception was raised in</span>
     <span class="c1">#: :meth:`.Command.main` (similar to a ``finally`` block)</span>
-    <span class="n">always_run_after_main</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">always_run_after_main</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Parameter Options</span>
 
     <span class="c1">#: Whether inferring Parameter types from type annotations should be enabled</span>
-    <span class="n">allow_annotation_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">allow_annotation_type</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region ActionFlag Options</span>
 
     <span class="c1">#: Whether multiple action_flag methods are allowed to run if they are all specified</span>
-    <span class="n">multiple_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">multiple_action_flags</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether action_flag methods are allowed to be combined with a positional Action method in a given CLI invocation</span>
-    <span class="n">action_after_action_flags</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">action_after_action_flags</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Parsing Options</span>
 
     <span class="c1">#: Whether unknown arguments should be ignored (default: raise an exception when unknown arguments are encountered)</span>
-    <span class="n">ignore_unknown</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">ignore_unknown</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether missing required arguments should be allowed (default: raise an exception when they are missing)</span>
-    <span class="n">allow_missing</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">allow_missing</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether backtracking is enabled for positionals following params with variable nargs</span>
-    <span class="n">allow_backtrack</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">allow_backtrack</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: How the default long form that is added for Option/Flag/Counter/etc. Parameters should handle underscores/dashes</span>
-    <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">)</span>
+    <span class="n">option_name_mode</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">OptionNameMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">OptionNameMode</span><span class="o">.</span><span class="n">DASH</span><span class="p">,</span> <span class="n">OptionNameMode</span><span class="p">)</span>
 
     <span class="c1">#: Whether ambiguous combinations of positional choices should result in an :class:`.AmbiguousParseTree` error</span>
-    <span class="n">reject_ambiguous_pos_combos</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>  <span class="c1"># EXPERIMENTAL</span>
+    <span class="n">reject_ambiguous_pos_combos</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>  <span class="c1"># EXPERIMENTAL</span>
 
     <span class="c1">#: How potentially ambiguous combinations of short forms of Option/Flag/etc. Parameters should be handled</span>
-    <span class="n">ambiguous_short_combos</span><span class="p">:</span> <span class="n">AmbiguousComboMode</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">PERMISSIVE</span><span class="p">,</span> <span class="n">AmbiguousComboMode</span><span class="p">)</span>
+    <span class="n">ambiguous_short_combos</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">AmbiguousComboMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span>
+        <span class="n">AmbiguousComboMode</span><span class="o">.</span><span class="n">PERMISSIVE</span><span class="p">,</span> <span class="n">AmbiguousComboMode</span>
+    <span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
     <span class="c1"># region Usage &amp; Help Text Options</span>
 
     <span class="c1">#: Whether the ``--help`` / ``-h`` action_flag should be added</span>
-    <span class="n">add_help</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">add_help</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether the metavar for Parameters that accept values should default to the name of the specified type</span>
     <span class="c1">#: (default: the name of the parameter)</span>
-    <span class="n">use_type_metavar</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">use_type_metavar</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether the default value for Parameters should be shown in help text, and related behavior</span>
-    <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ShowDefaults</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
+    <span class="n">show_defaults</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">ShowDefaults</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="n">ShowDefaults</span><span class="o">.</span><span class="n">MISSING</span> <span class="o">|</span> <span class="n">ShowDefaults</span><span class="o">.</span><span class="n">NON_EMPTY</span><span class="p">,</span> <span class="n">ShowDefaults</span><span class="p">)</span>
 
     <span class="c1">#: Whether Parameters that support reading their values from env variables should include the var names in help text</span>
-    <span class="n">show_env_vars</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">show_env_vars</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.cmd_alias_mode">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.cmd_alias_mode">[docs]</a>
@@ -1406,13 +1416,13 @@
 
 
     <span class="c1">#: Whether Parameter `choices` values and Action / Subcommand choices should be sorted</span>
-    <span class="n">sort_choices</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">sort_choices</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Delimiter to use between choices in usage / help text</span>
-    <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">choice_delim</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
 
     <span class="c1">#: Whether there should be a visual indicator in help text for the parameters that are members of a given group</span>
-    <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">show_group_tree</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.group_tree_spacers">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.group_tree_spacers">[docs]</a>
@@ -1440,32 +1450,32 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note: extra spaces in the docstring table are intentional - the escape sequences each collapse to one char</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">):</span>
-            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1"> &#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1"> &#39;</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">whitespace</span> <span class="k">else</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">)</span>  <span class="c1"># type: ignore[return-value]</span>
         <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s1">&#39;Invalid group_tree_spacers=</span><span class="si">{</span><span class="n">value</span><span class="si">!r}</span><span class="s1"> - expected a 3-tuple of 2-character strings&#39;</span>
         <span class="p">)</span></div>
 
 
     <span class="c1">#: Whether mutually exclusive / dependent groups should include that fact in their descriptions</span>
-    <span class="n">show_group_type</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">show_group_type</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: A callable that accepts 2 arguments, a :class:`.Command` class (not object) and a :class:`.CommandParameters`</span>
     <span class="c1">#: object, and returns a :class:`.CommandHelpFormatter`</span>
-    <span class="n">command_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">CommandType</span><span class="p">,</span> <span class="n">CommandParameters</span><span class="p">],</span> <span class="n">CommandHelpFormatter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">command_formatter</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">_CmdHelpFormatter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="c1">#: A callable that accepts a :class:`.Parameter` or :class:`.ParamGroup` and returns a :class:`.ParamHelpFormatter`</span>
-    <span class="n">param_formatter</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ParamOrGroup</span><span class="p">],</span> <span class="n">ParamHelpFormatter</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">param_formatter</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">_ParamHelpFormatter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
     <span class="c1">#: Whether the program version, author email, and documentation URL should be included in the help text epilog, if</span>
     <span class="c1">#: they were successfully detected</span>
-    <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">extended_epilog</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Width (in characters) for the usage column in help text, after which the parameter descriptions begin.</span>
-    <span class="n">usage_column_width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+    <span class="n">usage_column_width</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
 
     <span class="c1">#: Whether the :attr:`.usage_column_width` should be enforced for parameters with usage text parts that exceed it.</span>
     <span class="c1">#: By default, that setting only defines where the parameter descriptions begin.</span>
-    <span class="n">strict_usage_column_width</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">strict_usage_column_width</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CommandConfig.wrap_usage_str">
 <a class="viewcode-back" href="../../api/cli_command_parser.config.html#cli_command_parser.config.CommandConfig.wrap_usage_str">[docs]</a>
@@ -1485,13 +1495,13 @@
     <span class="c1"># region Documentation Generation Options</span>
 
     <span class="c1">#: Whether the top level script&#39;s docstring should be included in generated documentation</span>
-    <span class="n">show_docstring</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">show_docstring</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Whether inherited descriptions should be included in subcommand sections of generated documentation</span>
-    <span class="n">show_inherited_descriptions</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">show_inherited_descriptions</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="n">Bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
 
     <span class="c1">#: Maximum subcommand depth to include in generated documentation (default: include all)</span>
-    <span class="n">sub_cmd_doc_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">positive_int</span><span class="p">)</span>
+    <span class="n">sub_cmd_doc_depth</span><span class="p">:</span> <span class="n">ConfigItem</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConfigItem</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">positive_int</span><span class="p">)</span>
 
     <span class="c1"># endregion</span>
 
