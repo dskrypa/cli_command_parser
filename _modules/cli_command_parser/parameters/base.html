@@ -1061,7 +1061,13 @@
     <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span>                      <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
     <span class="c1"># fmt: on</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">help</span>  <span class="c1"># Prevent this class&#39;s docstring from showing up for params in generated documentation</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="n">required</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">help</span> <span class="o">=</span> <span class="n">help</span>

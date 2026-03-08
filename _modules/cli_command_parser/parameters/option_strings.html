@@ -1000,7 +1000,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_CONFIG</span><span class="p">,</span> <span class="n">OptionNameMode</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParameterDefinitionError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span>
@@ -1020,7 +1020,7 @@
     <span class="n">_long</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="n">_short</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option_strs</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">option_strs</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name_mode</span> <span class="o">=</span> <span class="n">OptionNameMode</span><span class="p">(</span><span class="n">name_mode</span><span class="p">)</span> <span class="k">if</span> <span class="n">name_mode</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">long_opts</span><span class="p">,</span> <span class="n">short_opts</span> <span class="o">=</span> <span class="n">_split_options</span><span class="p">(</span><span class="n">option_strs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_display_long</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_long</span> <span class="o">=</span> <span class="n">long_opts</span>
@@ -1122,7 +1122,7 @@
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;_alt_prefix&#39;</span><span class="p">,</span> <span class="s1">&#39;_alt_long&#39;</span><span class="p">,</span> <span class="s1">&#39;_alt_short&#39;</span><span class="p">)</span>
     <span class="n">_alt_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">_alt_short</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">_alt_long</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">_alt_long</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
 
 <div class="viewcode-block" id="TriFlagOptionStrings.has_long">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.has_long">[docs]</a>
@@ -1141,7 +1141,7 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.add_alts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_alts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">long</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">short</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alt_prefix</span> <span class="o">=</span> <span class="n">prefix</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span> <span class="o">=</span> <span class="p">(</span><span class="n">long</span><span class="p">,)</span> <span class="k">if</span> <span class="n">long</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_alt_long</span> <span class="o">=</span> <span class="p">{</span><span class="n">long</span><span class="p">}</span> <span class="k">if</span> <span class="n">long</span> <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span> <span class="o">=</span> <span class="n">short</span></div>
 
 
@@ -1181,10 +1181,6 @@
         <span class="k">return</span> <span class="n">allowed</span></div>
 
 
-    <span class="c1"># @property</span>
-    <span class="c1"># def long_primary(self) -&gt; List[str]:</span>
-    <span class="c1">#     return [opt for opt in self.long if opt not in self._alt_long]</span>
-
 <div class="viewcode-block" id="TriFlagOptionStrings.display_long_primary">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.display_long_primary">[docs]</a>
     <span class="nd">@property</span>
@@ -1198,10 +1194,6 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">short_primary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">short</span> <span class="k">if</span> <span class="n">opt</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_alt_short</span><span class="p">]</span></div>
 
-
-    <span class="c1"># @property</span>
-    <span class="c1"># def long_alt(self) -&gt; List[str]:</span>
-    <span class="c1">#     return sorted(self._alt_long, key=_options_sort_key)</span>
 
 <div class="viewcode-block" id="TriFlagOptionStrings.display_long_alt">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.option_strings.html#cli_command_parser.parameters.option_strings.TriFlagOptionStrings.display_long_alt">[docs]</a>

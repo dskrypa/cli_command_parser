@@ -1059,7 +1059,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_width</span> <span class="o">=</span> <span class="n">max_width</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cont_indent</span> <span class="o">=</span> <span class="n">cont_indent</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">delim</span> <span class="o">=</span> <span class="n">delim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="PartWrapper.join">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.PartWrapper.join">[docs]</a>
@@ -1098,7 +1098,7 @@
         <span class="n">delim_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delim</span><span class="p">)</span>
         <span class="n">delim_end_len</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">delim_end</span><span class="p">)</span>
         <span class="n">max_width</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_width</span> <span class="o">-</span> <span class="n">delim_end_len</span>
-        <span class="n">line_parts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">line_parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">last</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">chunk_len</span> <span class="o">=</span> <span class="n">last_len</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -1194,7 +1194,7 @@
 
 <div class="viewcode-block" id="line_iter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.utils.html#cli_command_parser.formatting.utils.line_iter">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">line_iter</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">IStrs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;More complicated than what would be necessary for just 2 columns, but this will scale to handle 3+&quot;&quot;&quot;</span>
     <span class="n">exhausted</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">column_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
