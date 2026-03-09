@@ -1014,7 +1014,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">threading</span><span class="w"> </span><span class="kn">import</span> <span class="n">RLock</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">TimeBound</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Locale</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">TimeBound</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingMixin</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputType</span><span class="p">,</span> <span class="n">_FixedInputType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span><span class="p">,</span> <span class="n">InvalidChoiceError</span>
@@ -1070,12 +1070,12 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DTInput</span><span class="p">(</span><span class="n">_FixedInputType</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;locale&#39;</span><span class="p">,)</span>
-    <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">dt_type</span><span class="p">:</span> <span class="n">OptStr</span>
     <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="DTInput.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.DTInput.__init_subclass__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">dt_type</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param dt_type: Used in InvalidChoiceError / ValueError messages</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1143,9 +1143,9 @@
         <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">out_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">DTFormatMode</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
-        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">full</span> <span class="ow">or</span> <span class="n">abbreviation</span> <span class="ow">or</span> <span class="n">numeric</span><span class="p">):</span>
@@ -1281,9 +1281,9 @@
         <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">iso</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">out_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">DTFormatMode</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
-        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span> <span class="o">...</span>
 
@@ -1342,9 +1342,9 @@
         <span class="n">full</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">abbreviation</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">numeric</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">out_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">DTFormatMode</span> <span class="o">=</span> <span class="n">DTFormatMode</span><span class="o">.</span><span class="n">FULL</span><span class="p">,</span>
-        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">out_locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span> <span class="o">...</span>
 
@@ -1466,7 +1466,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">formats</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1595,7 +1595,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1624,7 +1624,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1653,7 +1653,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">formats</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">locale</span><span class="p">:</span> <span class="n">Locale</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">earliest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">latest</span><span class="p">:</span> <span class="n">TimeBound</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
@@ -1680,7 +1680,7 @@
 
 <div class="viewcode-block" id="normalize_dt">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.normalize_dt">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">normalize_dt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_dt</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">TimeBound</span><span class="p">,</span> <span class="n">now</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
     <span class="k">match</span> <span class="n">value</span><span class="p">:</span>
         <span class="k">case</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">datetime</span><span class="p">():</span>
             <span class="k">return</span> <span class="n">value</span>

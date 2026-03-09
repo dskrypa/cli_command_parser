@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.inputs.numeric &mdash; CLI Command Parser 2026.02.01 documentation</title>
+  <title>cli_command_parser.formatting.commands &mdash; CLI Command Parser 2026.02.01 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
@@ -976,7 +976,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.inputs.numeric</li>
+      <li class="breadcrumb-item active">cli_command_parser.formatting.commands</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -987,344 +987,286 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for cli_command_parser.inputs.numeric</h1><div class="highlight"><pre>
+  <h1>Source code for cli_command_parser.formatting.commands</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Custom numeric input handlers for Parameters</span>
+<span class="sd">Command usage / help text formatters</span>
 
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># pylint: disable=W0622</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">textwrap</span><span class="w"> </span><span class="kn">import</span> <span class="n">TextWrapper</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NT</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">NumType</span><span class="p">,</span> <span class="n">RngType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">_FixedInputType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">RangeMixin</span><span class="p">,</span> <span class="n">range_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">ctx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_metadata</span><span class="p">,</span> <span class="n">get_params</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parameters.choice_map</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChoiceMap</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..parameters.groups</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamGroup</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.restructured_text</span><span class="w"> </span><span class="kn">import</span> <span class="n">spaced_rst_header</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">PartWrapper</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NumericInput&#39;</span><span class="p">,</span> <span class="s1">&#39;Range&#39;</span><span class="p">,</span> <span class="s1">&#39;NumRange&#39;</span><span class="p">,</span> <span class="s1">&#39;Bytes&#39;</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..command_parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParameters</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandConfig</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMeta</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgramMetadata</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..parameters</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">BasePositional</span><span class="p">,</span> <span class="n">Parameter</span><span class="p">,</span> <span class="n">PassThru</span><span class="p">,</span> <span class="n">SubCommand</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">OptStr</span>
 
-<span class="n">_range</span> <span class="o">=</span> <span class="nb">range</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;CommandHelpFormatter&#39;</span><span class="p">,</span> <span class="s1">&#39;get_formatter&#39;</span><span class="p">]</span>
 
-
-<div class="viewcode-block" id="NumericInput">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NumericInput</span><span class="p">(</span><span class="n">_FixedInputType</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span></div>
-
-
-
-<span class="k">class</span><span class="w"> </span><span class="nc">_RangeInput</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Called during parsing when :meth:`.ParamAction.would_accept` is called to determine if the value would be</span>
-<span class="sd">        accepted later for processing / conversion when called.</span>
-
-<span class="sd">        :param value: The parsed argument to validate</span>
-<span class="sd">        :return: True if this input would accept it for processing later (where it may still be rejected), False if</span>
-<span class="sd">          it should be rejected before attempting to process / convert / store it.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="kc">True</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="se">}}</span><span class="s1">&#39;</span>
+<span class="n">NameFunc</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">str</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="Range">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Range</span><span class="p">(</span><span class="n">_RangeInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A range of integers that uses the builtin :class:`python:range`.  If a range object is passed to a</span>
-<span class="sd">    :class:`.Parameter` as the ``type=`` value, it will automatically be wrapped by this class.</span>
+<div class="viewcode-block" id="CommandHelpFormatter">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandHelpFormatter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandType</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">CommandParameters</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">command</span> <span class="o">=</span> <span class="n">command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span> <span class="o">=</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Positional arguments&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">req_group</span> <span class="o">=</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Required arguments&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span> <span class="o">=</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Optional arguments&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">req_group</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="p">]</span>
 
-<span class="sd">    :param range: A :class:`python:range` object</span>
-<span class="sd">    :param snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  The min or max</span>
-<span class="sd">      of the provided range (not necessarily the start/stop values) will be used, depending on which one the provided</span>
-<span class="sd">      value is closer to.</span>
-<span class="sd">    :param type: Callable that returns a numeric type, to be used on parsed values before validating whether they are</span>
-<span class="sd">      in the allowed range.  Defaults to :class:`python:int`.</span>
-<span class="sd">    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_meta</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProgramMetadata</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-    <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">=</span> <span class="nb">int</span>
-    <span class="nb">range</span><span class="p">:</span> <span class="n">_range</span> <span class="o">|</span> <span class="kc">None</span>
-    <span class="n">snap</span><span class="p">:</span> <span class="nb">bool</span>
+<div class="viewcode-block" id="CommandHelpFormatter.maybe_add_groups">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.maybe_add_groups">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_add_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">ParamGroup</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>  <span class="c1"># prevent duplicates</span>
+                <span class="k">continue</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="n">RngType</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>  <span class="c1"># noqa</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="n">_range</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">)</span>  <span class="c1"># noqa</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">contains_positional</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CommandHelpFormatter.maybe_add_positionals">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.maybe_add_positionals">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_add_positionals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BasePositional</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">param</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CommandHelpFormatter.maybe_add_option">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.maybe_add_option">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="n">Parameter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">param</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">param</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">req_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">opt_group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CommandHelpFormatter.maybe_add_options">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.maybe_add_options">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maybe_add_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">BaseOption</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">maybe_add_option</span><span class="p">(</span><span class="n">param</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_iter_params</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">BasePositional</span> <span class="o">|</span> <span class="n">BaseOption</span> <span class="o">|</span> <span class="n">PassThru</span><span class="p">]:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span>
+        <span class="k">yield from</span> <span class="n">params</span><span class="o">.</span><span class="n">all_positionals</span>
+        <span class="c1"># TODO: Add configurable option to reduce usage line noise, so something like [options] is displayed instead of</span>
+        <span class="c1">#  every option+metavar, while positionals are retained?</span>
+        <span class="k">yield from</span> <span class="n">params</span><span class="o">.</span><span class="n">options</span>
+        <span class="c1"># TODO: Should groups be respected for the usage line?</span>
+        <span class="k">if</span> <span class="n">params</span><span class="o">.</span><span class="n">pass_thru</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">params</span><span class="o">.</span><span class="n">pass_thru</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_usage_parts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">yield</span> <span class="s1">&#39;usage:&#39;</span>
+        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_prog</span><span class="p">(</span><span class="n">allow_sys_argv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub_cmd_choice</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="n">sub_cmd_choice</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="nb">range</span>
-        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+            <span class="k">yield from</span> <span class="n">get_usage_sub_cmds</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">command</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="si">!r}</span><span class="s1">, snap=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span>
+        <span class="k">yield from</span> <span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_basic_usage</span><span class="p">()</span> <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_params</span><span class="p">()</span> <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">rng_min</span><span class="p">,</span> <span class="n">rng_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">)</span>
-        <span class="n">step</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="o">.</span><span class="n">step</span><span class="p">)</span>
-        <span class="n">base</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rng_min</span><span class="si">}</span><span class="s1"> &lt;= </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s1"> &lt;= </span><span class="si">{</span><span class="n">rng_max</span><span class="si">}</span><span class="s1">&#39;</span>
-        <span class="k">return</span> <span class="n">base</span> <span class="k">if</span> <span class="n">step</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">base</span><span class="si">}</span><span class="s1">, </span><span class="si">{</span><span class="n">step</span><span class="si">=}</span><span class="s1">&#39;</span>
-
-<div class="viewcode-block" id="Range.__call__">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">rng_min</span> <span class="o">:=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">rng_min</span>
-            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">)</span>
-
-        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
-</div>
-
-
-
-<div class="viewcode-block" id="NumRange">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NumRange</span><span class="p">(</span><span class="n">RangeMixin</span><span class="p">,</span> <span class="n">_RangeInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A range of integers or floats, optionally only bounded on one side.</span>
-
-<span class="sd">    By default, the min and max behave like the builtin :class:`python:range` - the min is inclusive, and the max</span>
-<span class="sd">    is exclusive.</span>
-
-<span class="sd">    :param type: The type for values, or any callable that returns an int/float</span>
-<span class="sd">    :param snap: If True and a provided value is outside the allowed range, snap to the nearest bound.  Respects</span>
-<span class="sd">      inclusivity/exclusivity of the bound.  Not supported for floats since there is not an obviously correct</span>
-<span class="sd">      behavior for handling them in this context.</span>
-<span class="sd">    :param min: The minimum allowed value, or None to have no lower bound</span>
-<span class="sd">    :param max: The maximum allowed value, or None to have no upper bound</span>
-<span class="sd">    :param include_min: Whether the minimum is inclusive (default: True)</span>
-<span class="sd">    :param include_max: Whether the maximum is inclusive (default: False)</span>
-<span class="sd">    :param fix_default: Whether default values should be normalized using :meth:`~NumericInput.fix_default`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;snap&#39;</span><span class="p">,</span> <span class="s1">&#39;min&#39;</span><span class="p">,</span> <span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="s1">&#39;include_min&#39;</span><span class="p">,</span> <span class="s1">&#39;include_max&#39;</span><span class="p">)</span>
-    <span class="n">snap</span><span class="p">:</span> <span class="nb">bool</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+<div class="viewcode-block" id="CommandHelpFormatter.format_usage">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_usage">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_usage</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="n">snap</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="nb">min</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="nb">max</span><span class="p">:</span> <span class="n">Number</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="n">include_min</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">include_max</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">max</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;NumRange inputs must be initialized with at least one of min and/or max values&#39;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">min</span> <span class="o">&gt;=</span> <span class="nb">max</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="nb">min</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="nb">max</span><span class="si">=}</span><span class="s1"> - min must be less than max&#39;</span><span class="p">)</span>
+        <span class="n">delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="p">,</span>
+        <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wrap_usage_str</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">wrap_usage_str</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">wrap_usage_str</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">terminal_width</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">float</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">min</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">max</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+        <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">wrap_usage_str</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">TextWrapper</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">wrap_usage_str</span><span class="p">,</span> <span class="n">subsequent_indent</span><span class="o">=</span><span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">cont_indent</span><span class="p">)</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">usage</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">usage</span>
 
-        <span class="k">if</span> <span class="n">snap</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unable to snap to extrema with type=float&#39;</span><span class="p">)</span>
-            <span class="n">real_min</span> <span class="o">=</span> <span class="nb">min</span> <span class="k">if</span> <span class="n">include_min</span> <span class="k">else</span> <span class="nb">min</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">real_max</span> <span class="o">=</span> <span class="nb">max</span> <span class="k">if</span> <span class="n">include_max</span> <span class="k">else</span> <span class="nb">max</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">real_min</span> <span class="o">&gt;=</span> <span class="n">real_max</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="nb">min</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="nb">max</span><span class="si">=}</span><span class="s1"> with snap=True, </span><span class="si">{</span><span class="n">include_min</span><span class="si">=}</span><span class="s1">,&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">include_max</span><span class="si">=}</span><span class="s1"> - snap would produce invalid values&#39;</span>
-                <span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span>  <span class="c1"># for floats especially, such as a range like 0~1, this</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span> <span class="k">if</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">max</span>  <span class="c1"># helps to highlight the type in reprs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span> <span class="o">=</span> <span class="n">include_min</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span> <span class="o">=</span> <span class="n">include_max</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">, snap=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="si">!r}</span><span class="s1">)[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_range_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;N&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">range_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span><span class="p">,</span> <span class="n">var</span><span class="p">)</span>
-
-<div class="viewcode-block" id="NumRange.handle_invalid">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">snap_dir</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Number</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Handle calculating / returning a snap value or raise an exception if snapping to the bound is not allowed.</span>
-
-<span class="sd">        May be overridden in a subclass to support snapping for float values or other behavior.</span>
-
-<span class="sd">        :param bound: The bound (min or max) that was violated</span>
-<span class="sd">        :param inclusive: True if the bound is inclusive, False if it is exclusive</span>
-<span class="sd">        :param snap_dir: The direction to adjust the bound if it is exclusive as ``+1`` or ``-1``</span>
-<span class="sd">        :return: The snap value if :attr:`.snap` is True, otherwise a :class:`python:ValueError` is raised</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bound</span> <span class="k">if</span> <span class="n">inclusive</span> <span class="k">else</span> <span class="p">(</span><span class="n">bound</span> <span class="o">+</span> <span class="n">snap_dir</span><span class="p">)</span>
-        <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+        <span class="n">parts</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_usage_parts</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">wrap_usage_str</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">PartWrapper</span><span class="p">(</span><span class="n">wrap_usage_str</span><span class="p">,</span> <span class="n">cont_indent</span><span class="p">,</span> <span class="n">delim</span><span class="p">)</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">parts</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">delim</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="NumRange.__call__">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_lt_min</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_gt_max</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span></div>
-</div>
+<div class="viewcode-block" id="CommandHelpFormatter.format_help">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_help">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_help</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">allow_sys_argv</span><span class="o">=</span><span class="n">allow_sys_argv</span><span class="p">),</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">description</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+            <span class="n">parts</span> <span class="o">+=</span> <span class="p">[</span><span class="n">description</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+
+        <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">group</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">format_help</span><span class="p">()</span> <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">epilog</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">format_epilog</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">extended_epilog</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">):</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epilog</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
+    <span class="c1"># region RST Formatting</span>
 
-<div class="viewcode-block" id="Bytes">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Bytes</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    A byte count/size.</span>
+<div class="viewcode-block" id="CommandHelpFormatter.format_rst">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.CommandHelpFormatter.format_rst">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_rst</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">init_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the RST content for the Command associated with this formatter and all of its subcommands&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_rst</span><span class="p">(</span><span class="n">fix_name</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">,</span> <span class="n">init_level</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">))</span></div>
 
-<span class="sd">    Types of user inputs that are accepted:</span>
 
-<span class="sd">    - Simple integer representing an exact byte count</span>
-<span class="sd">    - Number with a unit (KB, MiB, etc.), which will result in the processed value being the raw byte count after</span>
-<span class="sd">      scaling based on the provided unit</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_format_rst</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">fix_name</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">fix_name_func</span><span class="p">:</span> <span class="n">NameFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">init_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">doc_name</span>
+        <span class="k">if</span> <span class="n">fix_name</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">fix_name_func</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">if</span> <span class="n">fix_name_func</span> <span class="k">else</span> <span class="n">_fix_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>  <span class="c1"># noqa</span>
 
-<span class="sd">    :base: Whether 2-character units (MB, GB, etc.) are treated as base 2 (historical interpretation) or</span>
-<span class="sd">      base 10 (the default) (following the International System of Units (SI) definition).  Regardless of the base</span>
-<span class="sd">      specified here, user-provided units that explicitly use an ``i`` to indicate binary (MiB, GiB, etc.) will always</span>
-<span class="sd">      be treated as base 2.</span>
-<span class="sd">    :short: Whether single-letter units (other than ``B``, which is always valid) are accepted (default: True).  When</span>
-<span class="sd">      accepted, they use the ``base`` parameter to determine which base to use.</span>
-<span class="sd">    :fractions: Whether fractional values are allowed (e.g., ``1.2 MB``).  By default, only integers / whole numbers</span>
-<span class="sd">      are accepted.</span>
-<span class="sd">    :negative: Whether negative numeric values are accepted.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+        <span class="k">yield from</span> <span class="n">spaced_rst_header</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">init_level</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;base&#39;</span><span class="p">,</span> <span class="s1">&#39;short&#39;</span><span class="p">,</span> <span class="s1">&#39;fractions&#39;</span><span class="p">,</span> <span class="s1">&#39;negative&#39;</span><span class="p">)</span>
-    <span class="n">_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^(-?\d+(?:\.\d+)?)\s*([KMGTPEZYRQ]?i?B?)$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
-    <span class="n">_PREFIXES</span> <span class="o">=</span> <span class="s1">&#39;KMGTPEZYRQ&#39;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">show_docstring</span> <span class="ow">and</span> <span class="p">(</span><span class="n">doc_str</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_doc_str</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="n">doc_str</span>
+            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_rst_lines</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="o">=</span><span class="n">allow_sys_argv</span><span class="p">,</span> <span class="n">include_epilog</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sub_command</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sub_cmds_rst_lines</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">sub_command</span><span class="p">,</span> <span class="n">init_level</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="o">=</span><span class="n">allow_sys_argv</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_cmd_rst_lines</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">base</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">short</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">fractions</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">negative</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span>
+        <span class="n">sub_cmd_choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">include_epilog</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate the RST content for the specific Command associated with this formatter&quot;&quot;&quot;</span>
+        <span class="k">yield</span> <span class="s1">&#39;::&#39;</span>
+        <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">yield</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_usage</span><span class="p">(</span><span class="n">sub_cmd_choice</span><span class="o">=</span><span class="n">sub_cmd_choice</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="o">=</span><span class="n">allow_sys_argv</span><span class="p">,</span> <span class="n">cont_indent</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+        <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="n">description</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">get_description</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">show_inherited_descriptions</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="n">description</span>
+            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
+            <span class="c1"># TODO: Nested subcommands&#39; local choices should not repeat the `subcommands` positional arguments section</span>
+            <span class="c1">#  that includes the nested subcommand choice being documented</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">members</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">members</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">members</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ChoiceMap</span><span class="p">):</span>
+                <span class="k">yield from</span> <span class="n">members</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">rst_table</span><span class="p">()</span><span class="o">.</span><span class="n">iter_build</span><span class="p">()</span>  <span class="c1"># noqa</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos_group</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">rst_table</span><span class="p">()</span><span class="o">.</span><span class="n">iter_build</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">groups</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">group</span><span class="o">.</span><span class="n">show_in_help</span><span class="p">:</span>
+                <span class="k">yield from</span> <span class="n">group</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">rst_table</span><span class="p">()</span><span class="o">.</span><span class="n">iter_build</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">include_epilog</span> <span class="ow">and</span> <span class="p">(</span><span class="n">epilog</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">format_epilog</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">extended_epilog</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">)):</span>
+            <span class="k">yield</span> <span class="n">epilog</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_sub_cmds_rst_lines</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">config</span><span class="p">:</span> <span class="n">CommandConfig</span><span class="p">,</span>
+        <span class="n">sub_command</span><span class="p">:</span> <span class="n">SubCommand</span><span class="p">,</span>
+        <span class="n">level</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">choice_base</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="k">if</span> <span class="n">base</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid 2-character unit </span><span class="si">{</span><span class="n">base</span><span class="si">=}</span><span class="s1"> - expected 2 for binary or 10 for SI / decimal&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">=</span> <span class="n">base</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">short</span> <span class="o">=</span> <span class="n">short</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span> <span class="o">=</span> <span class="n">fractions</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">negative</span> <span class="o">=</span> <span class="n">negative</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">show_in_help</span> <span class="ow">or</span> <span class="p">((</span><span class="n">max_depth</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">sub_cmd_doc_depth</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">==</span> <span class="n">max_depth</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">elif</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">yield from</span> <span class="n">spaced_rst_header</span><span class="p">(</span><span class="s1">&#39;Subcommands&#39;</span><span class="p">,</span> <span class="n">level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">base</span><span class="p">,</span> <span class="n">short</span><span class="p">,</span> <span class="n">fractions</span><span class="p">,</span> <span class="n">negative</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">short</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">((</span><span class="si">{</span><span class="n">base</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">short</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">fractions</span><span class="si">=}</span><span class="s1">, </span><span class="si">{</span><span class="n">negative</span><span class="si">=}</span><span class="s1">)&gt;&#39;</span>
+        <span class="k">for</span> <span class="n">cmd_name</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_command</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># TODO: There are some cases where multiple aliases for the same command (possibly local choices, possibly</span>
+            <span class="c1">#  multiple choices all handled by a single class) would be better documented without separate sections for</span>
+            <span class="c1">#  each choice value (should probably be configurable to explode or condense)</span>
+            <span class="n">choice_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">choice_base</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">cmd_name</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">choice_base</span> <span class="k">else</span> <span class="n">cmd_name</span>
+            <span class="k">yield from</span> <span class="n">spaced_rst_header</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Subcommand: </span><span class="si">{</span><span class="n">choice_str</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">choice</span><span class="o">.</span><span class="n">help</span>
+                <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
 
-<div class="viewcode-block" id="Bytes.is_valid_type">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes.is_valid_type">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Called during parsing when :meth:`.ParamAction.would_accept` is called to determine if the value would be</span>
-<span class="sd">        accepted later for processing / conversion when called.</span>
-
-<span class="sd">        :param value: The parsed argument to validate</span>
-<span class="sd">        :return: True if this input would accept it for processing later (where it may still be rejected), False if</span>
-<span class="sd">          it should be rejected before attempting to process / convert / store it.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span></div>
+            <span class="k">if</span> <span class="p">(</span><span class="n">command</span> <span class="o">:=</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># When choice.target is None, that means it is the default choice, pointing back to the same Command</span>
+                <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cmd_rst_lines</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+                <span class="k">yield from</span> <span class="n">params</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">_cmd_rst_lines</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">allow_sys_argv</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">nested_sub_cmd</span> <span class="o">:=</span> <span class="n">params</span><span class="o">.</span><span class="n">sub_command</span><span class="p">:</span>
+                    <span class="k">yield from</span> <span class="n">params</span><span class="o">.</span><span class="n">formatter</span><span class="o">.</span><span class="n">_sub_cmds_rst_lines</span><span class="p">(</span>
+                        <span class="n">config</span><span class="p">,</span> <span class="n">nested_sub_cmd</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">choice_str</span><span class="p">,</span> <span class="n">depth</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">allow_sys_argv</span>
+                    <span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Bytes.format_metavar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes.format_metavar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">format_metavar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice_delim</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">sort_choices</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;BYTES[B|KB|MiB|...]&#39;</span></div>
+    <span class="c1"># endregion</span>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_type_desc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;positive&#39;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;an&#39;</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;integer&#39;</span><span class="p">)</span>
-
-        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;byte count/size&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
-
-<div class="viewcode-block" id="Bytes.__call__">
-<a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">num</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_desc</span><span class="p">()</span><span class="si">}</span><span class="s1"> with optional unit&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">num</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">num</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fractions</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  <span class="c1"># This should only be caused when int is expected at this point</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_desc</span><span class="p">()</span><span class="si">}</span><span class="s1">, but found </span><span class="si">{</span><span class="n">num</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">negative</span> <span class="ow">and</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_desc</span><span class="p">()</span><span class="si">}</span><span class="s1">, but found </span><span class="si">{</span><span class="n">num</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_multiplier</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span></div>
+<span class="k">def</span><span class="w"> </span><span class="nf">_fix_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">camel_to_snake_case</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_multiplier</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">unit</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
+<div class="viewcode-block" id="get_formatter">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.get_formatter">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_formatter</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandAny</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandHelpFormatter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the :class:`CommandHelpFormatter` for the given Command&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_params</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">formatter</span></div>
 
-        <span class="n">uc_unit</span> <span class="o">=</span> <span class="n">unit</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">uc_unit</span> <span class="o">==</span> <span class="s1">&#39;B&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">uc_unit</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;I&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">short</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">uc_unit</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="c1"># `i` alone or Ki/Mi/etc, or only a single character was provided</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid byte </span><span class="si">{</span><span class="n">unit</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">exp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_PREFIXES</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">uc_unit</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;invalid byte </span><span class="si">{</span><span class="n">unit</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s1">&#39;I&#39;</span> <span class="ow">in</span> <span class="n">uc_unit</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">base</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1024</span><span class="o">**</span><span class="n">exp</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mi">1000</span><span class="o">**</span><span class="n">exp</span></div>
+<div class="viewcode-block" id="get_usage_sub_cmds">
+<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.commands.html#cli_command_parser.formatting.commands.get_usage_sub_cmds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_usage_sub_cmds</span><span class="p">(</span><span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">):</span>
+    <span class="n">cmd_mcs</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">CommandMeta</span><span class="p">]</span> <span class="o">=</span> <span class="n">command</span><span class="o">.</span><span class="vm">__class__</span>  <span class="c1"># Using metaclass to avoid potentially overwritten attrs</span>
+
+    <span class="n">parent</span><span class="p">:</span> <span class="n">CommandMeta</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">parent</span> <span class="o">:=</span> <span class="n">cmd_mcs</span><span class="o">.</span><span class="n">parent</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+        <span class="k">return</span>
+
+    <span class="k">yield from</span> <span class="n">get_usage_sub_cmds</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+    <span class="n">sub_cmd_param</span><span class="p">:</span> <span class="n">SubCommand</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">sub_cmd_param</span> <span class="o">:=</span> <span class="n">cmd_mcs</span><span class="o">.</span><span class="n">params</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">sub_command</span><span class="p">):</span>
+        <span class="k">return</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">get_parsed_value</span><span class="p">(</span><span class="n">sub_cmd_param</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">parsed</span> <span class="ow">and</span> <span class="n">parsed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>  <span class="c1"># May have been called directly on the subcommand without parsing</span>
+        <span class="k">yield from</span> <span class="n">parsed</span>
+    <span class="k">elif</span> <span class="n">chosen</span> <span class="o">:=</span> <span class="nb">next</span><span class="p">((</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">sub_cmd_param</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="n">command</span><span class="p">),</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">chosen</span></div>
 
 </pre></div>
 

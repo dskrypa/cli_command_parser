@@ -1028,13 +1028,13 @@
 <div class="viewcode-block" id="Converter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Converter</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">AC</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
-    <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_ac_converter_map</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="Converter.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.Converter.__init_subclass__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">converts</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">AC</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">newline_between_members</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init_subclass__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">converts</span><span class="p">:</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">converts</span> <span class="o">=</span> <span class="n">converts</span>
@@ -1211,8 +1211,8 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">parser</span><span class="p">:</span> <span class="n">AstArgumentParser</span><span class="p">,</span>
-        <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">counter</span><span class="p">:</span> <span class="n">count</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">parent</span><span class="p">:</span> <span class="n">ParserConverter</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">counter</span><span class="p">:</span> <span class="n">count</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">add_methods</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>

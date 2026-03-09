@@ -1023,6 +1023,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.option_strings</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionStrings</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMeta</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..formatting.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamHelpFormatter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStrs</span><span class="p">,</span> <span class="n">Strings</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParamAction</span>
@@ -1050,22 +1051,22 @@
 
     <span class="c1"># fmt: off</span>
     <span class="c1"># Class Attributes</span>
-    <span class="n">missing_hint</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: Hint to provide if this param/group is missing</span>
+    <span class="n">missing_hint</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>         <span class="c1">#: Hint to provide if this param/group is missing</span>
     <span class="c1"># Instance Attributes</span>
-    <span class="n">_attr_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>          <span class="c1">#: Always the name of the attr that points to this object</span>
-    <span class="n">_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>               <span class="c1">#: An explicitly provided name, or the name of the attr that points to this object</span>
-    <span class="n">group</span><span class="p">:</span> <span class="n">ParamGroup</span> <span class="o">=</span> <span class="kc">None</span>        <span class="c1">#: The group this object is a member of, if any</span>
-    <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span> <span class="o">=</span> <span class="kc">None</span>      <span class="c1">#: The :class:`.Command` this object is a member of</span>
-    <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span>                  <span class="c1">#: Whether this param/group is required</span>
-    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span>                       <span class="c1">#: The description for this param/group that will appear in ``--help`` text</span>
-    <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span>                      <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
+    <span class="n">_attr_name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>           <span class="c1">#: Always the name of the attr that points to this object</span>
+    <span class="n">_name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>                <span class="c1">#: An explicitly provided name, or the name of the attr that points to this obj</span>
+    <span class="n">group</span><span class="p">:</span> <span class="n">ParamGroup</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>     <span class="c1">#: The group this object is a member of, if any</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">CommandMeta</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1">#: The :class:`.Command` this object is a member of</span>
+    <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span>                      <span class="c1">#: Whether this param/group is required</span>
+    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span>                           <span class="c1">#: The description for this param/group that will appear in ``--help`` text</span>
+    <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span>                          <span class="c1">#: Whether this param/group should be hidden in ``--help`` text</span>
     <span class="c1"># fmt: on</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">help</span>  <span class="c1"># Prevent this class&#39;s docstring from showing up for params in generated documentation</span>
@@ -1088,7 +1089,7 @@
 <div class="viewcode-block" id="ParamBase.name">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.ParamBase.name">[docs]</a>
     <span class="nd">@name</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">value</span></div>
 
@@ -1212,7 +1213,7 @@
     <span class="n">_action_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Type</span><span class="p">[</span><span class="n">ParamAction</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">_repr_attrs</span><span class="p">:</span> <span class="n">Strings</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>                                  <span class="c1">#: Attributes to include in ``repr()`` output</span>
     <span class="c1"># Instance attributes with class defaults</span>
-    <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">nargs</span><span class="p">:</span> <span class="n">Nargs</span>                                                        <span class="c1"># Expected to be set in subclasses</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="n">T_co</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>                           <span class="c1"># Expected to be set in subclasses</span>
     <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">AllowLeadingDash</span> <span class="o">=</span> <span class="n">AllowLeadingDash</span><span class="o">.</span><span class="n">NUMERIC</span>     <span class="c1"># Set in some subclasses</span>
@@ -1244,13 +1245,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-        <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -1375,7 +1376,7 @@
 
 <div class="viewcode-block" id="Parameter.prepare_value">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.prepare_value">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">short_combo</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">short_combo</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1511,7 +1512,7 @@
 
 <div class="viewcode-block" id="BasePositional.__init_subclass__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional.__init_subclass__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0222</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">default_ok</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0222</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param default_ok: Whether default values are supported for this Parameter type</span>
 <span class="sd">        :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.</span>
@@ -1581,7 +1582,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+        <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
