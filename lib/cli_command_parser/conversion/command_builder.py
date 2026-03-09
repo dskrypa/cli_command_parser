@@ -33,11 +33,11 @@ def convert_script(script: Script, add_methods: bool = False) -> str:
 
 
 class Converter(Generic[AC], ABC):
-    converts: Type[AC] = None
+    converts: Type[AC] | None = None
     newline_between_members: bool = False
     _ac_converter_map = {}
 
-    def __init_subclass__(cls, converts: Type[AC] = None, newline_between_members: bool = None, **kwargs):
+    def __init_subclass__(cls, converts: Type[AC] | None = None, newline_between_members: bool | None = None, **kwargs):
         super().__init_subclass__(**kwargs)
         if converts:
             cls.converts = converts
@@ -165,8 +165,8 @@ class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgume
     def __init__(
         self,
         parser: AstArgumentParser,
-        parent: ParserConverter = None,
-        counter: count = None,
+        parent: ParserConverter | None = None,
+        counter: count | None = None,
         *,
         add_methods: bool = False,
     ):

@@ -77,13 +77,13 @@ class Option(BaseOption[T_co | TD], actions=(Store, Append)):
     def __init__(
         self,
         *option_strs: str,
-        nargs: NargsValue = None,
-        action: Literal['store', 'append'] = None,
+        nargs: NargsValue | None = None,
+        action: Literal['store', 'append'] | None = None,
         default: TD = _NotSet,
         required: Bool = False,
         type: InputTypeFunc = None,  # noqa
         choices: ChoicesType = None,
-        allow_leading_dash: LeadingDash = None,
+        allow_leading_dash: LeadingDash | None = None,
         **kwargs,
     ):
         if nargs_provided := nargs is not None:
@@ -162,7 +162,7 @@ class Flag(BaseOption[TD | TC], actions=(StoreConst, AppendConst)):
         default: TD = _NotSet,
         default_cb=_NotSet,
         const: TC = _NotSet,
-        type: TypeFunc = None,  # noqa
+        type: TypeFunc | None = None,  # noqa
         **kwargs,
     ):
         if const is _NotSet:
@@ -246,14 +246,14 @@ class TriFlag(BaseOption[TD | TC | TA], actions=(StoreConst, AppendConst)):
         self,
         *option_strs: str,
         consts: tuple[TC, TA] = (True, False),
-        alt_prefix: str = None,
-        alt_long: str = None,
-        alt_short: str = None,
-        alt_help: str = None,
+        alt_prefix: OptStr = None,
+        alt_long: OptStr = None,
+        alt_short: OptStr = None,
+        alt_help: OptStr = None,
         action: ConstAct = 'store_const',
         default: TD = _NotSet,
-        default_cb: Callable[[], TD] = None,
-        type: TypeFunc = None,  # noqa
+        default_cb: Callable[[], TD] | None = None,
+        type: TypeFunc | None = None,  # noqa
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -342,7 +342,7 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
         self,
         *option_strs: str,
         order: int | float = 1,
-        func: Callable = None,
+        func: Callable | None = None,
         before_main: Bool = True,  # noqa  # pylint: disable=W0621
         always_available: Bool = False,
         **kwargs,
@@ -423,12 +423,12 @@ class ActionFlag(Flag, repr_attrs=('order', 'before_main')):
 action_flag = ActionFlag  # pylint: disable=C0103
 
 
-def before_main(*option_strs: str, order: int | float = 1, func: Callable = None, **kwargs) -> ActionFlag:
+def before_main(*option_strs: str, order: int | float = 1, func: Callable | None = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed before :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=True, **kwargs)
 
 
-def after_main(*option_strs: str, order: int | float = 1, func: Callable = None, **kwargs) -> ActionFlag:
+def after_main(*option_strs: str, order: int | float = 1, func: Callable | None = None, **kwargs) -> ActionFlag:
     """An ActionFlag that will be executed after :meth:`.Command.main`"""
     return ActionFlag(*option_strs, order=order, func=func, before_main=False, **kwargs)
 
@@ -477,7 +477,7 @@ class Counter(BaseOption[int], actions=(Count,)):
         init: int = 0,
         const: int = 1,
         default: int = _NotSet,
-        default_cb: Callable[[], int] = None,
+        default_cb: Callable[[], int] | None = None,
         required: bool = False,
         **kwargs,
     ):
@@ -499,7 +499,7 @@ class Counter(BaseOption[int], actions=(Count,)):
             self.default_cb = None
         return super().register_default_cb(method)
 
-    def prepare_value(self, value: str | None, short_combo: bool = False, env_var: str = None) -> int:
+    def prepare_value(self, value: str | None, short_combo: bool = False, env_var: OptStr = None) -> int:
         try:
             return self.type(value)
         except (ValueError, TypeError) as e:

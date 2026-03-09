@@ -18,7 +18,7 @@ from ..utils import FixedFlag
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
-    from ..typing import FP, Bool, Converter, Number
+    from ..typing import FP, Bool, Converter, Number, OptStr
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path', 'range_str', 'RangeMixin']
 
@@ -46,7 +46,7 @@ class InputParam:
 
 
 class StatMode(FixedFlag):
-    def __new__(cls, mode, friendly_name: str = None):
+    def __new__(cls, mode, friendly_name: OptStr = None):
         # Defined __new__ to avoid juggling dicts for the stat mode values and names
         obj = object.__new__(cls)
         if friendly_name:
@@ -90,9 +90,9 @@ class FileWrapper:
         self,
         path: Path,
         mode: str = 'r',
-        encoding: str = None,
-        errors: str = None,
-        converter: Converter = None,
+        encoding: OptStr = None,
+        errors: OptStr = None,
+        converter: Converter | None = None,
         pass_file: Bool = False,
         parents: Bool = False,
     ):

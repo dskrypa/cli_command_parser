@@ -36,7 +36,7 @@ def temp_chdir(path: Path):
 
 
 @contextmanager
-def temp_path(file: str = None, touch: bool = False) -> Iterator[Path]:
+def temp_path(file: str | None = None, touch: bool = False) -> Iterator[Path]:
     with TemporaryDirectory() as tmp_dir:
         d = Path(tmp_dir)
         if file:

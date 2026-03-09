@@ -22,7 +22,7 @@ from .formatting.commands import NameFunc, get_formatter
 from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
 
 if TYPE_CHECKING:
-    from .typing import Bool, CommandCls, PathLike, Strings
+    from .typing import Bool, CommandCls, OptStr, PathLike, Strings
 
     Commands = dict[str, CommandCls]
 
@@ -34,14 +34,14 @@ log = logging.getLogger(__name__)
 
 
 def render_script_rst(
-    path: PathLike, top_only: Bool = True, fix_name: Bool = True, fix_name_func: NameFunc = None
+    path: PathLike, top_only: Bool = True, fix_name: Bool = True, fix_name_func: NameFunc | None = None
 ) -> str:
     """Load all Commands from the file with the given path, and generate a single RST string based on those Commands"""
     commands = load_commands(path, top_only)
     return _render_commands_rst(commands, fix_name, fix_name_func)
 
 
-def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
+def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func: NameFunc | None = None) -> str:
     """
     :param command: The :class:`.Command` to document
     :param fix_name: Whether the file name should be re-formatted from CamelCase / snake_case to separate Title Case
@@ -53,7 +53,7 @@ def render_command_rst(command: CommandCls, fix_name: Bool = True, fix_name_func
         return get_formatter(command).format_rst(fix_name, fix_name_func)
 
 
-def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc = None) -> str:
+def _render_commands_rst(commands: Commands, fix_name: Bool = True, fix_name_func: NameFunc | None = None) -> str:
     # This could be better, but it's relatively unlikely to have multiple top level commands in a script...
     # For the same reason that main() does not try to pick one, this will just combine all of them.
     parts = []
@@ -199,7 +199,7 @@ class RstWriter:
         newline: str = '\n',
         ext: str = '.rst',
         module_template: str = MODULE_TEMPLATE,
-        skip_modules: Strings = None,
+        skip_modules: Strings | None = None,
     ):
         self.output_dir = Path(output_dir)
         self.dry_run = dry_run
@@ -212,9 +212,9 @@ class RstWriter:
     def document_script(
         self,
         path: Path,
-        subdir: str = None,
-        name: str = None,
-        replacements: Mapping[str, str] = None,
+        subdir: OptStr = None,
+        name: OptStr = None,
+        replacements: Mapping[str, str] | None = None,
         top_only: Bool = True,
         **kwargs,
     ) -> str:
@@ -253,13 +253,13 @@ class RstWriter:
     def document_scripts(
         self,
         paths: Iterable[Path],
-        subdir: str = None,
+        subdir: OptStr = None,
         top_only: Bool = True,
         *,
-        index_name: str = None,
-        index_header: str = None,
-        index_subdir: str = None,
-        caption: str = None,
+        index_name: OptStr = None,
+        index_header: OptStr = None,
+        index_subdir: OptStr = None,
+        caption: OptStr = None,
         **kwargs,
     ):
         names = [self.document_script(path, subdir, top_only=top_only, **kwargs) for path in paths]
@@ -269,7 +269,7 @@ class RstWriter:
                 name, index_header or name.title(), names, content_subdir=subdir, caption=caption, subdir=index_subdir
             )
 
-    def document_module(self, module: str, subdir: str = None):
+    def document_module(self, module: str, subdir: OptStr = None):
         """
         Generate an RST file to document a Python module.
 
@@ -285,13 +285,13 @@ class RstWriter:
         self,
         pkg_name: str,
         pkg_path: Path,
-        subdir: str = None,
+        subdir: OptStr = None,
         *,
-        name: str = None,
-        header: str = None,
+        name: OptStr = None,
+        header: OptStr = None,
         index: Bool = True,
         empty: Bool = False,
-        caption: str = None,
+        caption: OptStr = None,
         max_depth: int = 4,
     ) -> list[str]:
         """
@@ -331,7 +331,9 @@ class RstWriter:
         )
         return contents
 
-    def _generate_code_rsts(self, pkg_name: str, pkg_path: Path, subdir: str = None, max_depth: int = 4) -> list[str]:
+    def _generate_code_rsts(
+        self, pkg_name: str, pkg_path: Path, subdir: OptStr = None, max_depth: int = 4
+    ) -> list[str]:
         contents = []
         for path in pkg_path.iterdir():
             if path.is_dir():
@@ -355,9 +357,9 @@ class RstWriter:
         header: str,
         contents: Strings,
         *,
-        content_subdir: str = None,
-        subdir: str = None,
-        caption: str = None,
+        content_subdir: OptStr = None,
+        subdir: OptStr = None,
+        caption: OptStr = None,
         max_depth: int = 4,
         **kwargs,
     ):
@@ -379,7 +381,7 @@ class RstWriter:
         rendered = rst_toc_tree(header, content_fmt, contents, caption=caption, max_depth=max_depth, **kwargs)
         self.write_rst(name, rendered, subdir)
 
-    def write_rst(self, name: str, content: str, subdir: str = None):
+    def write_rst(self, name: str, content: str, subdir: OptStr = None):
         target_dir = self.output_dir.joinpath(subdir) if subdir else self.output_dir
         if not self.dry_run and not target_dir.exists():
             target_dir.mkdir(parents=True)

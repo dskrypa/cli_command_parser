@@ -120,7 +120,7 @@ class ParamHelpFormatter:
         """Format the Parameter for use in the list of Parameters with their ``help='...'`` descriptions"""
         yield self.format_usage(include_meta=include_meta, full=full)
 
-    def format_description(self, rst: Bool = False, description: str = None) -> str:
+    def format_description(self, rst: Bool = False, description: OptStr = None) -> str:
         param = self.param
         if description is None:
             description = param.help or ''
@@ -170,7 +170,7 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             metavar = self._format_usage_metavar()
             yield from (f'{opt} {metavar}' for opt in opts.option_strs())
 
-    def format_description(self, rst: Bool = False, description: str = None) -> str:
+    def format_description(self, rst: Bool = False, description: OptStr = None) -> str:
         description = super().format_description(rst, description)
         param: BaseOption = self.param
         if param.env_var and (param.show_env_var or (param.show_env_var is None and ctx.config.show_env_vars)):
@@ -436,7 +436,7 @@ class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # p
         members = (mem.formatter.format_usage(include_meta, full, delim) for mem in self.param.members)
         return self.maybe_wrap_usage(self._get_choice_delim().join(members))
 
-    def format_description(self, rst: Bool = False, description: str = None) -> str:
+    def format_description(self, rst: Bool = False, description: OptStr = None) -> str:
         if description:
             return description
         group = self.param

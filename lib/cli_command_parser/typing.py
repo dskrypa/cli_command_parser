@@ -18,7 +18,6 @@ from typing import (
     Pattern,
     Sequence,
     TextIO,
-    Tuple,
     Type,
     TypeVar,
     Union,
@@ -57,7 +56,7 @@ OptStrs = Union[Strs, None]
 Strings = Collection[str]
 PathLike = Union[str, 'Path']
 
-Locale = Union[str, Tuple[Union[str, None], Union[str, None]]]
+Locale = str | tuple[OptStr, OptStr]
 TimeBound = Union['datetime', 'date', 'time', 'timedelta', None]
 
 FP = Union[TextIO, BinaryIO]

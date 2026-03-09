@@ -54,14 +54,14 @@ class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
 
     def __init__(
         self,
-        nargs: NargsValue = None,
-        action: Literal['store', 'append'] = None,
+        nargs: NargsValue | None = None,
+        action: Literal['store', 'append'] | None = None,
         type: InputTypeFunc = None,  # noqa
         default: Any = _NotSet,
         *,
-        default_cb: DefaultFunc = None,
+        default_cb: DefaultFunc | None = None,
         choices: ChoicesType = None,
-        allow_leading_dash: LeadingDash = None,
+        allow_leading_dash: LeadingDash | None = None,
         **kwargs,
     ):
         if nargs_provided := nargs is not None:

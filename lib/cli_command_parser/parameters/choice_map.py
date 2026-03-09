@@ -96,7 +96,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     formatter: ChoiceMapHelpFormatter
 
     def __init_subclass__(  # pylint: disable=W0222
-        cls, title: str = None, choice_validation_exc: Type[Exception] = None, **kwargs
+        cls, title: OptStr = None, choice_validation_exc: Type[Exception] = None, **kwargs
     ):
         """
         :param title: Default title to use for help text sections containing the choices for this parameter.
@@ -109,7 +109,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         if choice_validation_exc is not None:
             cls._choice_validation_exc = choice_validation_exc
 
-    def __init__(self, *, action: str = 'concatenate', title: str = None, description: str = None, **kwargs):
+    def __init__(self, *, action: str = 'concatenate', title: OptStr = None, description: OptStr = None, **kwargs):
         super().__init__(action=action, **kwargs)
         self.title = title
         self.description = description
@@ -143,15 +143,15 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         if bad := {c for c in value if (c in whitespace and c != ' ') or c not in printable}:
             raise cls._choice_validation_exc(f'Invalid {cls.__name__} choice={value!r} - invalid characters: {bad}')
 
-    def register_choice(self, choice: str, target: T = _NotSet, help: str = None):  # noqa
+    def register_choice(self, choice: str, target: T = _NotSet, help: OptStr = None):  # noqa
         self._validate_positional(choice)
         self._register_choice(choice, target, help)
 
     def _register_choice(
         self,
         choice: OptStr,
-        target: T | None = _NotSet,
-        help: str = None,  # noqa
+        target: T | None | _NotSetType = _NotSet,
+        help: OptStr = None,  # noqa
         local: bool = False,
     ):
         try:
@@ -223,7 +223,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         self,
         *,
         required: Bool = True,
-        default_help: str = None,
+        default_help: OptStr = None,
         local_choices: Mapping[str, str] | Collection[str] | None = None,
         **kwargs,
     ):
@@ -288,8 +288,8 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
         self,
         command_or_choice: str | CommandCls | None = None,
         *,
-        choice: str = None,
-        help: str = None,  # noqa
+        choice: OptStr = None,
+        help: OptStr = None,  # noqa
     ) -> Callable[[CommandCls], CommandCls]:
         """
         Class decorator version of :meth:`.register_command`.  Registers the wrapped :class:`.Command` as the
@@ -336,7 +336,7 @@ class Action(ChoiceMap[MethodType], title='Actions'):
         self,
         choice: OptStr,
         method: MethodType,
-        help: str = None,  # noqa
+        help: OptStr = None,  # noqa
         default: Bool = False,
     ) -> MethodType:
         if help is None:
@@ -362,8 +362,8 @@ class Action(ChoiceMap[MethodType], title='Actions'):
         self,
         method_or_choice: str | MethodType | None = None,
         *,
-        choice: str = None,
-        help: str = None,  # noqa
+        choice: OptStr = None,
+        help: OptStr = None,  # noqa
         default: Bool = False,
     ) -> MethodType | Callable[[MethodType], MethodType]:
         """
