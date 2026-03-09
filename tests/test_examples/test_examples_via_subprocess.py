@@ -5,7 +5,6 @@ from functools import reduce
 from operator import xor
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Tuple
 from unittest import TestCase, TestSuite as _TestSuite, main
 
 EXAMPLES_DIR = Path(__file__).resolve().parents[2].joinpath('examples')
@@ -57,13 +56,13 @@ class HashableSuite(_TestSuite):
 
 
 class ExampleScriptTest(TestCase):
-    _path: str = None
+    _path: str | None = None
 
     def __init_subclass__(cls, file: str, **kwargs):  # noqa
         super().__init_subclass__(**kwargs)
         cls._path = EXAMPLES_DIR.joinpath(file).as_posix()
 
-    def call_script(self, *args) -> Tuple[int, str, str]:
+    def call_script(self, *args) -> tuple[int, str, str]:
         proc = Popen([sys.executable, self._path, *args], text=True, stdout=PIPE, stderr=PIPE)
         stdout = proc.stdout.read()
         proc.stdout.close()

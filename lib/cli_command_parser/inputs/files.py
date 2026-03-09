@@ -10,7 +10,7 @@ import os
 from abc import ABC
 from pathlib import Path as _Path
 
-from ..typing import FP, Bool, Converter, PathLike, T
+from ..typing import FP, Bool, Converter, OptStr, PathLike, T
 from .base import InputType
 from .exceptions import InputValidationError
 from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
@@ -143,8 +143,8 @@ class File(FileInput[FileWrapper | str | bytes]):
         self,
         mode: str = 'r',
         *,
-        encoding: str = None,
-        errors: str = None,
+        encoding: OptStr = None,
+        errors: OptStr = None,
         lazy: Bool = True,
         parents: Bool = False,
         **kwargs,

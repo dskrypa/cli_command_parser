@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..core import CommandMeta
     from ..metadata import ProgramMetadata
     from ..parameters import BaseOption, BasePositional, Parameter, PassThru, SubCommand
-    from ..typing import Bool, CommandAny, CommandCls, CommandType
+    from ..typing import Bool, CommandAny, CommandCls, CommandType, OptStr
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -78,7 +78,7 @@ class CommandHelpFormatter:
         if params.pass_thru is not None:
             yield params.pass_thru
 
-    def _usage_parts(self, sub_cmd_choice: str = None, allow_sys_argv: Bool = True) -> Iterator[str]:
+    def _usage_parts(self, sub_cmd_choice: OptStr = None, allow_sys_argv: Bool = True) -> Iterator[str]:
         yield 'usage:'
         yield self._meta.get_prog(allow_sys_argv)
         if sub_cmd_choice:
@@ -91,7 +91,7 @@ class CommandHelpFormatter:
     def format_usage(
         self,
         delim: str = ' ',
-        sub_cmd_choice: str = None,
+        sub_cmd_choice: OptStr = None,
         allow_sys_argv: Bool = True,
         cont_indent: int = 4,
     ) -> str:
@@ -149,7 +149,7 @@ class CommandHelpFormatter:
     def _cmd_rst_lines(
         self,
         config: CommandConfig,
-        sub_cmd_choice: str = None,
+        sub_cmd_choice: OptStr = None,
         allow_sys_argv: Bool = False,
         include_epilog: Bool = False,
     ) -> Iterator[str]:
@@ -184,7 +184,7 @@ class CommandHelpFormatter:
         config: CommandConfig,
         sub_command: SubCommand,
         level: int,
-        choice_base: str = None,
+        choice_base: OptStr = None,
         depth: int = 0,
         allow_sys_argv: Bool = False,
     ):
@@ -228,12 +228,15 @@ def get_formatter(command: CommandAny) -> CommandHelpFormatter:
 
 def get_usage_sub_cmds(command: CommandCls):
     cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
-    if not (parent := cmd_mcs.parent(command, False)):  # type: CommandType
+
+    parent: CommandMeta
+    if not (parent := cmd_mcs.parent(command, False)):
         return
 
     yield from get_usage_sub_cmds(parent)
 
-    if not (sub_cmd_param := cmd_mcs.params(parent).sub_command):  # type: SubCommand
+    sub_cmd_param: SubCommand
+    if not (sub_cmd_param := cmd_mcs.params(parent).sub_command):
         return
 
     try:

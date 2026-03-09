@@ -59,7 +59,7 @@ class _ChoicesBase(InputType[T], ABC):
                 raise InvalidChoiceError(value, self.choices) from e
         return value
 
-    def _iter_normalized(self, value: Any, choices: Collection = None) -> Iterator[T]:
+    def _iter_normalized(self, value: Any, choices: Collection | None = None) -> Iterator[T]:
         yield value
         if not self.case_sensitive and (choices is None or isinstance(choices, (set, Mapping))):
             yield value.lower()
@@ -94,7 +94,7 @@ class Choices(_ChoicesBase[T]):
 
     __slots__ = ()
 
-    def __init__(self, choices: Collection[T], type: TypeFunc = None, case_sensitive: Bool = True):  # noqa
+    def __init__(self, choices: Collection[T], type: TypeFunc | None = None, case_sensitive: Bool = True):  # noqa
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str {choices=}')
         elif isinstance(type, EnumChoices) and not any(isinstance(c, type.type) for c in choices):

@@ -33,6 +33,7 @@ from ..utils import _NotSet
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
+    from ..core import CommandMeta
     from ..formatting.params import ParamHelpFormatter
     from ..typing import Bool, CommandAny, CommandCls, CommandObj, LeadingDash, OptStr, OptStrs, Strings
     from .actions import ParamAction
@@ -58,22 +59,22 @@ class ParamBase(ABC):
 
     # fmt: off
     # Class Attributes
-    missing_hint: str = None        #: Hint to provide if this param/group is missing
+    missing_hint: OptStr = None         #: Hint to provide if this param/group is missing
     # Instance Attributes
-    _attr_name: str = None          #: Always the name of the attr that points to this object
-    _name: str = None               #: An explicitly provided name, or the name of the attr that points to this object
-    group: ParamGroup = None        #: The group this object is a member of, if any
-    command: CommandCls = None      #: The :class:`.Command` this object is a member of
-    required: Bool                  #: Whether this param/group is required
-    help: str                       #: The description for this param/group that will appear in ``--help`` text
-    hide: Bool                      #: Whether this param/group should be hidden in ``--help`` text
+    _attr_name: OptStr = None           #: Always the name of the attr that points to this object
+    _name: OptStr = None                #: An explicitly provided name, or the name of the attr that points to this obj
+    group: ParamGroup | None = None     #: The group this object is a member of, if any
+    command: CommandMeta | None = None  #: The :class:`.Command` this object is a member of
+    required: Bool                      #: Whether this param/group is required
+    help: str                           #: The description for this param/group that will appear in ``--help`` text
+    hide: Bool                          #: Whether this param/group should be hidden in ``--help`` text
     # fmt: on
 
     def __init__(
         self,
-        name: str | None = None,
+        name: OptStr = None,
         required: Bool = False,
-        help: str | None = None,  # noqa
+        help: OptStr = None,  # noqa
         hide: Bool = False,
     ):
         self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
@@ -94,7 +95,7 @@ class ParamBase(ABC):
         return self._default_name()
 
     @name.setter
-    def name(self, value: str | None):
+    def name(self, value: OptStr):
         if value is not None:
             self._name = value
 
@@ -202,7 +203,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     _action_map: dict[str, Type[ParamAction]] = {}
     _repr_attrs: Strings | None = None                                  #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
-    metavar: str = None
+    metavar: OptStr = None
     nargs: Nargs                                                        # Expected to be set in subclasses
     type: Callable[[str], T_co] | None = None                           # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
@@ -231,13 +232,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         self,
         action: str,
         *,
-        help: str | None = None,  # noqa
+        help: OptStr = None,  # noqa
         hide: Bool = False,
-        metavar: str | None = None,
-        name: str | None = None,
+        metavar: OptStr = None,
+        name: OptStr = None,
         required: Bool = False,
         default: Any = _NotSet,
-        default_cb: DefaultFunc = None,
+        default_cb: DefaultFunc | None = None,
         cb_with_cmd: Bool = False,
         show_default: Bool = None,
         strict_default: Bool = False,
@@ -348,7 +349,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def get_env_const(self, value: str, env_var: str) -> tuple[T_co, bool]:
         return _NotSet, False
 
-    def prepare_value(self, value: str, short_combo: Bool = False, env_var: str = None) -> T_co:
+    def prepare_value(self, value: str, short_combo: Bool = False, env_var: OptStr = None) -> T_co:
         if self.type is None:
             return value
         try:
@@ -463,7 +464,7 @@ class BasePositional(Parameter[T_co], ABC):
 
     _default_ok: bool = False
 
-    def __init_subclass__(cls, default_ok: bool = None, **kwargs):  # pylint: disable=W0222
+    def __init_subclass__(cls, default_ok: bool | None = None, **kwargs):  # pylint: disable=W0222
         """
         :param default_ok: Whether default values are supported for this Parameter type
         :param kwargs: Additional keyword arguments to pass to :meth:`.Parameter.__init_subclass__`.
@@ -529,7 +530,7 @@ class BaseOption(Parameter[T_co], ABC):
         self,
         *option_strs: str,
         action: str,
-        name_mode: OptionNameMode | str | None = _NotSet,
+        name_mode: OptionNameMode | OptStr = _NotSet,
         env_var: OptStrs = None,
         strict_env: bool = True,
         use_env_value: Bool = None,

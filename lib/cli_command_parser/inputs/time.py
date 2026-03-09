@@ -24,7 +24,7 @@ from locale import LC_ALL, setlocale
 from threading import RLock
 from typing import Collection, Iterator, Literal, Sequence, Type, TypeVar, overload
 
-from ..typing import Bool, Locale, Number, T, TimeBound
+from ..typing import Bool, Locale, Number, OptStr, T, TimeBound
 from ..utils import MissingMixin
 from .base import InputType, _FixedInputType
 from .exceptions import InputValidationError, InvalidChoiceError
@@ -75,10 +75,10 @@ class different_locale:
 
 class DTInput(_FixedInputType[T], ABC):
     __slots__ = ('locale',)
-    dt_type: str
+    dt_type: OptStr
     locale: Locale | None
 
-    def __init_subclass__(cls, dt_type: str = None, **kwargs):
+    def __init_subclass__(cls, dt_type: OptStr = None, **kwargs):
         """
         :param dt_type: Used in InvalidChoiceError / ValueError messages
         """
@@ -133,9 +133,9 @@ class CalendarUnitInput(DTInput[str | int], ABC):
         full: Bool = True,
         abbreviation: Bool = True,
         numeric: Bool = False,
-        locale: Locale = None,
+        locale: Locale | None = None,
         out_format: str | DTFormatMode = DTFormatMode.FULL,
-        out_locale: Locale = None,
+        out_locale: Locale | None = None,
         fix_default: Bool = True,
     ):
         if not (full or abbreviation or numeric):
@@ -250,9 +250,9 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         abbreviation: Bool = True,
         numeric: Bool = False,
         iso: Bool = False,
-        locale: Locale = None,
+        locale: Locale | None = None,
         out_format: str | DTFormatMode = DTFormatMode.FULL,
-        out_locale: Locale = None,
+        out_locale: Locale | None = None,
         fix_default: Bool = True,
     ): ...
 
@@ -305,9 +305,9 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         full: Bool = True,
         abbreviation: Bool = True,
         numeric: Bool = True,
-        locale: Locale = None,
+        locale: Locale | None = None,
         out_format: str | DTFormatMode = DTFormatMode.FULL,
-        out_locale: Locale = None,
+        out_locale: Locale | None = None,
         fix_default: Bool = True,
     ): ...
 
@@ -408,7 +408,7 @@ class DateTimeInput(DTInput[DT], ABC):
     def __init__(
         self,
         formats: Collection[str],
-        locale: Locale = None,
+        locale: Locale | None = None,
         earliest: TimeBound = None,
         latest: TimeBound = None,
         fix_default: Bool = True,
@@ -513,7 +513,7 @@ class DateTime(DateTimeInput[datetime], type=datetime):
     def __init__(
         self,
         *formats: str,
-        locale: Locale = None,
+        locale: Locale | None = None,
         earliest: TimeBound = None,
         latest: TimeBound = None,
         fix_default: Bool = True,
@@ -539,7 +539,7 @@ class Date(DateTimeInput[date], type=date):
     def __init__(
         self,
         *formats: str,
-        locale: Locale = None,
+        locale: Locale | None = None,
         earliest: TimeBound = None,
         latest: TimeBound = None,
         fix_default: Bool = True,
@@ -565,7 +565,7 @@ class Time(DateTimeInput[time], type=time):
     def __init__(
         self,
         *formats: str,
-        locale: Locale = None,
+        locale: Locale | None = None,
         earliest: TimeBound = None,
         latest: TimeBound = None,
         fix_default: Bool = True,
@@ -586,7 +586,7 @@ def dt_repr(dt: datetime | date | time, use_repr: bool = True) -> str:
     return repr(dt_str) if use_repr else dt_str
 
 
-def normalize_dt(value: TimeBound, now: datetime = None) -> datetime | None:
+def normalize_dt(value: TimeBound, now: datetime | None = None) -> datetime | None:
     match value:
         case None | datetime():
             return value

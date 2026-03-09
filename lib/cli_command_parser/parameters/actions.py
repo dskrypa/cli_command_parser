@@ -16,7 +16,7 @@ from ..utils import _NotSet, camel_to_snake_case
 
 if TYPE_CHECKING:
     from .base import Parameter  # noqa
-    from ..typing import Bool, CommandObj, T_co
+    from ..typing import Bool, CommandObj, OptStr
 
 __all__ = [
     'ParamAction',
@@ -44,7 +44,9 @@ class ParamAction(ABC, Generic[Param]):
     accepts_values: bool = False
     accepts_consts: bool = False
 
-    def __init_subclass__(cls, default=_PANotSet, accepts_values: bool = None, accepts_consts: bool = None, **kwargs):
+    def __init_subclass__(
+        cls, default=_PANotSet, accepts_values: bool | None = None, accepts_consts: bool | None = None, **kwargs
+    ):
         super().__init_subclass__(**kwargs)
         cls.name = camel_to_snake_case(cls.__name__)
         if default is not _PANotSet:
@@ -72,7 +74,7 @@ class ParamAction(ABC, Generic[Param]):
     # region Add Parsed Value / Constant Methods
 
     @abstractmethod
-    def add_value(self, value: str, *, combo: bool = False, joined: bool = False, env_var: str = None) -> Found:
+    def add_value(self, value: str, *, combo: bool = False, joined: bool = False, env_var: OptStr = None) -> Found:
         """
         Execute this action for the given Parameter and value.
 
@@ -96,7 +98,7 @@ class ParamAction(ABC, Generic[Param]):
     #         added += self.add_value(value, combo=combo)
     #     return added
 
-    def add_const(self, *, opt: str = None, combo: bool = False) -> Found:  # noqa
+    def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:  # noqa
         ctx.record_action(self.param)
         raise MissingArgument(self.param)
 
@@ -261,7 +263,7 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: str = None) -> Found:
+    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:
         ctx.record_action(self.param)
         value = self.param.prepare_value(value, combo, env_var)
         self.param.validate(value, joined)
@@ -297,7 +299,7 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: str = None) -> Found:
+    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:
         ctx.record_action(self.param)
         value = self.param.prepare_value(value, combo, env_var)
         self.param.validate(value)
@@ -392,7 +394,7 @@ class BasicConstAction(ConstMixin, ParamAction, ABC, accepts_consts=True):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: str = None) -> Found:  # noqa
+    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:  # noqa
         ctx.record_action(self.param)
         raise BadArgument(self.param, f'does not accept values, but {value=} was provided')
 
@@ -414,7 +416,7 @@ class StoreConst(BasicConstAction, default=None):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
+    def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         self.set_const(self.param.get_const(opt))
         return 1
@@ -427,7 +429,7 @@ class AppendConst(BasicConstAction, append=True):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
+    def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         # TODO: Fix nargs consistency for overall vs per-arg
         self.append_const(self.param.get_const(opt))
@@ -447,7 +449,7 @@ class AppendConst(BasicConstAction, append=True):
 #     __slots__ = ()
 #     default_nargs = Nargs('?')
 #
-#     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
+#     def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:
 #         ctx.record_action(self.param)
 #         self.set_const(self.param.get_const(opt))
 #         return 1
@@ -457,7 +459,7 @@ class AppendConst(BasicConstAction, append=True):
 #     __slots__ = ()
 #     default_nargs = Nargs('?')
 #
-#     def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
+#     def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:
 #         ctx.record_action(self.param)
 #         self.append_const(self.param.get_const(opt))
 #         return 1
@@ -476,12 +478,12 @@ class Count(ParamAction, accepts_values=True, accepts_consts=True):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_const(self, *, opt: str = None, combo: bool = False) -> Found:
+    def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:
         ctx.record_action(self.param)
         self._add(self.param.get_const(opt))
         return 1
 
-    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: str = None) -> Found:
+    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:
         ctx.record_action(self.param)
         value = self.param.prepare_value(value, combo, env_var)
         self.param.validate(value, joined)
@@ -496,7 +498,7 @@ class Concatenate(Append):
 
     # region Add Parsed Value / Constant Methods
 
-    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: str = None) -> Found:
+    def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:
         param = self.param
         values = value.split()
         if not param.is_valid_arg(' '.join(values)):

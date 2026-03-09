@@ -46,7 +46,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     config: CommandConfig
     prog: OptStr = None
     allow_argv_prog: Bool = True
-    _command_obj: CommandObj = None
+    _command_obj: CommandObj | None = None
     _terminal_width: int | None
     _provided: dict[ParamOrGroup, int]
 
@@ -56,8 +56,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         command_cls: CommandType | None = None,
         *,
         parent: Context | None = None,
-        config: AnyConfig = None,
-        terminal_width: int = None,
+        config: AnyConfig | None = None,
+        terminal_width: int | None = None,
         allow_argv_prog: Bool = None,
         command: CommandObj | None = None,
         **kwargs,
@@ -100,7 +100,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.remaining = list(self.argv)
 
     def _sub_context(
-        self, command_cls: CommandType, argv: Argv = None, command: CommandObj = None, **kwargs
+        self, command_cls: CommandType, argv: Argv = None, command: CommandObj | None = None, **kwargs
     ) -> Context:
         return self.__class__(
             self.remaining if argv is None else argv,
@@ -151,7 +151,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def get_parsed(
         self,
-        command: Command = None,
+        command: Command | None = None,
         *,
         exclude: Collection[Parameter] = (),
         recursive: Bool = True,
@@ -443,7 +443,7 @@ def get_current_context(silent: bool = False) -> Context | None:
 
 
 def get_or_create_context(
-    command_cls: CommandType, argv: Argv = None, *, command: CommandObj = None, **kwargs
+    command_cls: CommandType, argv: Argv = None, *, command: CommandObj | None = None, **kwargs
 ) -> Context:
     """
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
@@ -469,7 +469,7 @@ def get_context(command: Command) -> Context:
 
 
 def get_parsed(
-    command: Command, to_call: Callable = None, default: Any = None, include_defaults: Bool = True
+    command: Command, to_call: Callable | None = None, default: Any = None, include_defaults: Bool = True
 ) -> dict[str, Any]:
     """
     Provides a way to obtain all of the arguments that were parsed for the given Command as a dictionary.

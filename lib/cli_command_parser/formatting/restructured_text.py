@@ -59,7 +59,7 @@ def spaced_rst_header(text: str, level: int = 1, before: bool = True) -> Iterato
 
 
 def _rst_directive(
-    directive: str, args: str = None, options: dict[str, Any] = None, indent: int = 4, check: Bool = False
+    directive: str, args: OptStr = None, options: dict[str, Any] | None = None, indent: int = 4, check: Bool = False
 ) -> Iterator[str]:
     yield f'.. {directive}:: {args}' if args else f'.. {directive}::'
     if options:
@@ -70,7 +70,7 @@ def _rst_directive(
 
 
 def rst_directive(
-    directive: str, args: str = None, options: dict[str, Any] = None, indent: int = 4, check: Bool = False
+    directive: str, args: OptStr = None, options: dict[str, Any] | None = None, indent: int = 4, check: Bool = False
 ) -> str:
     return '\n'.join(_rst_directive(directive, args, options, indent, check))
 
@@ -120,9 +120,9 @@ class RstTable:
 
     def __init__(
         self,
-        title: str = None,
-        subtitle: str = None,
-        headers: Sequence[str] = None,
+        title: OptStr = None,
+        subtitle: OptStr = None,
+        headers: Sequence[str] | None = None,
         *,
         show_title: Bool = True,
         use_table_directive: Bool = True,
@@ -138,7 +138,9 @@ class RstTable:
             self.add_row(*headers, header=True)
 
     @classmethod
-    def from_dicts(cls, rows: RowMaps, columns: Sequence[T] = None, auto_headers: Bool = False, **kwargs) -> RstTable:
+    def from_dicts(
+        cls, rows: RowMaps, columns: Sequence[T] | None = None, auto_headers: Bool = False, **kwargs
+    ) -> RstTable:
         """
         Initialize a RstTable using the given keyword arguments, and populate its rows using the given dicts and
         :meth:`.add_dict_rows`.
@@ -168,7 +170,7 @@ class RstTable:
             self._updated = False
         return self._widths
 
-    def add_dict_rows(self, rows: RowMaps, columns: Sequence[T] = None, add_header: Bool = False):
+    def add_dict_rows(self, rows: RowMaps, columns: Sequence[T] | None = None, add_header: Bool = False):
         """Add a row for each dict in the given sequence of rows, where the keys represent the columns."""
         if not columns:
             columns = list(rows[0])
@@ -191,7 +193,7 @@ class RstTable:
         self._rows.extend(rows)
         self._updated = True
 
-    def add_row(self, *columns: OptStr, index: int = None, header: bool = False):
+    def add_row(self, *columns: OptStr, index: int | None = None, header: bool = False):
         """
         Add a row to the table.
 
@@ -202,7 +204,7 @@ class RstTable:
         """
         self._add_row(Row([Cell(c or '') for c in columns], header), index)
 
-    def _add_row(self, row: Row, index: int = None):
+    def _add_row(self, row: Row, index: int | None = None):
         if index is None:
             self._rows.append(row)
         else:

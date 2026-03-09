@@ -3,7 +3,7 @@
 import re
 from inspect import Signature
 from pathlib import Path
-from typing import Callable, Collection, Dict, Set
+from typing import Callable, Collection
 from unittest import TestCase, main
 
 from cli_command_parser.config import CommandConfig
@@ -12,7 +12,7 @@ from cli_command_parser.core import CommandMeta
 DOCS_SRC = Path(__file__).resolve().parents[2].joinpath('docs', '_src')
 
 
-def get_doc_params(rst_name: str, section_start: str, section_end: str = None) -> Dict[str, str]:
+def get_doc_params(rst_name: str, section_start: str, section_end: str | None = None) -> dict[str, str]:
     data = DOCS_SRC.joinpath(rst_name).read_text('utf-8')
     start = data.index(section_start)
     if section_end:
@@ -44,7 +44,7 @@ def get_doc_params(rst_name: str, section_start: str, section_end: str = None) -
     return params
 
 
-def get_func_params(func: Callable, skip: Collection[str] = None) -> Set[str]:
+def get_func_params(func: Callable, skip: Collection[str] | None = None) -> set[str]:
     sig = Signature.from_callable(func)
     params = set(sig.parameters)
     if skip:

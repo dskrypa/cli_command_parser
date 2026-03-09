@@ -493,9 +493,9 @@ class SubcommandHelpAndRstTest(ParserTest):
         mode: str,
         param_help_map: dict[str, str],
         help_header: str,
-        cmd_mode: str = None,
-        sc_kwargs: dict[str, Any] = None,
-        cmd_kwargs: dict[str, Any] = None,
+        cmd_mode: str | None = None,
+        sc_kwargs: dict[str, Any] | None = None,
+        cmd_kwargs: dict[str, Any] | None = None,
     ) -> Iterator[CommandCls]:
         if not cmd_kwargs:
             cmd_kwargs = {}
@@ -674,7 +674,9 @@ def prep_expected_rst(table_fmt_str: str, param_help_map: dict[str, str]) -> str
 
 
 class ShowDefaultsTest(TestCase):
-    def assert_default_x_in_help_text(self, defaults: Iterable[Any], expect_in: bool, check_str: str = None, **kwargs):
+    def assert_default_x_in_help_text(
+        self, defaults: Iterable[Any], expect_in: bool, check_str: str | None = None, **kwargs
+    ):
         for default in defaults:
             with self.subTest(default=default, expect_in=expect_in):
                 default_str = check_str or f'(default: {default!r})'

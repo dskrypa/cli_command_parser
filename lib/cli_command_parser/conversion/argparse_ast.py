@@ -35,7 +35,7 @@ class Script:
     _parser_classes = {}
     path: Path | None
 
-    def __init__(self, src_text: str, smart_loop_handling: bool = True, path: PathLike = None):
+    def __init__(self, src_text: str, smart_loop_handling: bool = True, path: PathLike | None = None):
         self.smart_loop_handling = smart_loop_handling
         self._parsers = []
         self.path = Path(path) if path else None
@@ -143,13 +143,15 @@ class AstCallable:
         cls.visit_funcs.add(name)
         return True
 
-    def __init_subclass__(cls, represents: RepresentedCallable = None, **kwargs):
+    def __init_subclass__(cls, represents: RepresentedCallable | None = None, **kwargs):
         super().__init_subclass__(**kwargs)
         if represents:
             cls.represents = represents
             cls._sig = None
 
-    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call = None):
+    def __init__(
+        self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call | None = None
+    ):
         self.init_node = node
         if not call:
             call = node.value if isinstance(node, Assign) else node  # type: Call
@@ -253,7 +255,9 @@ class ArgCollection(AstCallable):
         if children:
             cls._children = (*cls._children, *children)
 
-    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call = None):
+    def __init__(
+        self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call | None = None
+    ):
         super().__init__(node, parent, tracked_refs, call)
         self.args = []
         self.groups = []
@@ -314,7 +318,9 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
     sub_parsers: list[SubParser]
     add_subparsers = AddVisitedChild(SubparsersAction, '_subparsers_actions')
 
-    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call = None):
+    def __init__(
+        self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: Call | None = None
+    ):
         super().__init__(node, parent, tracked_refs, call)
         self._subparsers_actions = []
         # Note: sub_parsers aren't included in grouped_children since they need different handling during conversion
@@ -324,7 +330,9 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
         sub_parsers = len(self.sub_parsers)
         return f'<{self.__class__.__name__}[{sub_parsers=}]: ``{self.init_call_repr()}``>'
 
-    def _add_subparser(self, node: InitNode, call: Call, tracked_refs: TrackedRefMap, sub_parser_cls: ParserCls = None):
+    def _add_subparser(
+        self, node: InitNode, call: Call, tracked_refs: TrackedRefMap, sub_parser_cls: ParserCls | None = None
+    ):
         # Using default of None since the class hasn't been defined at the time it would need to be set as default
         return self._add_child(sub_parser_cls or SubParser, self.sub_parsers, node, call, tracked_refs)
 

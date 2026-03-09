@@ -125,7 +125,7 @@ class NumRange(RangeMixin, _RangeInput[NT]):
 
     def __init__(
         self,
-        type: NumType = None,  # noqa
+        type: NumType | None = None,  # noqa
         snap: Bool = False,
         *,
         min: Number = None,  # noqa

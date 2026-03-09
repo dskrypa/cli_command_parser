@@ -64,7 +64,9 @@ def prep_cmd(*members: str, name: str = CMD0, base: str = 'Command', suffix: str
     return cls_def_line
 
 
-def prep_group(*add_args: str, title: str = None, description: str = None, parser: str = 'p', var: str = 'g') -> str:
+def prep_group(
+    *add_args: str, title: str | None = None, description: str | None = None, parser: str = 'p', var: str = 'g'
+) -> str:
     group_arg_str = ', '.join(f'{k}={v!r}' for k, v in {'title': title, 'description': description}.items() if v)
     add_arg_iter = (f'{var}.add_argument({arg})' for arg in add_args)
     return '\n'.join((f'{var} = {parser}.add_argument_group({group_arg_str})', *add_arg_iter))
