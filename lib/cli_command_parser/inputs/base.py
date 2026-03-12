@@ -37,7 +37,7 @@ class InputType(Generic[T], ABC):
         """
         return True
 
-    def fix_default(self, value: Any) -> T | None:
+    def fix_default(self, value: Any) -> T | str | None:
         return value
 
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:

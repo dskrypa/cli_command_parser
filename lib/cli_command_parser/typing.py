@@ -7,18 +7,16 @@ Type checking aliases.
 from __future__ import annotations
 
 from typing import (
+    IO,
     TYPE_CHECKING,
     Any,
-    BinaryIO,
     Callable,
     Collection,
-    Dict,
     Iterable,
-    List,
     Pattern,
     Sequence,
-    TextIO,
     Type,
+    TypeAlias,
     TypeVar,
     Union,
 )
@@ -26,6 +24,7 @@ from typing import (
 if TYPE_CHECKING:
     from datetime import date, datetime, time, timedelta
     from enum import Enum
+    from numbers import Number as _Number
     from pathlib import Path
 
     from .commands import Command
@@ -38,44 +37,43 @@ T = TypeVar('T')
 T_co = TypeVar('T_co', covariant=True)
 TypeFunc = Callable[[str], T_co]
 
-NT = TypeVar('NT', bound=float, covariant=True)
-Number = Union[NT, None]
-NumType = Callable[[Union[str, float, int]], NT]
+NT = TypeVar('NT', bound='_Number')
+Number: TypeAlias = NT | None
+NumType = Callable[[str | float | int], NT]
 RngType = Union[range, int, Sequence[int]]
 
 InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
-ChoicesType = Union[Collection[Any], None]
+ChoicesType = Collection[Any] | None
 
-Bool = Union[bool, Any]
+Bool = bool | Any
 StrSeq = Sequence[str]
-Strs = Union[str, StrSeq]
+Strs = str | StrSeq
 StrIter = Iterable[str]
-IStrs = Union[str, StrIter]
-OptStr = Union[str, None]
-OptStrs = Union[Strs, None]
+IStrs = str | StrIter
+OptStr = str | None
+OptStrs = Strs | None
 Strings = Collection[str]
 PathLike = Union[str, 'Path']
 
 Locale = str | tuple[OptStr, OptStr]
 TimeBound = Union['datetime', 'date', 'time', 'timedelta', None]
 
-FP = Union[TextIO, BinaryIO]
-Deserializer = Callable[[Union[str, bytes, FP]], Any]
-Serializer = Callable[..., Union[str, bytes, None]]
-Converter = Union[Deserializer, Serializer]
+Deserializer = Callable[[str | bytes | IO], Any]
+Serializer = Callable[[Any, IO], None] | Callable[[Any], str | bytes]
+Converter = Deserializer | Serializer
 
 Config = Union['CommandConfig', None]
-AnyConfig = Union[Config, Dict[str, Any]]
+AnyConfig = Config | dict[str, Any]
 LeadingDash = Union['AllowLeadingDash', str, bool]
 
 Param = TypeVar('Param', bound='Parameter')
-ParamList = List[Param]
+ParamList = list[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
 CommandObj = TypeVar('CommandObj', bound='Command')
 CommandType = TypeVar('CommandType', bound='CommandMeta')
-CommandCls = Union[CommandType, Type[CommandObj]]
-CommandAny = Union[CommandCls, CommandObj]
+CommandCls: TypeAlias = CommandType | Type[CommandObj]
+CommandAny: TypeAlias = CommandCls | CommandObj
 
 CommandMethod = Callable[[CommandObj], T_co]
-DefaultFunc = Union[Callable[[], T_co], CommandMethod]
+DefaultFunc = Callable[[], T_co] | CommandMethod

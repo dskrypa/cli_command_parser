@@ -9,8 +9,9 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
+from typing import IO
 
-from ..typing import FP, Bool, Converter, OptStr, PathLike, T
+from ..typing import Bool, Converter, OptStr, PathLike, T
 from .base import InputType
 from .exceptions import InputValidationError
 from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
@@ -19,14 +20,14 @@ __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 
 
 class FileInput(InputType[T], ABC):
-    exists: bool = InputParam(None)
-    expand: bool = InputParam(True)
-    resolve: bool = InputParam(False)
-    type: StatMode = InputParam(StatMode.ANY)
-    readable: bool = InputParam(False)
-    writable: bool = InputParam(False)
-    allow_dash: bool = InputParam(False)
-    use_windows_fix: bool = InputParam(True)
+    exists: InputParam[bool | None] = InputParam(None)
+    expand: InputParam[bool] = InputParam(True)
+    resolve: InputParam[bool] = InputParam(False)
+    type: InputParam[StatMode] = InputParam(StatMode.ANY)
+    readable: InputParam[bool] = InputParam(False)
+    writable: InputParam[bool] = InputParam(False)
+    allow_dash: InputParam[bool] = InputParam(False)
+    use_windows_fix: InputParam[bool] = InputParam(True)
 
     def __init__(
         self,
@@ -45,7 +46,7 @@ class FileInput(InputType[T], ABC):
         self.exists = exists
         self.expand = expand
         self.resolve = resolve
-        self.type = StatMode(type)  # pylint: disable=E1120
+        self.type = StatMode(type)
         self.readable = readable
         self.writable = writable
         self.allow_dash = allow_dash
@@ -55,33 +56,38 @@ class FileInput(InputType[T], ABC):
         non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items())
         return f'<{self.__class__.__name__}({non_defaults})>'
 
-    def fix_default(self, value: T | None) -> T | None:
+    def fix_default(self, value: T | str | None) -> T | str | None:
         """
         Fixes the default value to conform to the expected return type for this input.  Allows the default value for a
         path to be provided as a string, for example.
         """
         if value is None or not self._fix_default:
             return value
-        return self(value)
+        return self(value)  # type: ignore[arg-type]
 
     def validated_path(self, path: PathLike) -> _Path:
         if not isinstance(path, _Path):
             if not (path := path.strip()):
                 raise InputValidationError('A valid path is required')
             path = _Path(path)
+
         if path.parts == ('-',):
             if not self.allow_dash:
                 raise InputValidationError('Dash (-) is not supported for this parameter')
             return path
+
         if self.use_windows_fix and os.name == 'nt':
             try:
                 path = fix_windows_path(path)
             except OSError:
                 pass
+
         if self.expand:
             path = path.expanduser()
+
         if self.resolve:
             path = path.resolve()
+
         if self.exists is not None:
             if self.exists and not path.exists():
                 raise InputValidationError('the provided path does not exist')
@@ -94,8 +100,10 @@ class FileInput(InputType[T], ABC):
 
         if self.readable and not os.access(path, os.R_OK):
             raise InputValidationError('the provided path is not readable')
+
         if self.writable and not os.access(path, os.W_OK):
             raise InputValidationError('the provided path is not writable')
+
         return path
 
 
@@ -132,12 +140,12 @@ class File(FileInput[FileWrapper | str | bytes]):
     :param kwargs: Additional keyword arguments to pass to :class:`.Path`.
     """
 
-    mode: str = InputParam('r')
-    type: StatMode = InputParam(StatMode.FILE)
-    encoding: str = InputParam(None)
-    errors: str = InputParam(None)
-    lazy: bool = InputParam(True)
-    parents: bool = InputParam(False)
+    mode: InputParam[str] = InputParam('r')
+    type: InputParam[StatMode] = InputParam(StatMode.FILE)
+    encoding: InputParam[str | None] = InputParam(None)
+    errors: InputParam[str | None] = InputParam(None)
+    lazy: InputParam[bool] = InputParam(True)
+    parents: InputParam[bool] = InputParam(False)
 
     def __init__(
         self,
@@ -182,8 +190,8 @@ class Serialized(File):
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
 
-    converter: Converter = InputParam(None)
-    pass_file: bool = InputParam(False)
+    converter: InputParam[Converter | None] = InputParam(None)
+    pass_file: InputParam[bool] = InputParam(False)
 
     def __init__(self, converter: Converter, *, pass_file: Bool = False, **kwargs):
         super().__init__(**kwargs)
@@ -212,7 +220,7 @@ class Json(Serialized):
         super().__init__(json.dump if write else self._load_json, mode=mode, **kwargs)
         self.wrap_errors = wrap_errors
 
-    def _load_json(self, f: FP):
+    def _load_json(self, f: IO):
         from json import JSONDecodeError, load
 
         try:

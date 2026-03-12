@@ -6,15 +6,15 @@ Utilities for formatting data using RST markup
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence, TypeVar
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Mapping, Sequence
 
 if TYPE_CHECKING:
     from ..typing import Bool, OptStr, Strings
 
+    RowMaps = Sequence[Mapping[OptStr, OptStr]]
+
 __all__ = ['rst_bar', 'rst_list_table', 'RstTable']
 
-T = TypeVar('T')
-RowMaps = Sequence[Mapping[T, 'OptStr']]
 
 # region Constants & Templates
 
@@ -38,6 +38,9 @@ MODULE_TEMPLATE = """
 """.lstrip()
 
 # endregion
+
+
+# region RST Formatting Helpers
 
 
 def rst_bar(text: str | int, level: int = 1) -> str:
@@ -105,6 +108,9 @@ def rst_list_table(data: dict[str, str], value_pad: int = 20) -> str:
     return LIST_TABLE_TMPL.format(widths=widths, entries=entries)
 
 
+# endregion
+
+
 class RstTable:
     """
     :param title: The title for this table.  Only displayed if ``show_title`` is True.
@@ -131,7 +137,7 @@ class RstTable:
         self.subtitle = subtitle
         self.show_title = show_title
         self.use_table_directive = use_table_directive
-        self._rows = []
+        self._rows: list[Row] = []
         self._widths = ()
         self._updated = False
         if headers:
@@ -139,7 +145,7 @@ class RstTable:
 
     @classmethod
     def from_dicts(
-        cls, rows: RowMaps, columns: Sequence[T] | None = None, auto_headers: Bool = False, **kwargs
+        cls, rows: RowMaps, columns: Sequence[OptStr] | None = None, auto_headers: Bool = False, **kwargs
     ) -> RstTable:
         """
         Initialize a RstTable using the given keyword arguments, and populate its rows using the given dicts and
@@ -170,7 +176,7 @@ class RstTable:
             self._updated = False
         return self._widths
 
-    def add_dict_rows(self, rows: RowMaps, columns: Sequence[T] | None = None, add_header: Bool = False):
+    def add_dict_rows(self, rows: RowMaps, columns: Sequence[OptStr] | None = None, add_header: Bool = False):
         """Add a row for each dict in the given sequence of rows, where the keys represent the columns."""
         if not columns:
             columns = list(rows[0])
