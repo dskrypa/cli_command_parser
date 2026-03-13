@@ -22,7 +22,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Collection, Iterator, Literal, Sequence, Type, TypeVar, overload
+from typing import Collection, Iterator, Literal, NoReturn, Sequence, Type, TypeVar, overload
 
 from ..typing import Bool, Locale, Number, OptStr, T, TimeBound
 from ..utils import MissingMixin
@@ -32,7 +32,7 @@ from .utils import RangeMixin, range_str
 
 __all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
-DT = TypeVar('DT')
+DT = TypeVar('DT', datetime, date, time)
 TimeUnit = Literal['microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks']
 _TIMEDELTA_UNITS = {'microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks'}
 DEFAULT_DATE_FMT = '%Y-%m-%d'
@@ -75,7 +75,7 @@ class different_locale:
 
 class DTInput(_FixedInputType[T], ABC):
     __slots__ = ('locale',)
-    dt_type: OptStr
+    dt_type: str
     locale: Locale | None
 
     def __init_subclass__(cls, dt_type: OptStr = None, **kwargs):
@@ -83,9 +83,10 @@ class DTInput(_FixedInputType[T], ABC):
         :param dt_type: Used in InvalidChoiceError / ValueError messages
         """
         super().__init_subclass__(**kwargs)
-        cls.dt_type = dt_type
+        if dt_type:
+            cls.dt_type = dt_type
 
-    def __init__(self, locale: Locale = None, fix_default: Bool = True):
+    def __init__(self, locale: Locale | None = None, fix_default: Bool = True):
         super().__init__(fix_default)
         self.locale = locale
 
@@ -256,6 +257,9 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         fix_default: Bool = True,
     ): ...
 
+    @overload
+    def __init__(self: NoReturn) -> NoReturn: ...  # type: ignore[misc]  # Workaround for single overload def error
+
     def __init__(self, *, iso: Bool = False, **kwargs):
         super().__init__(**kwargs)
         self.iso = iso
@@ -311,6 +315,9 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         fix_default: Bool = True,
     ): ...
 
+    @overload
+    def __init__(self: NoReturn) -> NoReturn: ...  # type: ignore[misc]  # Workaround for single overload def error
+
     def __init__(self, *, numeric: Bool = True, **kwargs):
         super().__init__(numeric=numeric, **kwargs)
 
@@ -347,7 +354,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
         int_only: Bool = False,
         fix_default: Bool = True,
     ):
-        unit = unit.lower()
+        unit = unit.lower()  # type: ignore[assignment]
         if unit not in _TIMEDELTA_UNITS:
             raise TypeError(f'Invalid {unit=} - expected one of: {", ".join(sorted(_TIMEDELTA_UNITS))}')
         elif min is not None and max is not None and min >= max:
@@ -374,7 +381,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
         elif self.int_only and int(value) != value:
             raise self._invalid(value, f'expected an integer, not a {value.__class__.__name__}')
 
-        return timedelta(**{self.unit: value})
+        return timedelta(**{self.unit: value})  # type: ignore[misc]
 
     def _invalid(self, value: Number, message: str) -> InputValidationError:
         return InputValidationError(f'Invalid numeric {self.unit}={value!r} - {message}')
@@ -384,7 +391,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
 
     def fix_default(self, value: int | float | timedelta | None) -> timedelta | None:
         if value is None or isinstance(value, timedelta) or not self._fix_default:
-            return value
+            return value  # type: ignore[return-value]
         return self(value)
 
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
@@ -419,11 +426,11 @@ class DateTimeInput(DTInput[DT], ABC):
         self.latest = latest
 
     @classmethod
-    def _fix_type(cls, dt: datetime) -> DT:
+    def _fix_type(cls, dt: datetime | None) -> DT | None:
         try:
             return getattr(dt, cls.dt_type)()
         except AttributeError:
-            return dt
+            return dt  # type: ignore[return-value]
 
     @property
     def earliest(self) -> DT | None:
@@ -466,7 +473,7 @@ class DateTimeInput(DTInput[DT], ABC):
         )
 
     def parse(self, value: str) -> DT:
-        return self._fix_type(self.parse_dt(value))
+        return self._fix_type(self.parse_dt(value))  # type: ignore[return-value]
 
     def choice_str(self, choice_delim: str = ' | ', sort_choices: bool = False) -> str:
         return choice_delim.join(sorted(self.formats) if sort_choices else self.formats)
@@ -484,11 +491,13 @@ class DateTimeInput(DTInput[DT], ABC):
         check_latest = latest is not None
         if not (check_earliest or check_latest):
             return
-        elif (check_earliest and dt < earliest) or (check_latest and dt > latest):
+        elif (check_earliest and dt < earliest) or (check_latest and dt > latest):  # type: ignore[operator]
             if check_earliest and check_latest:
-                msg = f'between {dt_repr(earliest)} and {dt_repr(latest)} (inclusive)'
+                msg = f'between {dt_repr(earliest)} and {dt_repr(latest)} (inclusive)'  # type: ignore[arg-type]
+            elif check_earliest:
+                msg = f'after {dt_repr(earliest)}'  # type: ignore[arg-type]
             else:
-                msg = f'after {dt_repr(earliest)}' if check_earliest else f'before {dt_repr(latest)}'
+                msg = f'before {dt_repr(latest)}'  # type: ignore[arg-type]
             raise InputValidationError(f'Invalid {self.dt_type}={dt_repr(dt)} - a {self.dt_type} {msg} is required')
 
     def __call__(self, value: str) -> DT:
@@ -580,7 +589,7 @@ class Time(DateTimeInput[time], type=time):
 
 def dt_repr(dt: datetime | date | time, use_repr: bool = True) -> str:
     try:
-        dt_str = dt.isoformat(' ')
+        dt_str = dt.isoformat(' ')  # type: ignore[call-arg]
     except (TypeError, ValueError):  # TypeError for date objects, ValueError for time objects
         dt_str = dt.isoformat()
     return repr(dt_str) if use_repr else dt_str

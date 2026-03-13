@@ -97,9 +97,9 @@ class Regex(PatternInput[RegexResult]):
     def __init__(
         self,
         *patterns: str | Pattern,
-        group: str | int = None,
-        groups: Collection[str | int] = None,
-        mode: RegexMode | str = None,
+        group: str | int | None = None,
+        groups: Collection[str | int] | None = None,
+        mode: RegexMode | str | None = None,
     ):
         if not patterns:
             raise TypeError('At least one regex pattern is required')
@@ -120,17 +120,17 @@ class Regex(PatternInput[RegexResult]):
             raise InputValidationError(f'expected a value matching {self._describe_patterns()}')
 
         if (mode := self.mode) == RegexMode.STRING:
-            return value
+            return value  # type: ignore[return-value]
         elif mode == RegexMode.MATCH:
-            return m
+            return m  # type: ignore[return-value]
         elif mode == RegexMode.GROUP:
-            return m.group(self.group)
+            return m.group(self.group)  # type: ignore[arg-type,return-value]
         elif mode == RegexMode.GROUPS:
             if self.groups:
-                return tuple(m.group(g) for g in self.groups)
-            return m.groups()
+                return tuple(m.group(g) for g in self.groups)  # type: ignore[return-value]
+            return m.groups()  # type: ignore[return-value]
         else:  # mode == RegexMode.DICT
-            return m.groupdict()
+            return m.groupdict()  # type: ignore[return-value]
 
 
 class Glob(PatternInput[str]):
