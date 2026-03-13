@@ -39,8 +39,8 @@ TypeFunc = Callable[[str], T_co]
 
 NT = TypeVar('NT', bound='_Number')
 Number: TypeAlias = NT | None
-NumType = Callable[[str | float | int], NT]
-RngType = Union[range, int, Sequence[int]]
+NumType = Callable[[Any], NT]
+RngType = range | int | Sequence[int]
 
 InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
 ChoicesType = Collection[Any] | None

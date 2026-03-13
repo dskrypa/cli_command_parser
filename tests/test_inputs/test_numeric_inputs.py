@@ -68,7 +68,7 @@ class NumericInputTest(ParserTest):
     def test_num_range_repr(self):
         self.assertEqual("<NumRange(<class 'int'>, snap=False)[0 <= N]>", repr(NumRange(min=0)))
 
-    def test_num_range_requires_min_max(self):
+    def test_num_range_requires_min_or_max(self):
         with self.assert_raises_contains_str(ValueError, 'at least one of min and/or max values'):
             NumRange()
 
@@ -83,6 +83,13 @@ class NumericInputTest(ParserTest):
     def test_snap_rejects_float(self):
         with self.assert_raises_contains_str(TypeError, 'Unable to snap to extrema with type=float'):
             NumRange(snap=True, type=float, min=1)
+
+    def test_snap_no_min(self):
+        self.assertEqual(9, NumRange(snap=True, max=10)('20'))
+        self.assertEqual(10, NumRange(snap=True, max=10, include_max=True)('20'))
+
+    def test_snap_no_max(self):
+        self.assertEqual(0, NumRange(snap=True, min=0)('-5'))
 
     def test_num_range_auto_type(self):
         self.assertIs(int, NumRange(min=1, max=10).type)
