@@ -993,7 +993,6 @@
 
 <span class="sd">:author: Doug Skrypa</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="c1"># pylint: disable=W0622</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -1061,20 +1060,28 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">=</span> <span class="nb">int</span>
-    <span class="nb">range</span><span class="p">:</span> <span class="n">_range</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="nb">range</span><span class="p">:</span> <span class="n">_range</span>
     <span class="n">snap</span><span class="p">:</span> <span class="nb">bool</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">range</span><span class="p">:</span> <span class="n">RngType</span><span class="p">,</span> <span class="n">snap</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="nb">range</span><span class="p">:</span> <span class="n">RngType</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">snap</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">fix_default</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">range</span><span class="p">,</span> <span class="n">_range</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">)</span>  <span class="c1"># noqa</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="nb">range</span>
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
+
+        <span class="k">match</span> <span class="nb">range</span><span class="p">:</span>
+            <span class="k">case</span> <span class="nb">int</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+            <span class="k">case</span> <span class="n">_range</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="nb">range</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">range</span> <span class="o">=</span> <span class="n">_range</span><span class="p">(</span><span class="o">*</span><span class="nb">range</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="si">!r}</span><span class="s1">, snap=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="si">!r}</span><span class="s1">, type=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="si">!r}</span><span class="s1">)&gt;&#39;</span>
@@ -1088,13 +1095,12 @@
 <div class="viewcode-block" id="Range.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span>
+        <span class="n">num_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">num_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num_val</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">rng_min</span> <span class="o">:=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">rng_min</span>
-            <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">)</span>
+            <span class="n">snapped</span> <span class="o">=</span> <span class="n">rng_min</span> <span class="k">if</span> <span class="p">(</span><span class="n">rng_min</span> <span class="o">:=</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">))</span> <span class="o">&gt;</span> <span class="n">num_val</span> <span class="k">else</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">snapped</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">int</span> <span class="k">else</span> <span class="n">snapped</span>  <span class="c1"># type: ignore[return-value]</span>
 
         <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 </div>
@@ -1149,13 +1155,15 @@
         <span class="k">if</span> <span class="n">snap</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unable to snap to extrema with type=float&#39;</span><span class="p">)</span>
-            <span class="n">real_min</span> <span class="o">=</span> <span class="nb">min</span> <span class="k">if</span> <span class="n">include_min</span> <span class="k">else</span> <span class="nb">min</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">real_max</span> <span class="o">=</span> <span class="nb">max</span> <span class="k">if</span> <span class="n">include_max</span> <span class="k">else</span> <span class="nb">max</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">real_min</span> <span class="o">&gt;=</span> <span class="n">real_max</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="nb">min</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="nb">max</span><span class="si">=}</span><span class="s1"> with snap=True, </span><span class="si">{</span><span class="n">include_min</span><span class="si">=}</span><span class="s1">,&#39;</span>
-                    <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">include_max</span><span class="si">=}</span><span class="s1"> - snap would produce invalid values&#39;</span>
-                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">max</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">real_min</span> <span class="o">=</span> <span class="nb">min</span> <span class="k">if</span> <span class="n">include_min</span> <span class="k">else</span> <span class="nb">min</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">real_max</span> <span class="o">=</span> <span class="nb">max</span> <span class="k">if</span> <span class="n">include_max</span> <span class="k">else</span> <span class="nb">max</span> <span class="o">-</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">real_min</span> <span class="o">&gt;=</span> <span class="n">real_max</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="nb">min</span><span class="si">=}</span><span class="s1"> &gt;= </span><span class="si">{</span><span class="nb">max</span><span class="si">=}</span><span class="s1"> with snap=True, </span><span class="si">{</span><span class="n">include_min</span><span class="si">=}</span><span class="s1">,&#39;</span>
+                        <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="n">include_max</span><span class="si">=}</span><span class="s1"> - snap would produce invalid values&#39;</span>
+                    <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">snap</span> <span class="o">=</span> <span class="n">snap</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span> <span class="k">if</span> <span class="nb">min</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">min</span>  <span class="c1"># for floats especially, such as a range like 0~1, this</span>
@@ -1171,7 +1179,7 @@
 
 <div class="viewcode-block" id="NumRange.handle_invalid">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">snap_dir</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Number</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">snap_dir</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle calculating / returning a snap value or raise an exception if snapping to the bound is not allowed.</span>
 
@@ -1182,7 +1190,7 @@
 <span class="sd">        :param snap_dir: The direction to adjust the bound if it is exclusive as ``+1`` or ``-1``</span>
 <span class="sd">        :return: The snap value if :attr:`.snap` is True, otherwise a :class:`python:ValueError` is raised</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">snap</span> <span class="ow">and</span> <span class="n">bound</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bound</span> <span class="k">if</span> <span class="n">inclusive</span> <span class="k">else</span> <span class="p">(</span><span class="n">bound</span> <span class="o">+</span> <span class="n">snap_dir</span><span class="p">)</span>
         <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected a value in the range </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_range_str</span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
 
@@ -1190,20 +1198,21 @@
 <div class="viewcode-block" id="NumRange.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.__call__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_lt_min</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">num_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># Note: if snap is enabled, it is applied by `handle_invalid`</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_lt_min</span><span class="p">(</span><span class="n">num_val</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_min</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_gt_max</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_gt_max</span><span class="p">(</span><span class="n">num_val</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_max</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">value</span></div>
+            <span class="k">return</span> <span class="n">num_val</span></div>
 </div>
 
 
 
 <div class="viewcode-block" id="Bytes">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Bytes</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Bytes</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">]):</span>  <span class="c1"># type: ignore[type-var]</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A byte count/size.</span>
 
@@ -1288,9 +1297,9 @@
 
 <div class="viewcode-block" id="Bytes.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Bytes.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">num</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="n">num</span><span class="p">,</span> <span class="n">unit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>  <span class="c1"># type: ignore[union-attr]</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;expected </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_type_desc</span><span class="p">()</span><span class="si">}</span><span class="s1"> with optional unit&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 

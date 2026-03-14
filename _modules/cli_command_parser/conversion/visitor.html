@@ -992,21 +992,35 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Assign</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">For</span><span class="p">,</span> <span class="n">Import</span><span class="p">,</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">NodeVisitor</span><span class="p">,</span> <span class="n">expr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Assign</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">For</span><span class="p">,</span> <span class="n">Import</span><span class="p">,</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">NodeVisitor</span><span class="p">,</span> <span class="n">withitem</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainMap</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.argparse_ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AstArgumentParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.argparse_ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">AstCallable</span><span class="p">,</span> <span class="n">VisitFunc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_name_repr</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="n">TrackedRefMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="s1">&#39;TrackedRef&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">NameTrackedMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="s1">&#39;TrackedRef&#39;</span><span class="p">]]</span>
+    <span class="n">TrackedValue</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;TrackedRef&#39;</span><span class="p">,</span> <span class="n">VisitFunc</span><span class="p">,</span> <span class="n">AstCallable</span><span class="p">]</span>
+    <span class="n">RefName</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AST</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ScriptVisitor&#39;</span><span class="p">,</span> <span class="s1">&#39;TrackedRef&#39;</span><span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="n">_NoCall</span> <span class="o">=</span> <span class="nb">object</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_NoCallType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provides the sentinel value for _NoCall in a way that is fully compatible with type checkers.&quot;&quot;&quot;</span>
+
+    <span class="n">_NoCall</span> <span class="o">=</span> <span class="s1">&#39;_NoCall&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+
+<span class="n">_NoCall</span> <span class="o">=</span> <span class="n">_NoCallType</span><span class="o">.</span><span class="n">_NoCall</span>
 
 
 <div class="viewcode-block" id="scoped">
@@ -1037,6 +1051,8 @@
 <div class="viewcode-block" id="ScriptVisitor">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ScriptVisitor</span><span class="p">(</span><span class="n">NodeVisitor</span><span class="p">):</span>
+    <span class="n">scopes</span><span class="p">:</span> <span class="n">ChainMap</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TrackedValue</span><span class="p">]</span>
+
     <span class="n">visit_FunctionDef</span> <span class="o">=</span> <span class="n">visit_AsyncFunctionDef</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
     <span class="n">visit_Lambda</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
     <span class="n">visit_ClassDef</span> <span class="o">=</span> <span class="n">ScopedVisit</span><span class="p">()</span>
@@ -1045,8 +1061,8 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">smart_loop_handling</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="n">track_refs</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="n">TrackedRef</span><span class="p">]</span> <span class="o">=</span> <span class="p">()):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">smart_loop_handling</span> <span class="o">=</span> <span class="n">smart_loop_handling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span> <span class="o">=</span> <span class="n">ChainMap</span><span class="p">()</span>  <span class="c1"># ChainMap that tracks the var/class/func/etc names available in a given scope</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">TrackedRef</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># References that are tracked, but not meant to be called</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">NameTrackedMap</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>  <span class="c1"># All tracked items by source module</span>
         <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">track_refs</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">track_refs_to</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
 
@@ -1059,6 +1075,7 @@
 <div class="viewcode-block" id="ScriptVisitor.track_refs_to">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_refs_to">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">track_refs_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">TrackedRef</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register a reference that should be tracked.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">module</span><span class="p">][</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ref</span></div>
 
@@ -1070,8 +1087,9 @@
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_tracked_refs</span><span class="p">:</span>
                 <span class="n">tracked_refs</span><span class="p">[</span><span class="n">val</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">tracked_refs</span><span class="o">.</span><span class="n">default_factory</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="n">tracked_refs</span></div>
+
+        <span class="n">tracked_refs</span><span class="o">.</span><span class="n">default_factory</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># disable creation of new sets on future key misses</span>
+        <span class="k">return</span> <span class="n">tracked_refs</span>  <span class="c1"># type: ignore[return-value]</span></div>
 
 
     <span class="c1"># region Imports</span>
@@ -1079,8 +1097,14 @@
 <div class="viewcode-block" id="ScriptVisitor.visit_Import">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Import">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visit_Import</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Import</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes a ``import some_module`` or ``import some_module as other_name`` statement.</span>
+
+<span class="sd">        :param node: The AST object representing the import statement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">module_name</span><span class="p">,</span> <span class="n">as_name</span> <span class="ow">in</span> <span class="n">imp_names</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">name_tracked_map</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+                <span class="c1"># One or more items in the specified module were registered to be tracked</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found module import: </span><span class="si">{</span><span class="n">module_name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">tracked</span> <span class="ow">in</span> <span class="n">name_tracked_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracked</span></div>
@@ -1099,19 +1123,32 @@
 <span class="sd">        for the source file or to resolve what the relative import&#39;s fully qualified module name would be.  This may</span>
 <span class="sd">        result in incorrect items being tracked if the name matched a tracked name in the matched tracked module.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># `from foo.bar import x,y,z` -&gt; level = 0 - absolute import, so node.module = &#39;foo.bar&#39;</span>
+        <span class="c1"># `from . import x,y,z` -&gt; level = 1 - relative import with no module, so node.module = None</span>
+        <span class="c1"># `from ..foo.bar import x,y,z` -&gt; level 2 - relative import with a module, so node.module = &#39;foo.bar&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">:</span>
+            <span class="c1"># Only relative imports (of any level) with no specific module name result in node.module = None</span>
+            <span class="k">return</span>  <span class="c1"># Tracking relative imports with no explicit module name is not supported</span>
+
         <span class="k">if</span> <span class="n">level</span> <span class="o">:=</span> <span class="n">node</span><span class="o">.</span><span class="n">level</span><span class="p">:</span>
-            <span class="c1"># For absolute imports, the level is 0</span>
-            <span class="c1"># For relative imports, the level is a positive int, representing the number of relative package levels</span>
+            <span class="c1"># It&#39;s a relative import - attempt to fuzzily match tracked modules with the same depth that end with the</span>
+            <span class="c1"># specified module name</span>
             <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[^.]+\.&#39;</span> <span class="o">*</span> <span class="n">level</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">search</span>
             <span class="k">for</span> <span class="n">module</span><span class="p">,</span> <span class="n">name_tracked_map</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">matches</span><span class="p">(</span><span class="n">module</span><span class="p">):</span>
                     <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found fuzzy relative name match for </span><span class="si">{</span><span class="s2">&quot;.&quot;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">level</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="si">!r}</span><span class="s1"> to </span><span class="si">{</span><span class="n">module</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_track_import_from</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name_tracked_map</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">name_tracked_map</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">):</span>
+        <span class="k">elif</span> <span class="n">name_tracked_map</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="p">):</span>  <span class="c1"># type: ignore[assignment]</span>
+            <span class="c1"># It&#39;s an absolute import and the module name matches an item that is being tracked</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_maybe_track_import_from</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">name_tracked_map</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_track_import_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">name_tracked_map</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_maybe_track_import_from</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">name_tracked_map</span><span class="p">:</span> <span class="n">NameTrackedMap</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If any of the items imported from the specified module match an item that is being tracked, add the local name</span>
+<span class="sd">        that is being used for it (the ``as other_name`` value, if specified, otherwise the original name) to the</span>
+<span class="sd">        current scope.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">as_name</span> <span class="ow">in</span> <span class="n">imp_names</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">tracked</span> <span class="o">:=</span> <span class="n">name_tracked_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
                 <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Found tracked import: </span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">module</span><span class="si">}</span><span class="s1">.</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">as_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1125,11 +1162,17 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_For">[docs]</a>
     <span class="nd">@scoped</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">visit_For</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Visit a *for* loop.&quot;&quot;&quot;</span>
+        <span class="c1"># Given the loop, `for x in y:`, `For.target` -&gt; `x` (the loop variable), and `For.iter` -&gt; `y` (the iterable)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">Name</span><span class="p">):</span>
+            <span class="c1"># `For.target` -&gt; the loop variable(s); if the target is a Name, then it is a single variable.</span>
+            <span class="c1"># For loops with multiple loop variables result in the target being a tuple of Names.</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">ele_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">iter</span><span class="o">.</span><span class="n">elts</span><span class="p">]</span>  <span class="c1"># noqa</span>
+                <span class="c1"># When the iterable is an in-line collection literal such as a tuple, `node.iter` will be the AST</span>
+                <span class="c1"># object representing that collection literal. The `elts` attr of Tuple/List/Set contains its elements.</span>
+                <span class="n">ele_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">ele</span><span class="p">)</span> <span class="k">for</span> <span class="n">ele</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">iter</span><span class="o">.</span><span class="n">elts</span><span class="p">]</span>  <span class="c1"># type: ignore[attr-defined]</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-                <span class="n">ele_names</span> <span class="o">=</span> <span class="p">()</span>
+                <span class="n">ele_names</span> <span class="o">=</span> <span class="p">[]</span>
 
             <span class="k">if</span> <span class="n">ele_names</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">smart_loop_handling</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_visit_for_smart</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">ele_names</span><span class="p">)</span>
@@ -1142,17 +1185,36 @@
     <span class="n">visit_AsyncFor</span> <span class="o">=</span> <span class="n">visit_For</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_visit_for_smart</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">,</span> <span class="n">loop_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ele_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes *for* loops that iterate over tracked parser objects for the purpose of registering common</span>
+<span class="sd">        arguments, etc.  If not all of the identified elements are parsers, then this method falls back to the</span>
+<span class="sd">        generic :meth:`._visit_for_elements` handler instead.</span>
+
+<span class="sd">        :param node: An AST node representing a *for* loop over an in-line tuple/list/set literal.</span>
+<span class="sd">        :param loop_var: Given ``for x in y:``, ``x``.</span>
+<span class="sd">        :param ele_names: The names of the items in the tuple/list/set literal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Attempting smart for loop visit for </span><span class="si">{</span><span class="n">loop_var</span><span class="si">=}</span><span class="s1"> in </span><span class="si">{</span><span class="n">ele_names</span><span class="si">=}</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">refs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ref</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ele_names</span><span class="p">)</span> <span class="k">if</span> <span class="n">ref</span><span class="p">]</span>
+        <span class="n">refs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AstArgumentParser</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ref</span>  <span class="c1"># type: ignore[misc]  # mypy doesn&#39;t seem to recognize the isinstance part of the condition</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ele_names</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">AstArgumentParser</span><span class="p">)</span>
+        <span class="p">]</span>
         <span class="c1"># log.debug(f&#39;  &gt; Found {len(refs)=}, {len(ele_names)=}&#39;)</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ele_names</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="n">AstArgumentParser</span><span class="p">)</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">refs</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">ele_names</span><span class="p">):</span>  <span class="c1"># ele_names is confirmed to be non-empty before this method is called</span>
+            <span class="c1"># All elements are AstArgumentParser or SubParser (or subclasses thereof) objects</span>
             <span class="n">parents</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">parent</span> <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">refs</span><span class="p">)</span>
             <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;  &gt; Found parents=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parents</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># They all have the same parent parser or script</span>
                 <span class="n">parent</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">parents</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">parent</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">parent</span><span class="p">,</span> <span class="s1">&#39;sub_parsers&#39;</span><span class="p">,</span> <span class="p">()))</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">refs</span><span class="p">):</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">loop_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent</span>
+                    <span class="c1"># They are all subparsers with the same parent parser, and the parent parser does not have any</span>
+                    <span class="c1"># other subparsers that are not in scope for this loop.</span>
+                    <span class="c1"># Pretend the parent is the target - ignore the subparsers when evaluating the loop, and add the</span>
+                    <span class="c1"># common items to the parent parser.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">loop_var</span><span class="p">]</span> <span class="o">=</span> <span class="n">parent</span>  <span class="c1"># type: ignore[assignment]</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
                     <span class="k">return</span>
 
@@ -1172,37 +1234,70 @@
 
     <span class="c1"># endregion</span>
 
+    <span class="c1"># region Resolve Tracked References</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">,</span> <span class="n">only_visitable</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="nd">@overload</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">,</span> <span class="n">only_visitable</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
 <div class="viewcode-block" id="ScriptVisitor.resolve_ref">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.resolve_ref">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AST</span> <span class="o">|</span> <span class="n">Attribute</span> <span class="o">|</span> <span class="n">Name</span> <span class="o">|</span> <span class="n">expr</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
-            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-            <span class="n">attr</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">attr</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">get_name_repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-                <span class="k">pass</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">obj_name</span><span class="p">,</span> <span class="n">attr</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span>
-            <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">,</span> <span class="n">only_visitable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resolve the given reference to a tracked item in the current scope.</span>
+
+<span class="sd">        :param name: The name of a reference or an AST node that may contain the name of a reference</span>
+<span class="sd">        :param only_visitable: If True, then only return visit functions or None, otherwise include AstCallable objects</span>
+<span class="sd">        :return: The resolved reference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj</span><span class="p">,</span> <span class="n">attr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">match</span> <span class="n">obj</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">AstCallable</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attr</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">visit_funcs</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">only_visitable</span> <span class="k">else</span> <span class="n">obj</span>
+            <span class="k">case</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">TrackedRef</span><span class="p">():</span>
                 <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TrackedValue</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Resolves the given reference, but does not handle final attr lookup or type checking.&quot;&quot;&quot;</span>
+        <span class="n">obj</span><span class="p">:</span> <span class="n">TrackedRef</span> <span class="o">|</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">_NoCallType</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">obj</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">value</span><span class="p">))</span> <span class="ow">is</span> <span class="n">_NoCall</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">attr</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">get_name_repr</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">obj</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">can_call</span> <span class="o">=</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">visit_funcs</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">can_call</span> <span class="k">else</span> <span class="kc">None</span></div>
+            <span class="n">obj_name</span><span class="p">,</span> <span class="n">attr</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">obj_name</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
+        <span class="k">return</span> <span class="n">obj</span><span class="p">,</span> <span class="n">attr</span>
+
+    <span class="c1"># endregion</span>
 
 <div class="viewcode-block" id="ScriptVisitor.visit_withitem">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_withitem">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">visit_withitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_withitem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">:</span> <span class="n">withitem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visit a single ``withitem`` / context expression within a ``with ...:`` statement that may include one or more</span>
+<span class="sd">        ``withitem``s / content expressions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">context_expr</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">context_expr</span>
-        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">context_expr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">context_expr</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="c1"># Found a ``with foo(...):`` statement where *foo* is being tracked</span>
             <span class="n">call</span> <span class="o">=</span> <span class="n">context_expr</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">context_expr</span><span class="p">,</span> <span class="n">Call</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">as_name</span> <span class="o">:=</span> <span class="n">item</span><span class="o">.</span><span class="n">optional_vars</span><span class="p">:</span>
@@ -1212,21 +1307,29 @@
 <div class="viewcode-block" id="ScriptVisitor.visit_Assign">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Assign">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visit_Assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Assign</span><span class="p">):</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="n">Attribute</span><span class="p">,</span> <span class="n">Name</span><span class="p">)):</span>  <span class="c1"># Assigning an alias to a variable</span>
-            <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ref</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">value</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoCall</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>  <span class="c1"># noq</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visit an assignment statement where one or more variables (stored in ``Assign.targets``) are being assigned one</span>
+<span class="sd">        or more values (stored in ``Assign.value``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">match</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="k">case</span> <span class="n">Attribute</span><span class="p">()</span> <span class="o">|</span> <span class="n">Name</span><span class="p">():</span>
+                <span class="c1"># Assigning an alias to a variable; e.g., `foo = bar` or `foo = bar.baz`</span>
+                <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+                    <span class="c1"># The value was singular and referenced something being tracked</span>
+                    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ref</span>
+                <span class="c1"># Not handled here: cases like `a = (1, 2); x, y = a` or `x, y = a, b`</span>
+            <span class="k">case</span> <span class="n">Call</span><span class="p">():</span>
+                <span class="c1"># Storing the result of a function/similar call; e.g., `foo = bar()` or `foo = bar.baz()`</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoCall</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span></div>
 
 
 <div class="viewcode-block" id="ScriptVisitor.visit_Call">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Call</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="n">_NoCallType</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">_NoCall</span></div>
 </div>
@@ -1236,6 +1339,11 @@
 <div class="viewcode-block" id="TrackedRef">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.TrackedRef">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TrackedRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents any class/function/object/variable/etc. that may be imported from a specific module with a specific</span>
+<span class="sd">    name in that module.  Used to track references to that item.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;module&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
@@ -1247,8 +1355,8 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">)</span> <span class="o">^</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">TrackedRef</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">module</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">module</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">module</span></div>
 
 
 

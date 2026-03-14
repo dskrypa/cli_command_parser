@@ -1000,12 +1000,13 @@
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">arg_parser</span> <span class="o">=</span> <span class="s1">&#39;argparse.ArgumentParser&#39;</span>
-<span class="n">cli_cp_cmd</span> <span class="o">=</span> <span class="s1">&#39;cli-command-parser Command&#39;</span>
 
 
 <div class="viewcode-block" id="ParserConverter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ParserConverter</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Tool to convert an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1"> into a </span><span class="si">{</span><span class="n">cli_cp_cmd</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParserConverter</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Tool to convert an argparse.ArgumentParser into a cli-command-parser Command&quot;&quot;&quot;</span>
+
     <span class="n">action</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span>
     <span class="n">no_smart_for</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-S&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable &quot;smart&quot; for loop handling that attempts to dedupe common subparser params&#39;</span><span class="p">)</span>
@@ -1036,6 +1037,8 @@
 <div class="viewcode-block" id="Convert">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Convert">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Convert</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the cli-command-parser Commands that are equivalent to the discovered argparse ArgumentParsers&quot;&quot;&quot;</span>
+
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">add_methods</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-methods&#39;</span><span class="p">,</span> <span class="s1">&#39;-M&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Do not include boilerplate methods in Commands&#39;</span><span class="p">)</span>
 
@@ -1052,6 +1055,8 @@
 <div class="viewcode-block" id="Pprint">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Pprint</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print a tiered internal representation of the discovered argparse ArgumentParsers and their groups/arguments&quot;&quot;&quot;</span>
+
     <span class="nb">input</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Pprint.main">
