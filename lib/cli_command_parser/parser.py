@@ -28,8 +28,10 @@ from .parse_tree import PosNode
 
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
+    from .commands import Command
     from .config import CommandConfig
-    from .typing import Bool, CommandType, OptStr
+    from .core import CommandMeta
+    from .typing import Bool, OptStr
 
 __all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
 log = logging.getLogger(__name__)
@@ -62,7 +64,7 @@ class CommandParser:
             PosNode.build_tree(ctx.command_cls)
 
     @classmethod
-    def parse_args_and_get_next_cmd(cls, ctx: Context) -> CommandType | None:
+    def parse_args_and_get_next_cmd(cls, ctx: Context) -> CommandMeta | None:
         try:
             return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
         except UsageError:
@@ -70,7 +72,7 @@ class CommandParser:
                 raise
             return None
 
-    def get_next_cmd(self, ctx: Context) -> CommandType | None:
+    def get_next_cmd(self, ctx: Context) -> CommandMeta | None:
         self._parse_args(ctx)
         self._validate_groups()
         missing = ctx.get_missing()

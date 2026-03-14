@@ -3,7 +3,6 @@ Exceptions for Command Parser
 
 :author: Doug Skrypa
 """
-# pylint: disable=W0231
 
 from __future__ import annotations
 

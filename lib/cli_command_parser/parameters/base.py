@@ -7,12 +7,12 @@ Base classes and helpers for Parameters and Groups
 from __future__ import annotations
 
 import re
+import sys
 from abc import ABC, abstractmethod
-from collections.abc import Collection
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, NoReturn, Type, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Type, TypeAlias, TypeVar, overload
 
 try:
     from typing import Self
@@ -28,21 +28,35 @@ from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..inputs.numeric import NumericInput
 from ..nargs import REMAINDER, Nargs
-from ..typing import CommandMethod, DefaultFunc, T_co
-from ..utils import _NotSet
+from ..utils import _NotSet, _NotSetType
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
-    from ..core import CommandMeta
+    from collections.abc import Collection
+    from typing import Literal, NoReturn
+
+    from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import Bool, CommandAny, CommandCls, CommandObj, LeadingDash, OptStr, OptStrs, Strings
+    from ..typing import Bool, LeadingDash, OptStr, OptStrs, Strings
     from .actions import ParamAction
     from .groups import ParamGroup
 
+    _CmdCls = Type[Command]
+    _CmdObjOrCls: TypeAlias = Command | _CmdCls
+
 __all__ = ['Parameter', 'BasePositional', 'BaseOption']
 
-_group_stack = ContextVar('cli_command_parser.parameters.base.group_stack')
+_group_stack: ContextVar[list[ParamGroup]] = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
+
+if sys.version_info >= (3, 13):
+    T = TypeVar('T', default=str)
+else:
+    T = TypeVar('T')
+
+CommandMethod = Callable[['Command'], T]
+DefaultFunc = Callable[[], T] | CommandMethod
+
 TD = TypeVar('TD')
 
 
@@ -64,9 +78,9 @@ class ParamBase(ABC):
     _attr_name: OptStr = None           #: Always the name of the attr that points to this object
     _name: OptStr = None                #: An explicitly provided name, or the name of the attr that points to this obj
     group: ParamGroup | None = None     #: The group this object is a member of, if any
-    command: CommandMeta | None = None  #: The :class:`.Command` this object is a member of
+    command: _CmdCls | None = None      #: The :class:`.Command` this object is a member of
     required: Bool                      #: Whether this param/group is required
-    help: str                           #: The description for this param/group that will appear in ``--help`` text
+    help: OptStr                        #: The description for this param/group that will appear in ``--help`` text
     hide: Bool                          #: Whether this param/group should be hidden in ``--help`` text
     # fmt: on
 
@@ -102,7 +116,7 @@ class ParamBase(ABC):
     def _default_name(self) -> str:
         return f'{self.__class__.__name__}#{id(self)}'
 
-    def __set_name__(self, command: CommandCls, name: str):
+    def __set_name__(self, command: _CmdCls, name: str):
         self.command = command
         if self._name is None:
             self._name = name
@@ -121,22 +135,30 @@ class ParamBase(ABC):
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
 
-    def _ctx(self, command: CommandAny | None = None) -> Context | None:
+    @overload
+    def _ctx(self, command: _CmdObjOrCls) -> Context: ...
+
+    @overload
+    def _ctx(self, command: Any) -> Context | None: ...
+
+    def _ctx(self, command: _CmdObjOrCls | Any = None) -> Context | None:
         if context := get_current_context(True):
             return context
+
         if command is None:
             command = self.command
+
         try:
-            return command._Command__ctx
+            return command._Command__ctx  # type: ignore[union-attr]  # noqa
         except AttributeError:
             return None
 
-    def _config(self, command: CommandAny | None = None) -> CommandConfig:
+    def _config(self, command: _CmdCls | None = None) -> CommandConfig:
         if context := self._ctx(command):
             return context.config
         if command is None:
             command = self.command
-        return command.__class__.config(command, DEFAULT_CONFIG)
+        return command.__class__.config(command, DEFAULT_CONFIG)  # type: ignore[union-attr]
 
     # region Usage / Help Text
 
@@ -167,7 +189,7 @@ class ParamBase(ABC):
     # endregion
 
 
-class Parameter(ParamBase, Generic[T_co], ABC):
+class Parameter(ParamBase, Generic[T], ABC):
     """
     Base class for all other parameters.  It is not meant to be used directly.
 
@@ -205,7 +227,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # Instance attributes with class defaults
     metavar: OptStr = None
     nargs: Nargs                                                        # Expected to be set in subclasses
-    type: Callable[[str], T_co] | None = None                           # Expected to be set in subclasses
+    type: Callable[[str], T] | None = None                              # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
     default = _NotSet
     default_cb: DefaultCallback | None = None
@@ -276,7 +298,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             f'Invalid {action=} for {self.__class__.__name__} - valid actions: {sorted(self._action_map)}'
         )
 
-    def __set_name__(self, command: CommandCls, name: str):
+    def __set_name__(self, command: _CmdCls, name: str):
         super().__set_name__(command, name)
         # If self.type is None, a type may still be inferred from an annotation, which happens in this method.
         if untyped_choices := self.type is not None:
@@ -290,13 +312,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
         if (annotated_type := get_descriptor_value_type(command, name)) is None:
             return
         elif untyped_choices:
-            self.type.type = annotated_type
+            self.type.type = annotated_type  # type: ignore[union-attr]
         else:  # self.type must be None
             # Choices present earlier would have already been converted
             self.type = normalize_input_type(annotated_type, None)
 
     @property
-    def has_choices(self) -> bool:
+    def has_choices(self) -> Bool:
         if self.type:
             return isinstance(self.type, _ChoicesBase) and self.type.choices
         return False
@@ -330,7 +352,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def __repr__(self) -> str:
         names = ('action', 'const', 'default', 'default_cb', 'type', 'choices', 'required', 'hide', 'help')
         if self._repr_attrs:
-            names = chain(names, self._repr_attrs)
+            names = chain(names, self._repr_attrs)  # type: ignore[assignment]
 
         skip = (None, _NotSet)
         attrs = (
@@ -346,12 +368,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     def get_const(self, opt_str: OptStr = None):
         return _NotSet
 
-    def get_env_const(self, value: str, env_var: str) -> tuple[T_co, bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[T | _NotSetType, bool]:
         return _NotSet, False
 
-    def prepare_value(self, value: str, short_combo: Bool = False, env_var: OptStr = None) -> T_co:
+    def prepare_value(self, value: str, short_combo: Bool = False, env_var: OptStr = None) -> T | str:
         if self.type is None:
             return value
+
         try:
             return self.type(value)
         except InvalidChoiceError as e:
@@ -366,13 +389,13 @@ class Parameter(ParamBase, Generic[T_co], ABC):
             suffix = f' from env var={env_var!r}' if env_var else ''
             raise BadArgument(self, f'unable to cast {value=} to type={self.type!r}{suffix}') from e
 
-    def prepare_validation_value(self, value: str, short_combo: Bool = False) -> T_co:
+    def prepare_validation_value(self, value: str, short_combo: Bool = False) -> T | str:
         if self.type is None or (isinstance(self.type, InputType) and self.type.is_valid_type(value)):
             return value
-        else:
-            return self.prepare_value(value, short_combo)
 
-    def validate(self, value: T_co | None, joined: Bool = False):
+        return self.prepare_value(value, short_combo)
+
+    def validate(self, value: T | None, joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
@@ -399,27 +422,33 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # region Parse Results / Argument Value Handling
 
     @overload
-    def __get__(self, command: Literal[None], owner: Type[object]) -> Self: ...
+    def __get__(self, command: Literal[None], owner: Any) -> Self: ...
 
     @overload
-    def __get__(self, command: object, owner: Type[object]) -> T_co | None: ...
+    def __get__(self, command: object, owner: Any) -> T | None: ...
 
-    def __get__(self, command, owner):
+    def __get__(self, command: object | None, owner: Any) -> Self | T | None:
         if command is None:
             return self
 
-        with self._ctx(command):
-            value = self.result(command)
+        if context := self._ctx(command):
+            with context:
+                value = self.result(command)
+        else:
+            # This would only ever happen if this Parameter was created in a non-Command class, but it makes mypy happy
+            value = None
 
         if self._attr_name:
             command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
+
         return value
 
-    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> T_co | TD | None:
+    def result(self, command: Command | Any = None, missing_default: TD | _NotSetType = _NotSet) -> T | TD | None:
         """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
         if (value := ctx.get_parsed_value(self)) is not _NotSet:
             return self.action.finalize_value(value)
-        elif self.required:
+
+        if self.required:
             if missing_default is _NotSet:
                 raise MissingArgument(self)
             return missing_default
@@ -447,7 +476,7 @@ class Parameter(ParamBase, Generic[T_co], ABC):
     # endregion
 
 
-class BasePositional(Parameter[T_co], ABC):
+class BasePositional(Parameter[T], ABC):
     """
     Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are
     provided positionally, without prefixes.  It is not meant to be used directly.
@@ -474,7 +503,13 @@ class BasePositional(Parameter[T_co], ABC):
             cls._default_ok = default_ok
 
     def __init__(
-        self, action: str, *, required: Bool = True, default: Any = _NotSet, default_cb: DefaultFunc = None, **kwargs
+        self,
+        action: str,
+        *,
+        required: Bool = True,
+        default: Any = _NotSet,
+        default_cb: DefaultFunc | None = None,
+        **kwargs,
     ):
         if not (self._default_ok and 0 in self.nargs):  # Indicates that having a default is bad
             if not required:
@@ -486,7 +521,7 @@ class BasePositional(Parameter[T_co], ABC):
         super().__init__(action, default=default, required=required, default_cb=default_cb, **kwargs)
 
 
-class BaseOption(Parameter[T_co], ABC):
+class BaseOption(Parameter[T], ABC):
     """
     Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have
     ``--long`` and ``-short`` prefixes before values.
@@ -530,7 +565,7 @@ class BaseOption(Parameter[T_co], ABC):
         self,
         *option_strs: str,
         action: str,
-        name_mode: OptionNameMode | OptStr = _NotSet,
+        name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
         env_var: OptStrs = None,
         strict_env: bool = True,
         use_env_value: Bool = None,
@@ -552,7 +587,7 @@ class BaseOption(Parameter[T_co], ABC):
             raise ParameterDefinitionError(f'Invalid {action=} for {self.__class__.__name__} - did you mean {fixed!r}?')
         super()._handle_bad_action(action)
 
-    def __set_name__(self, command: CommandCls, name: str):
+    def __set_name__(self, command: _CmdCls, name: str):
         super().__set_name__(command, name)
         if not self.option_strs.name_mode:
             self.option_strs.name_mode = self._config(command).option_name_mode
@@ -605,7 +640,7 @@ class AllowLeadingDashProperty:
             instance.__dict__[self.name] = value
 
 
-class DefaultCallback:
+class DefaultCallback(Generic[T]):
     __slots__ = ('func', 'use_cmd')
 
     def __init__(self, func: CommandMethod | DefaultFunc, use_cmd: bool = False):
@@ -615,7 +650,7 @@ class DefaultCallback:
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}({self.func!r}, use_cmd={self.use_cmd})>'
 
-    def __call__(self, command: CommandObj | None) -> T_co:
+    def __call__(self, command: Command) -> T:
         # If the func isn't a method / doesn't accept the command, then `command` must not be None, but the default
         # callback is intentionally not called by ParamAction.get_default (and its subclasses) when command is None.
-        return self.func(command) if self.use_cmd else self.func()
+        return self.func(command) if self.use_cmd else self.func()  # type: ignore[call-arg]

@@ -13,14 +13,14 @@ from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, TypeVar
 from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import T_co, TypeFunc
+from ..typing import TypeFunc
 from ..utils import _NotSet, str_to_bool
 from .actions import Append, AppendConst, Count, Store, StoreConst
-from .base import AllowLeadingDashProperty, BaseOption
+from .base import AllowLeadingDashProperty, BaseOption, CommandMethod
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, CommandCls, CommandMethod, CommandObj, InputTypeFunc, LeadingDash, OptStr
+    from ..typing import Bool, ChoicesType, CommandCls, CommandObj, InputTypeFunc, LeadingDash, OptStr
 
 __all__ = [
     'Option',
@@ -35,13 +35,14 @@ __all__ = [
 ]
 log = logging.getLogger(__name__)
 
+T = TypeVar('T')
 TD = TypeVar('TD')
 TC = TypeVar('TC')
 TA = TypeVar('TA')
 ConstAct = Literal['store_const', 'append_const']
 
 
-class Option(BaseOption[T_co | TD], actions=(Store, Append)):
+class Option(BaseOption[T | TD], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 

@@ -34,8 +34,7 @@ if TYPE_CHECKING:
     from .parameters import Parameter, ParamGroup
 
 T = TypeVar('T')
-T_co = TypeVar('T_co', covariant=True)
-TypeFunc = Callable[[str], T_co]
+TypeFunc = Callable[[str], T]
 
 NT = TypeVar('NT', bound='_Number')
 Number: TypeAlias = NT | None
@@ -71,9 +70,5 @@ ParamList = list[Param]
 ParamOrGroup = Union[Param, 'ParamGroup']
 
 CommandObj = TypeVar('CommandObj', bound='Command')
-CommandType = TypeVar('CommandType', bound='CommandMeta')
-CommandCls: TypeAlias = CommandType | Type[CommandObj]
+CommandCls: TypeAlias = Type[CommandObj]
 CommandAny: TypeAlias = CommandCls | CommandObj
-
-CommandMethod = Callable[[CommandObj], T_co]
-DefaultFunc = Callable[[], T_co] | CommandMethod
