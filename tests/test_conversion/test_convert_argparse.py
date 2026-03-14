@@ -626,7 +626,7 @@ class ArgparseConversionCustomSubclassTest(ParserTest):
         ac_converter_map = Converter._ac_converter_map
         del ac_converter_map[next(ac for ac in ac_converter_map if ac.__name__ == 'ParserConstant')]
         for module in ('foo', 'foo.bar', 'foo.bar.baz'):
-            del Script._parser_classes[module]
+            del Script.mod_cls_to_ast_cls_map[module]
 
     def test_custom_parser_subclass(self):
         code = """

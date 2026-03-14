@@ -10,10 +10,11 @@ from cli_command_parser.inputs import Path as IPath
 log = logging.getLogger(__name__)
 
 arg_parser = 'argparse.ArgumentParser'
-cli_cp_cmd = 'cli-command-parser Command'
 
 
-class ParserConverter(Command, description=f'Tool to convert an {arg_parser} into a {cli_cp_cmd}'):
+class ParserConverter(Command):
+    """Tool to convert an argparse.ArgumentParser into a cli-command-parser Command"""
+
     action = SubCommand()
     input: Path
     no_smart_for = Flag('-S', help='Disable "smart" for loop handling that attempts to dedupe common subparser params')
@@ -35,6 +36,8 @@ class ParserConverter(Command, description=f'Tool to convert an {arg_parser} int
 
 
 class Convert(ParserConverter):
+    """Print the cli-command-parser Commands that are equivalent to the discovered argparse ArgumentParsers"""
+
     input: Path = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
     add_methods = Flag('--no-methods', '-M', default=True, help='Do not include boilerplate methods in Commands')
 
@@ -45,6 +48,8 @@ class Convert(ParserConverter):
 
 
 class Pprint(ParserConverter):
+    """Print a tiered internal representation of the discovered argparse ArgumentParsers and their groups/arguments"""
+
     input: Path = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
 
     def main(self):
