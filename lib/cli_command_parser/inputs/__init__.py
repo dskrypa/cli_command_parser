@@ -51,15 +51,15 @@ def normalize_input_type(type_func: InputTypeFunc, param_choices: ChoicesType) -
 
     match type_func:
         case None:
-            return Choices(param_choices) if choices_provided else type_func
+            return Choices(param_choices) if choices_provided else type_func  # type: ignore[arg-type]
         case range():
             return Range(type_func)
         case _Pattern():
             return Regex(type_func)
         case _EnumMeta():
-            enum_choices = EnumChoices(type_func)
+            enum_choices: EnumChoices = EnumChoices(type_func)
             if choices_provided:
-                return Choices(param_choices, enum_choices)
+                return Choices(param_choices, enum_choices)  # type: ignore[arg-type]
             return enum_choices
 
-    return Choices(param_choices, type_func) if choices_provided else type_func
+    return Choices(param_choices, type_func) if choices_provided else type_func  # type: ignore[arg-type]

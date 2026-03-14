@@ -24,8 +24,9 @@ from .utils import Terminal, _NotSet
 if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
+    from .core import CommandMeta
     from .parameters import ActionFlag, BaseOption, Parameter
-    from .typing import AnyConfig, Bool, CommandObj, CommandType, OptStr, ParamOrGroup, PathLike, StrSeq  # noqa
+    from .typing import AnyConfig, Bool, CommandCls, CommandObj, OptStr, ParamOrGroup, PathLike, StrSeq
 
     Argv = StrSeq | None
 
@@ -53,7 +54,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     def __init__(
         self,
         argv: Argv = None,
-        command_cls: CommandType | None = None,
+        command_cls: CommandCls | None = None,
         *,
         parent: Context | None = None,
         config: AnyConfig | None = None,
@@ -100,7 +101,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.remaining = list(self.argv)
 
     def _sub_context(
-        self, command_cls: CommandType, argv: Argv = None, command: CommandObj | None = None, **kwargs
+        self, command_cls: CommandCls, argv: Argv = None, command: CommandObj | None = None, **kwargs
     ) -> Context:
         return self.__class__(
             self.remaining if argv is None else argv,
@@ -322,7 +323,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
 
 def _normalize_config(
-    config: AnyConfig, kwargs: dict[str, Any], parent: Context | None, command: CommandType | None
+    config: AnyConfig, kwargs: dict[str, Any], parent: Context | None, command: CommandMeta | None
 ) -> CommandConfig:
     if config is not None:
         if kwargs:
@@ -443,7 +444,7 @@ def get_current_context(silent: bool = False) -> Context | None:
 
 
 def get_or_create_context(
-    command_cls: CommandType, argv: Argv = None, *, command: CommandObj | None = None, **kwargs
+    command_cls: CommandCls, argv: Argv = None, *, command: CommandObj | None = None, **kwargs
 ) -> Context:
     """
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was

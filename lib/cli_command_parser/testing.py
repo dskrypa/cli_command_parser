@@ -3,7 +3,6 @@ Helpers for unit tests
 
 :author: Doug Skrypa
 """
-# pylint: disable=R0913,C0103
 
 from __future__ import annotations
 
@@ -25,7 +24,7 @@ from .exceptions import UsageError
 from .parameters import help_action
 
 if TYPE_CHECKING:
-    from .typing import CommandCls, OptStr
+    from .typing import OptStr
 
 __all__ = [
     'ParserTest',
@@ -50,6 +49,8 @@ ExceptionCase = Argv | tuple[Argv, ExcType] | tuple[Argv, ExcType, str]
 ExcCases = Iterable[ExceptionCase]
 CallExceptionCase = tuple[Kwargs, ExcType] | tuple[Kwargs, ExcType, str]
 CallExceptionCases = Iterable[CallExceptionCase]
+MaybeCallExcCases = Iterable[ExceptionCase | CallExceptionCase]
+CommandCls = Type[Command]
 
 OPT_ENV_MOD = 'cli_command_parser.parser.environ'
 EXCLUDE_ACTIONS = (help_action,)
@@ -84,13 +85,6 @@ class AssertRaisesWithStringContext:
 
 
 class ParserTest(TestCase):
-    # def setUp(self):
-    #     print()
-    #
-    # def subTest(self, *args, **kwargs):
-    #     print()
-    #     return super().subTest(*args, **kwargs)
-
     def assert_dict_equal(self, d1, d2, msg: OptStr = None):
         self.assertIsInstance(d1, dict, 'First argument is not a dictionary')
         self.assertIsInstance(d2, dict, 'Second argument is not a dictionary')
@@ -139,7 +133,9 @@ class ParserTest(TestCase):
             with AssertRaisesWithStringContext(self, expected_exc, expected_pattern, msg):
                 cmd_cls.parse(argv)
 
-    def assert_parse_fails_cases(self, cmd_cls: CommandCls, cases: ExcCases, exc: ExcType = None, msg: OptStr = None):
+    def assert_parse_fails_cases(
+        self, cmd_cls: CommandCls, cases: ExcCases, exc: ExcType | None = None, msg: OptStr = None
+    ):
         for argv, exc, pat in _iter_exc_cases(cases, exc):
             with self.subTest(expected='exception', argv=argv):
                 with AssertRaisesWithStringContext(self, exc, pat, msg):
@@ -171,16 +167,24 @@ class ParserTest(TestCase):
     def assert_strings_equal(
         self, expected: str, actual: str, message: OptStr = None, diff_lines: int = 3, trim: bool = False
     ):
+        """
+        Assert that two strings are equal.  Primarily intended for cases involving multi-line text.
+
+        :param expected: Expected string
+        :param actual: Actual string that was produced by code that is being tested
+        :param message: Message to be displayed if the strings do not match (default: a multi-line colored diff is
+          displayed)
+        :param diff_lines: Number of lines of context before/after differing lines that should be displayed in the diff
+        :param trim: Whether the expected and actual strings should be normalized by removing trailing whitespace
+        """
         if trim:
             expected = expected.rstrip()
             actual = '\n'.join(line.rstrip() for line in actual.splitlines())
+
         if message:
             self.assertEqual(expected, actual, message)
         elif expected != actual:
             diff = format_diff(expected, actual, n=diff_lines)
-            # if not diff.strip():
-            #     self.assertEqual(expected, actual)
-            # else:
             self.fail('Strings did not match:\n' + diff)
 
     def assert_str_starts_with_line(self, prefix: str, text: str):
@@ -198,14 +202,14 @@ class ParserTest(TestCase):
             yield
 
 
-def _iter_exc_cases(cases: ExcCases | CallExceptionCases, exc: ExcType | None = None):
+def _iter_exc_cases(cases: MaybeCallExcCases, exc: ExcType | None = None):
     if exc is not None:
         for args in cases:
             yield args, exc, None
     else:
         for case in cases:
             try:
-                args, exc = case
+                args, exc = case  # type: ignore[assignment,misc]
             except ValueError:
                 yield case  # Assume it is a 3-tuple of ([argv|kwargs], exc, pattern)
             else:
@@ -215,7 +219,7 @@ def _iter_exc_cases(cases: ExcCases | CallExceptionCases, exc: ExcType | None = 
 # region Formatting
 
 
-def _colored(text: str, color: int, end: str = '\n'):
+def _colored(text: str, color: int, end: str = '\n') -> str:
     return f'\x1b[38;5;{color}m{text}\x1b[0m{end}'
 
 
@@ -268,19 +272,21 @@ def format_dict_diff(a: dict[str, Any], b: dict[str, Any]) -> str:
 
 
 class RedirectStreams(AbstractContextManager):
-    _stdin: IO | str | bytes | None = None
+    _stdin: IO | None = None
 
     def __init__(self, stdin: IO | str | bytes | None = None):
-        self._old = {}
+        self._old: dict[str, IO] = {}
         if stdin is not None:
             if isinstance(stdin, bytes):
                 self._stdin = BytesIO(stdin)
-                self._stdin.buffer = self._stdin  # pretend to be the underlying buffer as well
+                # pretend to be the underlying buffer as well
+                self._stdin.buffer = self._stdin  # type: ignore[attr-defined]
             elif isinstance(stdin, str):
                 self._stdin = StringIO(stdin)
-                self._stdin.buffer = BytesIO(stdin.encode('utf-8'))
+                self._stdin.buffer = BytesIO(stdin.encode('utf-8'))  # type: ignore[misc]
             else:
                 self._stdin = stdin
+
         self._stdout = StringIO()
         self._stderr = StringIO()
 
@@ -293,12 +299,14 @@ class RedirectStreams(AbstractContextManager):
         return self._stderr.getvalue()
 
     def __enter__(self) -> RedirectStreams:
-        streams = {'stdout': self._stdout, 'stderr': self._stderr}
+        streams: dict[str, IO] = {'stdout': self._stdout, 'stderr': self._stderr}
         if self._stdin is not None:
-            streams['stdin'] = self._stdin
+            streams['stdin'] = self._stdin  # type: ignore[assignment]
+
         for name, io in streams.items():
             self._old[name] = getattr(sys, name)
             setattr(sys, name, io)
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -310,12 +318,12 @@ class RedirectStreams(AbstractContextManager):
 # region Help / Usage / RST Text
 
 
-def get_usage_text(cmd: Type[Command]) -> str:
+def get_usage_text(cmd: CommandCls) -> str:
     with cmd().ctx:
         return get_params(cmd).formatter.format_usage()
 
 
-def get_help_text(cmd: Type[Command] | Command, terminal_width: int = 199) -> str:
+def get_help_text(cmd: CommandCls | Command, terminal_width: int = 199) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
 
@@ -324,7 +332,7 @@ def get_help_text(cmd: Type[Command] | Command, terminal_width: int = 199) -> st
         return get_params(cmd).formatter.format_help()
 
 
-def get_rst_text(cmd: Type[Command] | Command) -> str:
+def get_rst_text(cmd: CommandCls | Command) -> str:
     if not isinstance(cmd, Command):
         cmd = cmd()
 
@@ -336,7 +344,7 @@ def get_rst_text(cmd: Type[Command] | Command) -> str:
 # endregion
 
 
-def sealed_mock(*args, **kwargs):
+def sealed_mock(*args, **kwargs) -> Mock:
     kwargs.setdefault('return_value', None)
     mock = Mock(*args, **kwargs)
     seal(mock)

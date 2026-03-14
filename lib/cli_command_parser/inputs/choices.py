@@ -6,11 +6,11 @@ Custom input handlers for Parameters to restrict allowed values to a set of choi
 
 from __future__ import annotations
 
+import sys
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Collection, Iterator, Mapping, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Mapping, Type, TypeVar
 
-from ..typing import T, TypeFunc
 from .base import InputType
 from .exceptions import InvalidChoiceError
 
@@ -19,13 +19,18 @@ if TYPE_CHECKING:
 
 __all__ = ['Choices', 'ChoiceMap', 'EnumChoices']
 
+if sys.version_info >= (3, 13):
+    T = TypeVar('T', default=str)
+else:
+    T = TypeVar('T')
+
 EnumT = TypeVar('EnumT', bound=Enum)
 
 
 class _ChoicesBase(InputType[T], ABC):
     __slots__ = ('choices', 'type', 'case_sensitive')
-    choices: Collection[T]
-    type: TypeFunc | None
+    choices: Collection
+    type: Callable[[str], T] | None
     case_sensitive: bool
 
     def __contains__(self, value: str) -> bool:
@@ -54,21 +59,22 @@ class _ChoicesBase(InputType[T], ABC):
     def _normalize(self, value: str) -> T:
         if self.type is not None:
             try:
-                return self.type(value)  # pylint: disable=E1102
+                return self.type(value)
             except (ValueError, TypeError) as e:
                 raise InvalidChoiceError(value, self.choices) from e
-        return value
+        return value  # type: ignore[return-value]
 
-    def _iter_normalized(self, value: Any, choices: Collection | None = None) -> Iterator[T]:
+    def _iter_normalized(self, value: str | T, choices: Collection | None = None) -> Iterator[str | T]:
         yield value
         if not self.case_sensitive and (choices is None or isinstance(choices, (set, Mapping))):
-            yield value.lower()
-            yield value.upper()
+            # Choices validates that all members of `choices` are strings when not case_sensitive
+            yield value.lower()  # type: ignore[misc,union-attr]
+            yield value.upper()  # type: ignore[misc,union-attr]
 
     def _case_insensitive_map_choice(self, value: Any) -> T:
         if not self.case_sensitive:
             norm_value = value.casefold()
-            for choice, val in self.choices.items():  # noqa
+            for choice, val in self.choices.items():  # type: ignore[attr-defined]
                 if norm_value == choice.casefold():
                     return val
 
@@ -77,7 +83,7 @@ class _ChoicesBase(InputType[T], ABC):
     def format_metavar(self, choice_delim: str = ',', sort_choices: bool = False) -> str:
         choices = map(str, self.choices)
         if sort_choices:
-            choices = sorted(choices)
+            choices = sorted(choices)  # type: ignore[assignment]
         return f'{{{choice_delim.join(choices)}}}'
 
 
@@ -93,11 +99,17 @@ class Choices(_ChoicesBase[T]):
     """
 
     __slots__ = ()
+    choices: Collection[T]
 
-    def __init__(self, choices: Collection[T], type: TypeFunc | None = None, case_sensitive: Bool = True):  # noqa
+    def __init__(
+        self,
+        choices: Collection[T],
+        type: Callable[[str], T] | None = None,  # noqa
+        case_sensitive: Bool = True,
+    ):
         if not case_sensitive and not all(isinstance(c, str) for c in choices):
             raise TypeError(f'Cannot combine case_sensitive=False with non-str {choices=}')
-        elif isinstance(type, EnumChoices) and not any(isinstance(c, type.type) for c in choices):
+        if isinstance(type, EnumChoices) and not any(isinstance(c, type.type) for c in choices):
             raise TypeError(f'Invalid {choices=} for {type=}')
         super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.choices = choices
@@ -106,21 +118,22 @@ class Choices(_ChoicesBase[T]):
 
     def _choices_repr(self, delim: str = ',') -> str:
         try:
-            return delim.join(map(repr, sorted(self.choices)))
+            return delim.join(map(repr, sorted(self.choices)))  # type: ignore[type-var]
         except TypeError:  # The choice values are not sortable
             return delim.join(sorted(map(repr, self.choices)))
 
     def __call__(self, value: str) -> T:
         choices = self.choices
-        value = self._normalize(value)
+        value = self._normalize(value)  # type: ignore[assignment]
         for val in self._iter_normalized(value, choices):
             if val in choices:
-                return value
+                return value  # type: ignore[return-value]
 
         if not self.case_sensitive:
-            norm_value = value.casefold()
+            # choices/value are confirmed to be str in init when case_sensitive=False
+            norm_value = value.casefold()  # type: ignore[attr-defined]
             for choice in choices:
-                if norm_value == choice.casefold():
+                if norm_value == choice.casefold():  # type: ignore[attr-defined]
                     return choice
 
         raise InvalidChoiceError(value, choices)
@@ -146,7 +159,7 @@ class ChoiceMap(Choices[T]):
         # TODO: Alternate ChoiceMap where values are used as help text, similar to SubCommand with local_choices
 
     def __call__(self, value: str) -> T:
-        value = self._normalize(value)
+        value = self._normalize(value)  # type: ignore[assignment]
         for val in self._iter_normalized(value):
             try:
                 return self.choices[val]
@@ -172,12 +185,13 @@ class EnumChoices(_ChoicesBase[EnumT]):
 
     __slots__ = ()
     type: Type[EnumT]
+    choices: Mapping[str, EnumT]
 
     def __init__(self, enum: Type[EnumT], case_sensitive: Bool = False):
         super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.type = enum
         self.case_sensitive = case_sensitive
-        self.choices = enum._member_map_
+        self.choices = enum._member_map_  # type: ignore[assignment]
 
     def _type_str(self) -> str:
         return f'type={self.type.__name__}, '
@@ -189,7 +203,7 @@ class EnumChoices(_ChoicesBase[EnumT]):
         enum = self.type
         for val in self._iter_normalized(value):
             try:
-                return enum[val]
+                return enum[val]  # type: ignore[index]
             except KeyError:
                 pass
             try:

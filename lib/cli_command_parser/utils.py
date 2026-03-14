@@ -23,7 +23,7 @@ except ImportError:  # added in 3.11
     Self = TypeVar('Self')  # type: ignore[misc,assignment]
 
 try:
-    from wcwidth import wcwidth
+    from wcwidth import wcwidth  # type: ignore[import-untyped]
 except ImportError:
     wcwidth = len
 

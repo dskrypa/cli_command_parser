@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     from ..core import CommandMeta
     from ..metadata import ProgramMetadata
     from ..parameters import BaseOption, BasePositional, Parameter, PassThru, SubCommand
-    from ..typing import Bool, CommandAny, CommandCls, CommandType, OptStr
+    from ..typing import Bool, CommandAny, CommandCls, OptStr
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -32,7 +32,7 @@ NameFunc = Callable[[str], str]
 
 
 class CommandHelpFormatter:
-    def __init__(self, command: CommandType, params: CommandParameters):
+    def __init__(self, command: CommandMeta, params: CommandParameters):
         self.command = command
         self.params = params
         self.pos_group = ParamGroup(description='Positional arguments')
@@ -122,13 +122,21 @@ class CommandHelpFormatter:
     # region RST Formatting
 
     def format_rst(
-        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
+        self,
+        fix_name: Bool = True,
+        fix_name_func: NameFunc | None = None,
+        init_level: int = 1,
+        allow_sys_argv: Bool = False,
     ) -> str:
         """Generate the RST content for the Command associated with this formatter and all of its subcommands"""
         return '\n'.join(self._format_rst(fix_name, fix_name_func, init_level, allow_sys_argv))
 
     def _format_rst(
-        self, fix_name: Bool = True, fix_name_func: NameFunc = None, init_level: int = 1, allow_sys_argv: Bool = False
+        self,
+        fix_name: Bool = True,
+        fix_name_func: NameFunc | None = None,
+        init_level: int = 1,
+        allow_sys_argv: Bool = False,
     ) -> Iterator[str]:
         name = self._meta.doc_name
         if fix_name:

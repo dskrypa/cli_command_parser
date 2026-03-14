@@ -3,7 +3,6 @@ Custom numeric input handlers for Parameters
 
 :author: Doug Skrypa
 """
-# pylint: disable=W0622
 
 from __future__ import annotations
 
@@ -66,20 +65,28 @@ class Range(_RangeInput[NT]):
     """
 
     type: NumType = int
-    range: _range | None
+    range: _range
     snap: bool
 
-    def __init__(self, range: RngType, snap: Bool = False, type: NumType = None, fix_default: Bool = True):  # noqa
+    def __init__(
+        self,
+        range: RngType,  # noqa
+        snap: Bool = False,
+        type: NumType | None = None,  # noqa
+        fix_default: Bool = True,
+    ):
         super().__init__(fix_default)
         self.snap = snap
-        if isinstance(range, int):
-            self.range = _range(range)
-        elif not isinstance(range, _range):
-            self.range = _range(*range)  # noqa
-        else:
-            self.range = range
         if type is not None:
             self.type = type
+
+        match range:
+            case int():
+                self.range = _range(range)
+            case _range():
+                self.range = range
+            case _:
+                self.range = _range(*range)
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}({self.range!r}, snap={self.snap!r}, type={self.type!r})>'
@@ -91,13 +98,12 @@ class Range(_RangeInput[NT]):
         return base if step == 1 else f'{base}, {step=}'
 
     def __call__(self, value: str) -> NT:
-        value = self.type(value)
-        if value in self.range:
-            return value
+        num_val = self.type(value)
+        if num_val in self.range:
+            return num_val
         elif self.snap:
-            if (rng_min := min(self.range)) > value:
-                return rng_min
-            return max(self.range)
+            snapped = rng_min if (rng_min := min(self.range)) > num_val else max(self.range)
+            return self.type(snapped) if self.type is not int else snapped  # type: ignore[return-value]
 
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
@@ -148,13 +154,15 @@ class NumRange(RangeMixin, _RangeInput[NT]):
         if snap:
             if self.type is float:
                 raise TypeError('Unable to snap to extrema with type=float')
-            real_min = min if include_min else min + 1
-            real_max = max if include_max else max - 1
-            if real_min >= real_max:
-                raise ValueError(
-                    f'Invalid {min=} >= {max=} with snap=True, {include_min=},'
-                    f' {include_max=} - snap would produce invalid values'
-                )
+
+            if min is not None and max is not None:
+                real_min = min if include_min else min + 1
+                real_max = max if include_max else max - 1
+                if real_min >= real_max:
+                    raise ValueError(
+                        f'Invalid {min=} >= {max=} with snap=True, {include_min=},'
+                        f' {include_max=} - snap would produce invalid values'
+                    )
 
         self.snap = snap
         self.min = self.type(min) if min is not None else min  # for floats especially, such as a range like 0~1, this
@@ -168,7 +176,7 @@ class NumRange(RangeMixin, _RangeInput[NT]):
     def _range_str(self, var: str = 'N') -> str:
         return range_str(self.min, self.max, self.include_min, self.include_max, var)
 
-    def handle_invalid(self, bound: Number, inclusive: bool, snap_dir: int) -> Number:
+    def handle_invalid(self, bound: Number, inclusive: bool, snap_dir: int) -> NT:
         """
         Handle calculating / returning a snap value or raise an exception if snapping to the bound is not allowed.
 
@@ -179,21 +187,22 @@ class NumRange(RangeMixin, _RangeInput[NT]):
         :param snap_dir: The direction to adjust the bound if it is exclusive as ``+1`` or ``-1``
         :return: The snap value if :attr:`.snap` is True, otherwise a :class:`python:ValueError` is raised
         """
-        if self.snap:
+        if self.snap and bound is not None:
             return bound if inclusive else (bound + snap_dir)
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
     def __call__(self, value: str) -> NT:
-        value = self.type(value)
-        if self.value_lt_min(value):
+        num_val = self.type(value)
+        # Note: if snap is enabled, it is applied by `handle_invalid`
+        if self.value_lt_min(num_val):
             return self.handle_invalid(self.min, self.include_min, 1)
-        elif self.value_gt_max(value):
+        elif self.value_gt_max(num_val):
             return self.handle_invalid(self.max, self.include_max, -1)
         else:
-            return value
+            return num_val
 
 
-class Bytes(NumericInput[NT]):
+class Bytes(NumericInput[int | float]):  # type: ignore[type-var]
     """
     A byte count/size.
 
@@ -270,9 +279,9 @@ class Bytes(NumericInput[NT]):
         parts.append('byte count/size')
         return ' '.join(parts)
 
-    def __call__(self, value: str) -> NT:
+    def __call__(self, value: str) -> int | float:
         try:
-            num, unit = self._pattern.match(value.strip()).groups()
+            num, unit = self._pattern.match(value.strip()).groups()  # type: ignore[union-attr]
         except (TypeError, AttributeError):
             raise InputValidationError(f'expected {self._type_desc()} with optional unit') from None
 

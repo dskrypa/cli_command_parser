@@ -11,28 +11,41 @@ import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S_IFSOCK
-from typing import TYPE_CHECKING, Any, BinaryIO, Iterator, TextIO
+from typing import IO, TYPE_CHECKING, Any, Generic, Iterator, Literal, TypeVar, overload
 from weakref import finalize
+
+try:
+    from typing import Self
+except ImportError:  # added in 3.11
+    Self = TypeVar('Self')  # type: ignore[misc,assignment]
 
 from ..utils import FixedFlag
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
-    from ..typing import FP, Bool, Converter, Number, OptStr
+    from ..typing import Bool, Converter, Number, OptStr
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path', 'range_str', 'RangeMixin']
 
+_T = TypeVar('_T')
 
-class InputParam:
+
+class InputParam(Generic[_T]):
     __slots__ = ('default', 'name')
 
-    def __init__(self, default: Any):
+    def __init__(self, default: _T):
         self.default = default
 
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def __get__(self, instance, owner) -> Any:
+    @overload
+    def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
+
+    @overload
+    def __get__(self, instance: object, owner: Any) -> _T: ...
+
+    def __get__(self, instance: object, owner: Any) -> Self | _T:
         try:
             return instance.__dict__[self.name]
         except AttributeError:  # instance is None
@@ -40,17 +53,23 @@ class InputParam:
         except KeyError:
             return self.default
 
-    def __set__(self, instance, value: Any):
+    def __set__(self, instance: object, value: _T):
         if value != self.default:
             instance.__dict__[self.name] = value
 
 
 class StatMode(FixedFlag):
-    def __new__(cls, mode, friendly_name: OptStr = None):
+    if TYPE_CHECKING:
+        mode: int | None  # type: ignore[misc]
+        friendly_name: str
+
+        def __init__(self, mode: int | str | StatMode | None): ...
+
+    def __new__(cls, mode: int | None, friendly_name: OptStr = None):
         # Defined __new__ to avoid juggling dicts for the stat mode values and names
         obj = object.__new__(cls)
         if friendly_name:
-            obj.mode = mode
+            obj.mode = mode  # type: ignore[misc]
             obj.friendly_name = friendly_name
             if mode is None:  # ANY
                 obj._value_ = sum(m._value_ for m in cls.__members__.values())
@@ -76,11 +95,14 @@ class StatMode(FixedFlag):
             name = self.friendly_name
         except AttributeError:  # Combined flags
             name = None
+
         if name:
             return name
+
         names = [part.friendly_name for part in self._decompose()]
         if len(names) == 2:
             return '{} or {}'.format(*names)
+
         names[-1] = f'or {names[-1]}'
         return ', '.join(names)
 
@@ -104,20 +126,20 @@ class FileWrapper:
         self.converter = converter
         self.pass_file = pass_file
         self.parents = parents
-        self._fp: TextIO | BinaryIO | None = None
-        self._finalizer = None
+        self._fp: IO | None = None
+        self._finalizer: finalize | None = None
 
-    def __eq__(self, other: FileWrapper) -> bool:
+    def __eq__(self, other) -> bool:
         attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file', 'parents')
         try:
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
-        except AttributeError:
+        except AttributeError:  # not a FileWrapper
             return NotImplemented
 
     def read(self) -> Any:
         with self._file() as f:
             if self.converter is not None:
-                return self.converter(f if self.pass_file else f.read())
+                return self.converter(f if self.pass_file else f.read())  # type: ignore[call-arg]
             else:
                 return f.read()
 
@@ -125,13 +147,13 @@ class FileWrapper:
         with self._file() as f:
             if self.converter is not None:
                 if self.pass_file:
-                    self.converter(data, f)
+                    self.converter(data, f)  # type: ignore[call-arg]
                 else:
-                    f.write(self.converter(data))
+                    f.write(self.converter(data))  # type: ignore[call-arg]
             else:
                 f.write(data)
 
-    def _open(self) -> FP:
+    def _open(self) -> IO:
         if self.path == Path('-'):
             stream = sys.stdin if 'r' in self.mode else sys.stdout
             return stream.buffer if self.binary else stream
@@ -148,7 +170,7 @@ class FileWrapper:
             return fp
 
     @classmethod
-    def _cleanup(cls, fp: FP, warn_msg: str):
+    def _cleanup(cls, fp: IO, warn_msg: str):
         fp.close()
         warnings.warn(warn_msg, ResourceWarning)
 
@@ -165,17 +187,18 @@ class FileWrapper:
             do_close = self._finalizer.detach()
         except AttributeError:
             do_close = False
+
         if do_close:
             self._close()
 
     @contextmanager
-    def _file(self) -> Iterator[FP]:
+    def _file(self) -> Iterator[IO]:
         try:
             yield self._open()
         finally:
             self.close()
 
-    def __enter__(self) -> FP | FileWrapper:
+    def __enter__(self) -> IO | FileWrapper:
         if self.converter is not None:
             return self
         return self._open()
