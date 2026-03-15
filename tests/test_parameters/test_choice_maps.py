@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from unittest import main
-from unittest.mock import Mock
 
 from cli_command_parser import Command, Context
 from cli_command_parser.exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
@@ -173,7 +172,7 @@ class ChoiceMapTest(ParserTest):
     # endregion
 
     def test_choice_format_help(self):
-        choice = Choice('test', help='Example choice')
+        choice = Choice('test', None, help='Example choice')
         self.assertEqual('    test                      Example choice', choice.format_help())
 
     def test_default_when_missing(self):

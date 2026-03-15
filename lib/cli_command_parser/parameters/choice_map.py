@@ -43,15 +43,9 @@ class Choice(Generic[T]):
 
     target: T
 
-    def __init__(
-        self,
-        choice: OptStr,
-        target: T | _NotSetType = _NotSet,
-        help: str | None = None,  # noqa
-        local: bool = False,
-    ):
+    def __init__(self, choice: OptStr, target: T, help: OptStr = None, local: bool = False):  # noqa
         self.choice = choice
-        self.target = choice if target is _NotSet else target
+        self.target = target
         self.help = help
         self.local = local
 
@@ -68,7 +62,7 @@ class Choice(Generic[T]):
         return format_help_entry((self.format_usage(),), self.help, prefix, lpad=lpad)
 
 
-class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
+class ChoiceMap(BasePositional[str | None], Generic[T], actions=(Concatenate,)):
     """
     Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
 
@@ -87,7 +81,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     :param kwargs: Additional keyword arguments to pass to :class:`.BasePositional`.
     """
 
-    _choice_validation_exc = ParameterDefinitionError
+    _choice_validation_exc: Type[Exception] = ParameterDefinitionError
     _default_title: str = 'Choices'
     nargs = Nargs('+')
     choices: dict[OptStr, Choice[T]]
@@ -95,9 +89,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     description: OptStr
     formatter: ChoiceMapHelpFormatter
 
-    def __init_subclass__(  # pylint: disable=W0222
-        cls, title: OptStr = None, choice_validation_exc: Type[Exception] = None, **kwargs
-    ):
+    def __init_subclass__(cls, title: OptStr = None, choice_validation_exc: Type[Exception] | None = None, **kwargs):
         """
         :param title: Default title to use for help text sections containing the choices for this parameter.
         :param choice_validation_exc: The type of exception to raise when validating defined choices.
@@ -143,17 +135,11 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
         if bad := {c for c in value if (c in whitespace and c != ' ') or c not in printable}:
             raise cls._choice_validation_exc(f'Invalid {cls.__name__} choice={value!r} - invalid characters: {bad}')
 
-    def register_choice(self, choice: str, target: T = _NotSet, help: OptStr = None):  # noqa
+    def register_choice(self, choice: str, target: T, help: OptStr = None):  # noqa
         self._validate_positional(choice)
         self._register_choice(choice, target, help)
 
-    def _register_choice(
-        self,
-        choice: OptStr,
-        target: T | None | _NotSetType = _NotSet,
-        help: OptStr = None,  # noqa
-        local: bool = False,
-    ):
+    def _register_choice(self, choice: OptStr, target: T, help: OptStr = None, local: bool = False):  # noqa
         try:
             existing = self.choices[choice]
         except KeyError:
@@ -182,14 +168,14 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
 
         if (choice := ' '.join(values)) in self.choices:
             return
-        elif len(values) > self.nargs.max:
+        elif len(values) > self.nargs.max:  # type: ignore[operator]  # it's guaranteed to be bound / have a max here
             raise BadArgument(self, 'too many values')
 
         prefix = choice + ' '
         if not any(c.startswith(prefix) for c in self.choices if c):
             raise InvalidChoice(self, prefix[:-1], self.choices)
 
-    def result(self, command: CommandObj | None = None, missing_default: TD = _NotSet) -> OptStr | TD:
+    def result(self, command: CommandObj | None = None, missing_default: TD | _NotSetType = _NotSet) -> OptStr | TD:
         if not self.choices:
             self._no_choices_error()
         return super().result(command, missing_default)
@@ -208,7 +194,7 @@ class ChoiceMap(BasePositional[str], Generic[T], actions=(Concatenate,)):
     # endregion
 
 
-class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_exc=CommandDefinitionError):
+class SubCommand(ChoiceMap[CommandCls | None], title='Subcommands', choice_validation_exc=CommandDefinitionError):
     """
     Used to indicate the position where a choice that results in delegating execution of the program to a sub-command
     should be provided.
@@ -252,7 +238,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
 
     def _register_local_choices(self, local_choices: Mapping[str, str] | Collection[str]):
         try:
-            choice_help_iter = local_choices.items()
+            choice_help_iter = local_choices.items()  # type: ignore[union-attr]
         except AttributeError:
             choice_help_iter = ((choice, None) for choice in local_choices)
 
@@ -267,7 +253,7 @@ class SubCommand(ChoiceMap[CommandCls], title='Subcommands', choice_validation_e
 
         if help is None:
             # This approach was used because importing get_metadata from core would result in a circular dependency
-            meta: ProgramMetadata = command.__class__.meta(command)
+            meta: ProgramMetadata = command.__class__.meta(command)  # type: ignore[attr-defined]
             # print(f'Registering {choice=} -> {command=} w/ {meta.description=}, {meta.parent=}')
             if meta.description and (not meta.parent or meta.parent.description != meta.description):
                 help = meta.description  # noqa

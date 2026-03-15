@@ -954,8 +954,8 @@ class FormatterTest(ParserTest):
         self.assertIsInstance(CommandMeta.params(Foo).formatter, CommandHelpFormatter)
 
     def test_choice_group_add_no_str(self):
-        group = ChoiceGroup(Choice(''))
-        group.add(Choice(None))
+        group = ChoiceGroup(Choice('', None))
+        group.add(Choice(None, None))
         self.assertEqual(0, len(group.choice_strs))
 
     def test_group_desc_override(self):

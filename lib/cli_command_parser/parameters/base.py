@@ -95,7 +95,6 @@ class ParamBase(ABC):
         self.required = required
         self.help = help
         self.hide = hide
-        # TODO: Make the --help flag a counter and allow some `hide=True` params to be shown with `-hh` or similar?
         self.name = name
         if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
             param_groups[-1].register(self)  # This sets self.group = group
@@ -223,13 +222,13 @@ class Parameter(ParamBase, Generic[T], ABC):
     # fmt: off
     # Class attributes
     _action_map: dict[str, Type[ParamAction]] = {}
-    _repr_attrs: Strings | None = None                                  #: Attributes to include in ``repr()`` output
+    _repr_attrs: Strings = ()                                           #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
     metavar: OptStr = None
     nargs: Nargs                                                        # Expected to be set in subclasses
     type: Callable[[str], T] | None = None                              # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
-    default = _NotSet
+    default: T | _NotSetType = _NotSet
     default_cb: DefaultCallback | None = None
     show_default: Bool = None
     strict_default: Bool = False
@@ -259,7 +258,7 @@ class Parameter(ParamBase, Generic[T], ABC):
         metavar: OptStr = None,
         name: OptStr = None,
         required: Bool = False,
-        default: Any = _NotSet,
+        default: T | _NotSetType = _NotSet,
         default_cb: DefaultFunc | None = None,
         cb_with_cmd: Bool = False,
         show_default: Bool = None,
@@ -356,7 +355,7 @@ class Parameter(ParamBase, Generic[T], ABC):
 
         skip = (None, _NotSet)
         attrs = (
-            (a, str(v) if a == 'action' else v)
+            (a, str(v) if a == 'action' else tuple(v) if a == 'choices' else v)  # type: ignore[arg-type]
             for a in names
             if (v := getattr(self, a, None)) not in skip and not (a == 'hide' and not v)
         )
@@ -395,7 +394,7 @@ class Parameter(ParamBase, Generic[T], ABC):
 
         return self.prepare_value(value, short_combo)
 
-    def validate(self, value: T | None, joined: Bool = False):
+    def validate(self, value: Any, joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
@@ -422,12 +421,12 @@ class Parameter(ParamBase, Generic[T], ABC):
     # region Parse Results / Argument Value Handling
 
     @overload
-    def __get__(self, command: Literal[None], owner: Any) -> Self: ...
+    def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
 
     @overload
-    def __get__(self, command: object, owner: Any) -> T | None: ...
+    def __get__(self, command: object, owner: Any = None) -> T | None: ...
 
-    def __get__(self, command: object | None, owner: Any) -> Self | T | None:
+    def __get__(self, command: object | None, owner: Any = None) -> Self | T | None:
         if command is None:
             return self
 
