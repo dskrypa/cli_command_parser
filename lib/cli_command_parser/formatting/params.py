@@ -3,18 +3,18 @@ Parameter usage / help text formatters
 
 :author: Doug Skrypa
 """
-# pylint: disable=W0613
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Type
+from typing import TYPE_CHECKING, Callable, ClassVar, Generic, Iterable, Iterator, Type, TypeVar
 
 from ..config import CmdAliasMode, SubcommandAliasHelpMode
 from ..context import ctx
 from ..core import get_config
 from ..parameters import ParamGroup, PassThru, TriFlag
-from ..parameters.base import BaseOption, BasePositional
+from ..parameters.base import BaseOption, BasePositional, ParamBase, Parameter
 from ..parameters.choice_map import Choice, ChoiceMap
 from .restructured_text import Cell, Row, RstTable
 from .utils import _should_add_default, format_help_entry
@@ -22,23 +22,30 @@ from .utils import _should_add_default, format_help_entry
 if TYPE_CHECKING:
     from ..nargs import Nargs
     from ..parameters.option_strings import TriFlagOptionStrings
-    from ..typing import Bool, OptStr, ParamOrGroup
+    from ..typing import Bool, OptStr
 
     BoolFormatterMap = dict[bool, Callable[[str], str]]
 
 
-class ParamHelpFormatter:
+BaseP = TypeVar('BaseP', bound=ParamBase)
+ParamP = TypeVar('ParamP', bound=Parameter)
+PosP = TypeVar('PosP', bound=BasePositional)
+OptP = TypeVar('OptP', bound=BaseOption)
+
+
+class ParamHelpFormatter(ABC, Generic[BaseP]):
     __slots__ = ('param',)
-    _param_cls_fmt_cls_map = {}
+
+    _param_cls_fmt_cls_map: ClassVar[dict[Type[ParamBase], Type[ParamHelpFormatter]]] = {}
     required_formatter_map: BoolFormatterMap = {False: '[{}]'.format}
 
-    def __init_subclass__(cls, param_cls: Type[ParamOrGroup] = None, **kwargs):
+    def __init_subclass__(cls, param_cls: Type[BaseP] | None = None, **kwargs):
         super().__init_subclass__(**kwargs)
         if param_cls is not None:
             cls._param_cls_fmt_cls_map[param_cls] = cls
 
     @classmethod
-    def for_param_cls(cls, param_cls: Type[ParamOrGroup]):
+    def for_param_cls(cls, param_cls: Type[BaseP]) -> Type[ParamHelpFormatter[BaseP]]:
         try:
             return cls._param_cls_fmt_cls_map[param_cls]
         except KeyError:
@@ -48,13 +55,13 @@ class ParamHelpFormatter:
             if issubclass(param_cls, p_cls):
                 return f_cls
 
-        return ParamHelpFormatter
+        raise ValueError(f'No help formatter is available for {param_cls.__name__} objects')
 
-    def __new__(cls, param: ParamOrGroup):
+    def __new__(cls, param):
         return super().__new__(cls.for_param_cls(param.__class__) if cls is ParamHelpFormatter else cls)
 
-    def __init__(self, param: ParamOrGroup):
-        self.param = param
+    def __init__(self, param: BaseP):
+        self.param: BaseP = param
 
     def __getnewargs__(self):
         return (self.param,)
@@ -69,6 +76,45 @@ class ParamHelpFormatter:
         except KeyError:
             return text
 
+    def format_basic_usage(self) -> str:
+        """Format the Parameter for use in the ``usage:`` line"""
+        return self.maybe_wrap_usage(self.format_usage(True))
+
+    @abstractmethod
+    def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
+        """Format the Parameter for use in both the ``usage:`` line and in the list of Parameters"""
+        raise NotImplementedError
+
+    def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
+        """Format the Parameter for use in the list of Parameters with their ``help='...'`` descriptions"""
+        yield self.format_usage(include_meta=include_meta, full=full)
+
+    @abstractmethod
+    def format_description(self, rst: Bool = False, *, description: OptStr = None) -> str:
+        raise NotImplementedError
+
+    def format_help(self, prefix: str = '') -> str:
+        usage_iter = self.iter_usage_parts(include_meta=True, full=True)
+        return format_help_entry(usage_iter, self.format_description(), prefix)
+
+    # region RST
+
+    def rst_usage(self) -> str:
+        return '``' + self.format_usage(include_meta=True, full=True) + '``'
+
+    def rst_row(self) -> tuple[str, str]:
+        """Returns a tuple of (usage, description)"""
+        return self.rst_usage(), self.format_description(rst=True)
+
+    def rst_rows(self) -> Iterator[tuple[str, str]]:
+        yield self.rst_row()
+
+    # endregion
+
+
+class ParameterHelpFormatter(ParamHelpFormatter[ParamP], param_cls=Parameter):
+    __slots__ = ()
+
     def format_metavar(self) -> str:
         param = self.param
         if param.metavar and param.action.accepts_values:
@@ -77,7 +123,7 @@ class ParamHelpFormatter:
         config = ctx.config
         if (t := param.type) is not None:
             try:
-                metavar = t.format_metavar(config.choice_delim, config.sort_choices)  # noqa
+                metavar = t.format_metavar(config.choice_delim, config.sort_choices)  # type: ignore[attr-defined]
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
             else:
@@ -108,19 +154,11 @@ class ParamHelpFormatter:
             return f'{metavar} [{metavar} ...]'
         return metavar
 
-    def format_basic_usage(self) -> str:
-        """Format the Parameter for use in the ``usage:`` line"""
-        return self.maybe_wrap_usage(self.format_usage(True))
-
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         """Format the Parameter for use in both the ``usage:`` line and in the list of Parameters"""
         return self.format_metavar()
 
-    def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
-        """Format the Parameter for use in the list of Parameters with their ``help='...'`` descriptions"""
-        yield self.format_usage(include_meta=include_meta, full=full)
-
-    def format_description(self, rst: Bool = False, description: OptStr = None) -> str:
+    def format_description(self, rst: Bool = False, *, description: OptStr = None) -> str:
         param = self.param
         if description is None:
             description = param.help or ''
@@ -130,34 +168,16 @@ class ParamHelpFormatter:
 
         return description
 
-    def format_help(self, prefix: str = '') -> str:
-        usage_iter = self.iter_usage_parts(include_meta=True, full=True)
-        return format_help_entry(usage_iter, self.format_description(), prefix)
 
-    # region RST
-
-    def rst_usage(self) -> str:
-        return '``' + self.format_usage(include_meta=True, full=True) + '``'
-
-    def rst_row(self) -> tuple[str, str]:
-        """Returns a tuple of (usage, description)"""
-        return self.rst_usage(), self.format_description(rst=True)
-
-    def rst_rows(self) -> Iterator[tuple[str, str]]:
-        yield self.rst_row()
-
-    # endregion
-
-
-class PositionalHelpFormatter(ParamHelpFormatter, param_cls=BasePositional):
-    param: BasePositional
+class PositionalHelpFormatter(ParameterHelpFormatter[PosP], param_cls=BasePositional):
+    __slots__ = ()
 
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         return self._format_usage_metavar(full)
 
 
-class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
-    param: BaseOption
+class OptionHelpFormatter(ParameterHelpFormatter[OptP], param_cls=BaseOption):
+    __slots__ = ()
 
     def iter_usage_parts(self, include_meta: Bool = False, full: Bool = False) -> Iterator[str]:
         opts = self.param.option_strs
@@ -170,8 +190,8 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
             metavar = self._format_usage_metavar()
             yield from (f'{opt} {metavar}' for opt in opts.option_strs())
 
-    def format_description(self, rst: Bool = False, description: OptStr = None) -> str:
-        description = super().format_description(rst, description)
+    def format_description(self, rst: Bool = False, *, description: OptStr = None) -> str:
+        description = super().format_description(rst, description=description)
         param: BaseOption = self.param
         if param.env_var and (param.show_env_var or (param.show_env_var is None and ctx.config.show_env_vars)):
             pad, quote = _pad_and_quote(description, rst)
@@ -196,7 +216,9 @@ class OptionHelpFormatter(ParamHelpFormatter, param_cls=BaseOption):
         return ', '.join(f'``{part}``' for part in self.iter_usage_parts())
 
 
-class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
+class TriFlagHelpFormatter(OptionHelpFormatter[TriFlag], param_cls=TriFlag):
+    __slots__ = ()
+
     def format_usage(self, include_meta: Bool = False, full: Bool = False, delim: str = ', ') -> str:
         opts: TriFlagOptionStrings = self.param.option_strs
         if full:
@@ -204,11 +226,11 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
         else:
             return f'{opts.get_usage_opt(False)} | {opts.get_usage_opt(True)}'
 
-    def format_description(self, rst: Bool = False, alt: bool = False) -> str:
+    def format_description(self, rst: Bool = False, *, description: OptStr = None, alt: bool = False) -> str:
         if not alt:
-            return super().format_description(rst=rst)
+            return super().format_description(rst=rst, description=description)
         elif self.param.alt_help:
-            return super().format_description(rst=rst, description=self.param.alt_help)
+            return super().format_description(rst=rst, description=description or self.param.alt_help)
         return ''
 
     def format_help(self, prefix: str = '') -> str:
@@ -225,10 +247,8 @@ class TriFlagHelpFormatter(OptionHelpFormatter, param_cls=TriFlag):
             yield usage, self.format_description(rst=True, alt=alt)
 
 
-class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
+class ChoiceMapHelpFormatter(ParameterHelpFormatter[ChoiceMap], param_cls=ChoiceMap):
     """Formatter for :class:`SubCommand` and :class:`Action` parameters (and any other params that extend ChoiceMap)"""
-
-    param: ChoiceMap
 
     @cached_property
     def choice_groups(self) -> Iterable[ChoiceGroup]:
@@ -239,7 +259,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
             config = ctx.config
             choices = (str(c) for c in (c.choice for cg in self.choice_groups for c in cg.choices) if c is not None)
             if config.sort_choices:
-                choices = sorted(choices)
+                choices = sorted(choices)  # type: ignore[assignment]
             return f'{{{config.choice_delim.join(choices)}}}'
         else:
             return self.param.metavar or self.param.name.upper()
@@ -248,7 +268,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
         help_entry = format_help_entry(self.iter_usage_parts(), self.param.description, prefix, lpad=2)
         choices = self._format_choices(prefix)
         if ctx.config.sort_choices:
-            choices = sorted(choices)
+            choices = sorted(choices)  # type: ignore[assignment]
 
         parts = (
             f'{prefix}{self.param.title or self.param._default_title}:',
@@ -266,7 +286,7 @@ class ChoiceMapHelpFormatter(ParamHelpFormatter, param_cls=ChoiceMap):
     def rst_table(self) -> RstTable:
         rows = self._format_rst_rows()
         if ctx.config.sort_choices:
-            rows = sorted(rows)
+            rows = sorted(rows)  # type: ignore[assignment]
 
         table = RstTable(self.param.title or self.param._default_title, self.param.description)
         table.add_rows(rows)
@@ -306,7 +326,7 @@ class ChoiceGroup:
         :param choices: The :class:`.Choice` objects that may contain aliases of each other.
         :return: The :class:`.ChoiceGroup` objects containing the grouped Choices.
         """
-        target_choice_map = {}
+        target_choice_map = {}  # type: ignore[var-annotated]
         for n, choice in enumerate(choices):
             key = (choice.target, n if choice.local else None, choice.help)
             try:
@@ -329,7 +349,8 @@ class ChoiceGroup:
         :return: Generator that yields formatted help text entries (strings) for the Choices in this group.
         """
         for choice, usage, description in self.prepare(default_mode):
-            yield format_help_entry((usage,), description, lpad=4, prefix=prefix)
+            if usage is not None:
+                yield format_help_entry((usage,), description, lpad=4, prefix=prefix)
 
     def prepare(self, default_mode: CmdAliasMode) -> Iterator[tuple[Choice, OptStr, OptStr]]:
         """
@@ -349,14 +370,16 @@ class ChoiceGroup:
         else:
             mode = default_mode
 
-        if mode == SubcommandAliasHelpMode.ALIAS:
-            yield from self.prepare_aliases()
-        elif mode == SubcommandAliasHelpMode.REPEAT:
-            yield from self.prepare_repeated()
-        elif mode == SubcommandAliasHelpMode.COMBINE:
-            yield self.prepare_combined()
-        else:  # Treat as a format string
-            yield from self.prepare_aliases(mode)
+        match mode:
+            case SubcommandAliasHelpMode.ALIAS:
+                yield from self.prepare_aliases()
+            case SubcommandAliasHelpMode.REPEAT:
+                yield from self.prepare_repeated()
+            case SubcommandAliasHelpMode.COMBINE:
+                yield self.prepare_combined()
+            case str():
+                # Treat it as a format string
+                yield from self.prepare_aliases(mode)
 
     def prepare_combined(self) -> tuple[Choice, OptStr, OptStr]:
         """
@@ -415,12 +438,13 @@ class ChoiceGroup:
             yield choice, choice.format_usage(), choice.help
 
 
-class PassThruHelpFormatter(ParamHelpFormatter, param_cls=PassThru):
+class PassThruHelpFormatter(ParameterHelpFormatter[PassThru], param_cls=PassThru):
+    __slots__ = ()
     required_formatter_map = {True: '-- {}'.format, False: '[-- {}]'.format}
 
 
-class GroupHelpFormatter(ParamHelpFormatter, param_cls=ParamGroup):  # noqa  # pylint: disable=W0223
-    param: ParamGroup
+class GroupHelpFormatter(ParamHelpFormatter[ParamGroup], param_cls=ParamGroup):
+    __slots__ = ()
     required_formatter_map: BoolFormatterMap = {True: '{{{}}}'.format, False: '[{}]'.format}
 
     def _get_choice_delim(self) -> str:

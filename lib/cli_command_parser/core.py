@@ -19,11 +19,9 @@ from .metadata import ProgramMetadata
 from .utils import _NotSet, _NotSetType
 
 if TYPE_CHECKING:
-    from .commands import Command
-    from .typing import AnyConfig, CommandCls, Config, OptStr
+    from .typing import AnyConfig, CommandAny, CommandCls, Config, OptStr
 
     Bases = tuple[type, ...]
-    CommandAny = Union['CommandMeta', Command]
     Choice = str | None | _NotSetType
     Choices = Mapping[str, str | None] | Collection[str]
     OptChoices = Choices | None

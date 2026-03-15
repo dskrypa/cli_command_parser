@@ -12,20 +12,25 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Collection, Iterator
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Type, TypeAlias
 
 from .config import AmbiguousComboMode, CommandConfig
 from .exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError, ParameterDefinitionError
-from .parameters import Action, ActionFlag, ParamGroup, PassThru, SubCommand, help_action
+from .parameters import ActionFlag, ParamGroup, PassThru, help_action
 from .parameters.base import BaseOption, BasePositional, ParamBase, Parameter
+from .parameters.choice_map import Action, SubCommand
 
 if TYPE_CHECKING:
+    from .commands import Command
     from .context import Context
+    from .core import CommandMeta
     from .formatting.commands import CommandHelpFormatter
-    from .typing import CommandCls, Strings
+    from .typing import Bool, Strings
 
+    CommandCls: TypeAlias = Type[Command] | CommandMeta
     OptionMap = dict[str, BaseOption]
     ActionFlags = list[ActionFlag]
+    Positionals = list[BasePositional] | tuple[()]
 
 __all__ = ['CommandParameters']
 
@@ -33,18 +38,14 @@ __all__ = ['CommandParameters']
 class CommandParameters:
     # fmt: off
     command: CommandCls                                  #: The Command associated with this CommandParameters object
-    formatter: CommandHelpFormatter                      #: The formatter used for this Command's help text
     parent: CommandParameters | None                     #: The parent Command's CommandParameters
-    action: Action | None = None                         #: An Action Parameter, if specified
-    _pass_thru: PassThru | None = None                   #: A PassThru Parameter, if specified
-    sub_command: SubCommand | None = None                #: A SubCommand Parameter, if specified
     action_flags: ActionFlags                            #: List of action flags
     split_action_flags: tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
     options: list[BaseOption]                            #: List of optional Parameters
     combo_option_map: OptionMap                          #: Mapping of {short opt: Parameter} (no dash characters)
     groups: list[ParamGroup]                             #: List of ParamGroup objects
     positionals: list[BasePositional]                    #: List of positional Parameters
-    _deferred_positionals: list[BasePositional] = ()     #: Positional Parameters that are deferred to sub commands
+    _deferred_positionals: Positionals = ()              #: Positional Parameters that are deferred to sub commands
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
     # fmt: on
 
@@ -52,6 +53,12 @@ class CommandParameters:
         self.command = command
         self.parent = parent_params
         self.config = config
+        # fmt: off
+        # These are annotated here because mypy thinks they're invoked as descriptors when annotated at the class level
+        self.action: Action | None = None               #: An Action Parameter, if specified
+        self.sub_command: SubCommand | None = None      #: A SubCommand Parameter, if specified
+        self._pass_thru: PassThru | None = None         #: A PassThru Parameter, if specified
+        # fmt: on
         self._process_parameters()
 
     def __repr__(self) -> str:
@@ -77,11 +84,8 @@ class CommandParameters:
 
     @cached_property
     def all_positionals(self) -> list[BasePositional]:
-        try:
-            if not self.parent.sub_command:
-                return self.parent.all_positionals + self.positionals
-        except AttributeError:
-            pass
+        if self.parent and not self.parent.sub_command:
+            return self.parent.all_positionals + self.positionals
         return self.positionals
 
     def get_positionals_to_parse(self, ctx: Context) -> list[BasePositional]:
@@ -94,6 +98,7 @@ class CommandParameters:
 
     @cached_property
     def formatter(self) -> CommandHelpFormatter:
+        """The formatter used for this Command's help text."""
         from .formatting.commands import CommandHelpFormatter
 
         formatter_factory = self.config.command_formatter or CommandHelpFormatter
@@ -105,13 +110,13 @@ class CommandParameters:
         return formatter
 
     @cached_property
-    def _has_help(self) -> bool:
+    def _has_help(self) -> Bool:
         return help_action in self.action_flags or (self.parent and self.parent._has_help)
 
     # region Initialization
 
     def _iter_parameters(self) -> Iterator[ParamBase]:
-        name_param_map = {}  # Allow subclasses to override names, but not within a given command
+        name_param_map: dict[str, Any] = {}  # Allow subclasses to override names, but not within a given command
         for item in self.command.__dict__.items():
             attr, param = item
             if attr.startswith('__') or not isinstance(param, ParamBase):  # Name mangled Parameters are still processed
@@ -173,7 +178,9 @@ class CommandParameters:
             self.groups = sorted(groups) if groups else []
 
     def _process_positionals(self, params: list[BasePositional]):
-        unfollowable = action_or_sub_cmd = split_index = None
+        unfollowable: BasePositional | None = None
+        action_or_sub_cmd: SubCommand | Action | None = None
+        split_index: int = 0
         if self.parent and (deferred := self.parent._deferred_positionals):
             params = deferred + params
 
@@ -186,26 +193,28 @@ class CommandParameters:
                 raise CommandDefinitionError(
                     f'Additional Positional parameters cannot follow {unfollowable} {why} - {param=} is invalid'
                 )
-            elif isinstance(param, (SubCommand, Action)):
+
+            if isinstance(param, (SubCommand, Action)):
                 if action_or_sub_cmd:
                     raise CommandDefinitionError(
                         f'Only 1 Action xor SubCommand is allowed in a given Command - {self.command.__name__} cannot'
                         f' contain both {action_or_sub_cmd} and {param}'
                     )
-                elif isinstance(param, SubCommand):
+
+                if isinstance(param, SubCommand):
                     self.sub_command = action_or_sub_cmd = param
                     split_index = i + 1
                     if param.has_choices and 0 in param.nargs:  # It has local choices or is not required
                         unfollowable = param
                 else:  # It's an Action
-                    self.action = action_or_sub_cmd = param  # type: ignore
+                    self.action = action_or_sub_cmd = param
                     if not param.has_choices:
                         raise CommandDefinitionError(f'No choices were registered for {self.action}')
             elif 0 in param.nargs or (param.nargs.variable and not param.has_choices):
                 unfollowable = param
 
         if split_index:
-            if self.sub_command.has_local_choices:
+            if self.sub_command.has_local_choices:  # type: ignore[union-attr]
                 self._deferred_positionals = params[split_index:]
             else:
                 params, self._deferred_positionals = params[:split_index], params[split_index:]
@@ -252,19 +261,22 @@ class CommandParameters:
                     f'{opt_type} {option=} conflict for command={self.command!r} between {existing} and {param}'
                 )
 
-    def _process_action_flags(self):
-        action_flags = sorted(p for p in self.options if isinstance(p, ActionFlag))
-        grouped_ordered_flags = {True: defaultdict(list), False: defaultdict(list)}
+    def _process_action_flags(self) -> None:
+        action_flags: list[ActionFlag] = sorted(p for p in self.options if isinstance(p, ActionFlag))
+        grouped_ordered_flags: dict[bool, dict[int | float, ActionFlags]] = {
+            True: defaultdict(list),
+            False: defaultdict(list),
+        }
         for param in action_flags:
             if param.func is None:
                 raise ParameterDefinitionError(f'No function was registered for {param=}')
             grouped_ordered_flags[param.before_main][param.order].append(param)
 
         found_non_always = False
-        invalid = {}
+        invalid: dict[tuple[bool, int | float], ActionFlags | ActionFlag] = {}
         for before_main, prio_params in grouped_ordered_flags.items():
             for prio, params in prio_params.items():
-                param: ActionFlag = params[0]  # Don't pop and check `if params` - all are needed for the group check
+                param = params[0]  # Don't pop and check `if params` - all are needed for the group check
                 if found_non_always and param.always_available:
                     invalid[(before_main, prio)] = param
                 elif not param.always_available:
@@ -296,7 +308,7 @@ class CommandParameters:
     @cached_property
     def _classified_combo_options(self) -> tuple[OptionMap, OptionMap]:
         """Tuple of (single char short:Option map, multi-char short:Option map) for options available in this command"""
-        multi_char_combos = {}
+        multi_char_combos: OptionMap = {}
         items = self.combo_option_map.items()
         for combo, param in items:
             if len(combo) == 1:  # combo_option_map is sorted in reverse length order, so all following will be 1 char
@@ -368,7 +380,7 @@ class CommandParameters:
             # Note: if the option is not in this Command's option_map, the KeyError is handled by CommandParser
             return [(option, self.option_map[option], value)], True
         else:
-            value = None
+            value = None  # type: ignore[assignment]
 
         try:
             param = self.option_map[option]

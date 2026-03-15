@@ -65,9 +65,9 @@ Config = Union['CommandConfig', None]
 AnyConfig = Config | dict[str, Any]
 LeadingDash = Union['AllowLeadingDash', str, bool]
 
-Param = TypeVar('Param', bound='Parameter')
-ParamList = list[Param]
-ParamOrGroup = Union[Param, 'ParamGroup']
+P = TypeVar('P', bound='Parameter')
+ParamList = list[P]
+ParamOrGroup = Union[P, 'ParamGroup']
 
 CommandObj = TypeVar('CommandObj', bound='Command')
 CommandCls: TypeAlias = Type[CommandObj]

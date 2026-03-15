@@ -42,6 +42,7 @@ from .parameters import (
     Counter,
     Flag,
     Option,
+    Param,
     Parameter,
     ParamGroup,
     PassThru,
@@ -52,4 +53,4 @@ from .parameters import (
     after_main,
     before_main,
 )
-from .typing import Param, ParamOrGroup
+from .typing import ParamOrGroup

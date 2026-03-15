@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     _CmdCls = Type[Command]
     _CmdObjOrCls: TypeAlias = Command | _CmdCls
 
-__all__ = ['Parameter', 'BasePositional', 'BaseOption']
+__all__ = ['Param', 'Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack: ContextVar[list[ParamGroup]] = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
@@ -58,6 +58,20 @@ CommandMethod = Callable[['Command'], T]
 DefaultFunc = Callable[[], T] | CommandMethod
 
 TD = TypeVar('TD')
+
+
+class Param(Generic[T]):
+    __slots__ = ()
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
+
+        @overload
+        def __get__(self, command: object, owner: Any = None) -> T | None: ...
+
+        def __get__(self, command: object | None, owner: Any = None) -> Self | T | None: ...
 
 
 class ParamBase(ABC):
@@ -95,7 +109,6 @@ class ParamBase(ABC):
         self.required = required
         self.help = help
         self.hide = hide
-        # TODO: Make the --help flag a counter and allow some `hide=True` params to be shown with `-hh` or similar?
         self.name = name
         if param_groups := _group_stack.get(None):  # If truthy, there's at least 1 active ParamGroup
             param_groups[-1].register(self)  # This sets self.group = group
@@ -171,7 +184,7 @@ class ParamBase(ABC):
         except AttributeError:  # self.command is None
             formatter_factory = ParamHelpFormatter
 
-        return formatter_factory(self)  # noqa
+        return formatter_factory(self)  # type: ignore[abstract]  # __new__ automatically handles child selection
 
     @property
     @abstractmethod
@@ -189,7 +202,7 @@ class ParamBase(ABC):
     # endregion
 
 
-class Parameter(ParamBase, Generic[T], ABC):
+class Parameter(ParamBase, Param[T], ABC):
     """
     Base class for all other parameters.  It is not meant to be used directly.
 
@@ -223,13 +236,13 @@ class Parameter(ParamBase, Generic[T], ABC):
     # fmt: off
     # Class attributes
     _action_map: dict[str, Type[ParamAction]] = {}
-    _repr_attrs: Strings | None = None                                  #: Attributes to include in ``repr()`` output
+    _repr_attrs: Strings = ()                                           #: Attributes to include in ``repr()`` output
     # Instance attributes with class defaults
     metavar: OptStr = None
     nargs: Nargs                                                        # Expected to be set in subclasses
     type: Callable[[str], T] | None = None                              # Expected to be set in subclasses
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
-    default = _NotSet
+    default: T | _NotSetType = _NotSet
     default_cb: DefaultCallback | None = None
     show_default: Bool = None
     strict_default: Bool = False
@@ -259,7 +272,7 @@ class Parameter(ParamBase, Generic[T], ABC):
         metavar: OptStr = None,
         name: OptStr = None,
         required: Bool = False,
-        default: Any = _NotSet,
+        default: T | _NotSetType = _NotSet,
         default_cb: DefaultFunc | None = None,
         cb_with_cmd: Bool = False,
         show_default: Bool = None,
@@ -356,7 +369,7 @@ class Parameter(ParamBase, Generic[T], ABC):
 
         skip = (None, _NotSet)
         attrs = (
-            (a, str(v) if a == 'action' else v)
+            (a, str(v) if a == 'action' else tuple(v) if a == 'choices' else v)  # type: ignore[arg-type]
             for a in names
             if (v := getattr(self, a, None)) not in skip and not (a == 'hide' and not v)
         )
@@ -395,7 +408,7 @@ class Parameter(ParamBase, Generic[T], ABC):
 
         return self.prepare_value(value, short_combo)
 
-    def validate(self, value: T | None, joined: Bool = False):
+    def validate(self, value: Any, joined: Bool = False):
         if not isinstance(value, str) or not value or not value[0] == '-':
             return
         elif self.allow_leading_dash == AllowLeadingDash.NUMERIC:
@@ -422,12 +435,12 @@ class Parameter(ParamBase, Generic[T], ABC):
     # region Parse Results / Argument Value Handling
 
     @overload
-    def __get__(self, command: Literal[None], owner: Any) -> Self: ...
+    def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
 
     @overload
-    def __get__(self, command: object, owner: Any) -> T | None: ...
+    def __get__(self, command: object, owner: Any = None) -> T | None: ...
 
-    def __get__(self, command: object | None, owner: Any) -> Self | T | None:
+    def __get__(self, command: object | None, owner: Any = None) -> Self | T | None:
         if command is None:
             return self
 
@@ -559,7 +572,7 @@ class BaseOption(Parameter[T], ABC):
     show_env_var: Bool = None
     strict_env: Bool
     use_env_value: Bool
-    const = _NotSet
+    const: T | _NotSetType = _NotSet
 
     def __init__(
         self,
@@ -617,12 +630,18 @@ class AllowLeadingDashProperty:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def __get__(self, instance: Parameter | None, owner) -> AllowLeadingDash | AllowLeadingDashProperty:
+    @overload
+    def __get__(self, instance: None, owner: Any) -> AllowLeadingDashProperty: ...
+
+    @overload
+    def __get__(self, instance: Parameter, owner: Any) -> AllowLeadingDash: ...
+
+    def __get__(self, instance: Parameter | None, owner: Any) -> AllowLeadingDash | AllowLeadingDashProperty:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)
 
-    def __set__(self, instance: Parameter, value: LeadingDash):
+    def __set__(self, instance: Parameter, value: LeadingDash | None):
         if value is not None:
             value = AllowLeadingDash(value)
 

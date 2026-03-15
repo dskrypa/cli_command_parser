@@ -4,19 +4,22 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping, TypeAlias
+from typing import TYPE_CHECKING, Collection, Iterable, Iterator, MutableMapping, Type, TypeAlias
 
+from .core import get_params
 from .exceptions import AmbiguousParseTree
 from .utils import _parse_tree_target_repr
 
 if TYPE_CHECKING:
+    from .commands import Command
     from .core import CommandMeta
     from .nargs import Nargs
     from .parameters.base import BasePositional
     from .parameters.choice_map import Choice, ChoiceMap
     from .typing import OptStr
 
-    Target: TypeAlias = BasePositional | CommandMeta | None
+    CommandCls: TypeAlias = Type[Command] | CommandMeta
+    Target: TypeAlias = BasePositional | CommandCls | None
 
 __all__ = ['PosNode']
 
@@ -258,9 +261,9 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     # region Build Tree
 
     @classmethod
-    def build_tree(cls, command: CommandMeta) -> PosNode:
+    def build_tree(cls, command: CommandCls) -> PosNode:
         root = cls(None, None, target=command)
-        _process_params(command, [root], command.__class__.params(command).all_positionals)
+        _process_params(command, [root], get_params(command).all_positionals)
         return root
 
     def update_node(self, word: Word, param: BasePositional, target: Target) -> PosNode:
@@ -335,7 +338,7 @@ def _has_upper_bound(node) -> bool:
 
 
 def _process_params(
-    command: CommandMeta, nodes: Iterable[PosNode], params: Iterable[BasePositional]
+    command: CommandCls, nodes: Iterable[PosNode], params: Iterable[BasePositional]
 ) -> Iterable[PosNode]:
     for param in params:
         nodes = _process_param(command, nodes, param)
@@ -343,15 +346,13 @@ def _process_params(
     return nodes
 
 
-def _process_param(command: CommandMeta, nodes: Iterable[PosNode], param: BasePositional | ChoiceMap) -> set[PosNode]:
+def _process_param(command: CommandCls, nodes: Iterable[PosNode], param: BasePositional | ChoiceMap) -> set[PosNode]:
     # At each step, the number of branches grows
     try:
-        choices: dict[OptStr, Choice[CommandMeta]] = param.choices  # type: ignore[union-attr]
+        choices: dict[OptStr, Choice[CommandCls]] = param.choices  # type: ignore[union-attr]
     except AttributeError:  # It was not a ChoiceMap param
         pass
     else:
-        get_params = command.__class__.params
-
         new_nodes: set[PosNode] = set()
         for choice in choices.values():
             target = choice.target

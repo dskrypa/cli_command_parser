@@ -4,7 +4,7 @@ import logging
 from functools import cached_property
 from pathlib import Path
 
-from cli_command_parser import Command, Counter, Flag, ParamGroup, Positional, SubCommand, main
+from cli_command_parser import Command, Counter, Flag, Param, ParamGroup, Positional, SubCommand, main
 from cli_command_parser.inputs import Path as IPath
 
 log = logging.getLogger(__name__)
@@ -16,11 +16,13 @@ class ParserConverter(Command):
     """Tool to convert an argparse.ArgumentParser into a cli-command-parser Command"""
 
     action = SubCommand()
-    input: Path
-    no_smart_for = Flag('-S', help='Disable "smart" for loop handling that attempts to dedupe common subparser params')
+    input: Param[Path]
+    no_smart_for: Param[bool] = Flag(
+        '-S', help='Disable "smart" for loop handling that attempts to dedupe common subparser params'
+    )
     with ParamGroup('Common'):
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
-        dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
+        dry_run: Flag[bool] = Flag('-D', help='Print the actions that would be taken instead of taking them')
 
     def _init_command_(self):
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
@@ -38,7 +40,7 @@ class ParserConverter(Command):
 class Convert(ParserConverter):
     """Print the cli-command-parser Commands that are equivalent to the discovered argparse ArgumentParsers"""
 
-    input: Path = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
+    input: Param[Path] = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
     add_methods = Flag('--no-methods', '-M', default=True, help='Do not include boilerplate methods in Commands')
 
     def main(self):
@@ -50,7 +52,7 @@ class Convert(ParserConverter):
 class Pprint(ParserConverter):
     """Print a tiered internal representation of the discovered argparse ArgumentParsers and their groups/arguments"""
 
-    input: Path = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
+    input: Param[Path] = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
 
     def main(self):
         for parser in self.script.parsers:

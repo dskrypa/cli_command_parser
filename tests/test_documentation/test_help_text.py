@@ -14,7 +14,12 @@ from cli_command_parser import Command, Context, ShowDefaults, no_exit_handler, 
 from cli_command_parser.core import CommandMeta
 from cli_command_parser.exceptions import MissingArgument
 from cli_command_parser.formatting.commands import CommandHelpFormatter, get_usage_sub_cmds
-from cli_command_parser.formatting.params import ChoiceGroup, ParamHelpFormatter, PositionalHelpFormatter
+from cli_command_parser.formatting.params import (
+    ChoiceGroup,
+    ParameterHelpFormatter,
+    ParamHelpFormatter,
+    PositionalHelpFormatter,
+)
 from cli_command_parser.formatting.restructured_text import RstTable
 from cli_command_parser.inputs import Date, Day
 from cli_command_parser.parameters import Counter, Flag, Option, ParamGroup, PassThru, Positional, TriFlag, action_flag
@@ -924,9 +929,9 @@ class FormatterTest(ParserTest):
         # Would be ChoiceMapHelpFormatter if it looked up the subclass
         self.assertIs(formatter.__class__, PositionalHelpFormatter)
 
-    def test_default_formatter_class_returned(self):
-        formatter = ParamHelpFormatter.for_param_cls(int)  # noqa
-        self.assertIs(formatter, ParamHelpFormatter)
+    def test_invalid_param_class(self):
+        with self.assertRaisesRegex(ValueError, 'No help formatter is available for int objects'):
+            ParamHelpFormatter.for_param_cls(int)  # type: ignore
 
     def test_formatter_uses_cmd_ctx(self):
         class Foo(Command):
@@ -937,7 +942,7 @@ class FormatterTest(ParserTest):
             foo.bar  # noqa
 
     def test_custom_formatter(self):
-        class CustomFormatter(ParamHelpFormatter):
+        class CustomFormatter(ParameterHelpFormatter):
             def format_help(self, *args, **kwargs):
                 return 'test help'
 
@@ -954,8 +959,8 @@ class FormatterTest(ParserTest):
         self.assertIsInstance(CommandMeta.params(Foo).formatter, CommandHelpFormatter)
 
     def test_choice_group_add_no_str(self):
-        group = ChoiceGroup(Choice(''))
-        group.add(Choice(None))
+        group = ChoiceGroup(Choice('', None))
+        group.add(Choice(None, None))
         self.assertEqual(0, len(group.choice_strs))
 
     def test_group_desc_override(self):

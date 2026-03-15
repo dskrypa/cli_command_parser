@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from functools import cached_property
 from textwrap import TextWrapper
-from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Type
+from typing import TYPE_CHECKING, Callable, Iterable, Iterator, Type, TypeAlias
 
 from ..context import NoActiveContext, ctx
 from ..core import get_metadata, get_params
@@ -20,11 +20,14 @@ from .utils import PartWrapper
 
 if TYPE_CHECKING:
     from ..command_parameters import CommandParameters
+    from ..commands import Command
     from ..config import CommandConfig
     from ..core import CommandMeta
     from ..metadata import ProgramMetadata
     from ..parameters import BaseOption, BasePositional, Parameter, PassThru, SubCommand
-    from ..typing import Bool, CommandAny, CommandCls, OptStr
+    from ..typing import Bool, OptStr
+
+    CommandCls: TypeAlias = Type[Command] | CommandMeta
 
 __all__ = ['CommandHelpFormatter', 'get_formatter']
 
@@ -32,7 +35,7 @@ NameFunc = Callable[[str], str]
 
 
 class CommandHelpFormatter:
-    def __init__(self, command: CommandMeta, params: CommandParameters):
+    def __init__(self, command: CommandCls, params: CommandParameters):
         self.command = command
         self.params = params
         self.pos_group = ParamGroup(description='Positional arguments')
@@ -229,21 +232,22 @@ def _fix_name(name: str) -> str:
     return camel_to_snake_case(name).replace('_', ' ').title()
 
 
-def get_formatter(command: CommandAny) -> CommandHelpFormatter:
+def get_formatter(command: CommandCls | Command) -> CommandHelpFormatter:
     """Get the :class:`CommandHelpFormatter` for the given Command"""
     return get_params(command).formatter
 
 
-def get_usage_sub_cmds(command: CommandCls):
-    cmd_mcs: Type[CommandMeta] = command.__class__  # Using metaclass to avoid potentially overwritten attrs
+def get_usage_sub_cmds(command: CommandCls | CommandMeta):
+    # Using metaclass to avoid potentially overwritten attrs
+    cmd_mcs: Type[CommandMeta] = command.__class__  # type: ignore[assignment]
 
-    parent: CommandMeta
+    parent: CommandMeta | None
     if not (parent := cmd_mcs.parent(command, False)):
         return
 
     yield from get_usage_sub_cmds(parent)
 
-    sub_cmd_param: SubCommand
+    sub_cmd_param: SubCommand | None
     if not (sub_cmd_param := cmd_mcs.params(parent).sub_command):
         return
 

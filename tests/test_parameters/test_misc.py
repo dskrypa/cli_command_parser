@@ -10,6 +10,7 @@ from cli_command_parser.formatting.params import (
     ChoiceMapHelpFormatter,
     GroupHelpFormatter,
     OptionHelpFormatter,
+    ParameterHelpFormatter,
     ParamHelpFormatter,
     PassThruHelpFormatter,
     PositionalHelpFormatter,
@@ -63,7 +64,7 @@ class MiscParameterTest(ParserTest):
 
     def test_formatter_class(self):
         param_fmt_cls_map = {
-            Parameter: ParamHelpFormatter,
+            Parameter: ParameterHelpFormatter,
             PassThru: PassThruHelpFormatter,
             BasePositional: PositionalHelpFormatter,
             Positional: PositionalHelpFormatter,

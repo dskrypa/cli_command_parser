@@ -9,10 +9,10 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Sequence, TextIO, Type, overload
+from typing import TYPE_CHECKING, Sequence, TextIO, Type
 
 from .context import ActionPhase, Context, get_or_create_context
-from .core import CommandMeta, get_params, get_top_level_commands
+from .core import CommandMeta, get_metadata, get_params, get_top_level_commands
 from .exceptions import ParamConflict, ParserExit
 from .parser import parse_args_and_get_next_cmd
 from .utils import maybe_await
@@ -32,34 +32,25 @@ class Command(ABC, metaclass=CommandMeta):
     #: The parsing Context used for this Command. Provided here for convenience - this reference to it is not used by
     #: any CLI Command Parser internals, so it is safe for subclasses to redefine / overwrite it.
     ctx: Context
+    __ctx: Context
 
-    def __new__(cls):
+    def __new__(cls) -> Command:
         # By storing the Context here instead of __init__, every single subclass won't need to
         # call super().__init__(...) from their own __init__ for this step
         self = super().__new__(cls)
         self.__ctx = ctx = get_or_create_context(cls, command=self)
         if not hasattr(self, 'ctx'):
-            self.ctx: Context = ctx  # noqa  # PyCharm complains this is invalid, but doesn't understand it without it
+            self.ctx = ctx  # noqa  # PyCharm complains this is invalid, but doesn't understand it without it
         return self
 
     def __repr__(self) -> str:
         cls = self.__class__
-        return f'<{cls.__name__} in prog={cls.__class__.meta(cls).prog!r}>'
+        return f'<{cls.__name__} in prog={get_metadata(cls).prog!r}>'
 
     # region Parse & Run
 
     @classmethod
-    @overload
-    def parse_and_run(cls: Type[CommandObj], argv: Argv = None, **kwargs) -> CommandObj | None:
-        # These overloads indicate that an instance of the same type or another may be returned
-        ...
-
-    @classmethod
-    @overload
-    def parse_and_run(cls, argv: Argv = None, **kwargs) -> CommandObj | None: ...
-
-    @classmethod
-    def parse_and_run(cls, argv=None, **kwargs):
+    def parse_and_run(cls: Type[CommandObj], argv: Argv | None = None, **kwargs) -> CommandObj | None:
         """
         Primary entry point for parsing arguments, resolving subcommands, and running a command.
 
@@ -90,15 +81,7 @@ class Command(ABC, metaclass=CommandMeta):
     # region Parse
 
     @classmethod
-    @overload
-    def parse(cls: Type[CommandObj], argv: Argv = None) -> CommandObj: ...
-
-    @classmethod
-    @overload
-    def parse(cls, argv: Argv = None) -> CommandObj: ...
-
-    @classmethod
-    def parse(cls, argv=None):
+    def parse(cls: Type[CommandObj], argv: Argv | None = None) -> CommandObj:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the
         parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.
@@ -111,7 +94,7 @@ class Command(ABC, metaclass=CommandMeta):
         with ExitStack() as stack:
             stack.enter_context(ctx)
             while sub_cmd := parse_args_and_get_next_cmd(ctx):
-                cmd_cls = sub_cmd
+                cmd_cls = sub_cmd  # type: ignore[assignment]
                 ctx = stack.enter_context(ctx._sub_context(cmd_cls))
 
             return cmd_cls()
@@ -308,14 +291,14 @@ class AsyncCommand(Command, ABC):
             await maybe_await(self(**kwargs))
             return self
 
-    async def __call__(self, *args, **kwargs) -> int:
+    async def __call__(self, *args, **kwargs) -> int:  # type: ignore[override]
         """Asynchronous version of :meth:`Command.__call__`."""
-        with self._Command__ctx as ctx, ctx.get_error_handler():  # noqa
+        with self._Command__ctx as ctx, ctx.get_error_handler():  # type: ignore[attr-defined]
             await maybe_await(self._pre_init_actions_(*args, **kwargs))
             await maybe_await(self._init_command_(*args, **kwargs))
             await maybe_await(self._before_main_(*args, **kwargs))
             try:
-                await maybe_await(self.main(*args, **kwargs))
+                await maybe_await(self.main(*args, **kwargs))  # type: ignore[arg-type]
             except BaseException:
                 if ctx.config.always_run_after_main:
                     log.debug('Caught exception - running _after_main_ before propagating', exc_info=True)
@@ -328,7 +311,7 @@ class AsyncCommand(Command, ABC):
 
     async def _run_actions_(self, phase: ActionPhase, args: tuple, kwargs: dict):
         """Asynchronous version of :meth:`Command._run_actions_`."""
-        for param in self._Command__ctx.iter_action_flags(phase):  # noqa
+        for param in self._Command__ctx.iter_action_flags(phase):  # type: ignore[attr-defined]
             await maybe_await(param.func(self, *args, **kwargs))
 
     async def _pre_init_actions_(self, *args, **kwargs):
@@ -340,9 +323,9 @@ class AsyncCommand(Command, ABC):
         """Asynchronous version of :meth:`Command._before_main_`."""
         await self._run_actions_(ActionPhase.BEFORE_MAIN, args, kwargs)
 
-    async def main(self, *args, **kwargs) -> int | None:
+    async def main(self, *args, **kwargs) -> int | None:  # type: ignore[override]
         """Asynchronous version of :meth:`Command.main`."""
-        with self._Command__ctx as ctx:  # noqa
+        with self._Command__ctx as ctx:  # type: ignore[attr-defined]
             action = get_params(self).action
             if action is not None and (ctx.actions_taken == 0 or ctx.config.action_after_action_flags):
                 ctx.actions_taken += 1
@@ -355,7 +338,7 @@ class AsyncCommand(Command, ABC):
         await self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
 
 
-def main(argv: Argv = None, return_command: Bool = False, **kwargs) -> CommandObj | None:
+def main(argv: Argv | None = None, return_command: Bool = False, **kwargs) -> CommandObj | None:
     """
     Convenience function that can be used as the main entry point for a program.
 
