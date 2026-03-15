@@ -184,7 +184,7 @@ class ParamBase(ABC):
         except AttributeError:  # self.command is None
             formatter_factory = ParamHelpFormatter
 
-        return formatter_factory(self)  # noqa
+        return formatter_factory(self)  # type: ignore[abstract]  # __new__ automatically handles child selection
 
     @property
     @abstractmethod
