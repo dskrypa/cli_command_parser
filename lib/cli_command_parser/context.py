@@ -3,18 +3,18 @@ The parsing Context used internally for tracking parsed arguments and configurat
 
 :author: Doug Skrypa
 """
-# pylint: disable=R0801
 
 from __future__ import annotations
 
 import sys
 from collections import defaultdict
+from collections.abc import Collection
 from contextlib import AbstractContextManager
 from contextvars import ContextVar
 from enum import Enum
 from functools import cached_property
 from inspect import Parameter as _Parameter, Signature
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Sequence, cast
+from typing import TYPE_CHECKING, Any, Callable, Iterator, Literal, Sequence, Type, TypeAlias, cast, overload
 
 from .config import DEFAULT_CONFIG, CommandConfig
 from .error_handling import ErrorHandler, NullErrorHandler, extended_error_handler
@@ -26,13 +26,14 @@ if TYPE_CHECKING:
     from .commands import Command
     from .core import CommandMeta
     from .parameters import ActionFlag, BaseOption, Parameter
-    from .typing import AnyConfig, Bool, CommandCls, CommandObj, OptStr, ParamOrGroup, PathLike, StrSeq
+    from .typing import AnyConfig, Bool, OptStr, ParamOrGroup, PathLike, StrSeq
 
     Argv = StrSeq | None
+    CommandCls: TypeAlias = Type[Command] | CommandMeta
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
 
-_context_stack = ContextVar('cli_command_parser.context.stack')
+_context_stack: ContextVar[list[Context]] = ContextVar('cli_command_parser.context.stack')
 _TERMINAL = Terminal()
 
 
@@ -47,9 +48,10 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     config: CommandConfig
     prog: OptStr = None
     allow_argv_prog: Bool = True
-    _command_obj: CommandObj | None = None
+    _command_obj: Command | None = None
     _terminal_width: int | None
     _provided: dict[ParamOrGroup, int]
+    _parsed: dict[ParamOrGroup, Any]
 
     def __init__(
         self,
@@ -60,7 +62,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         config: AnyConfig | None = None,
         terminal_width: int | None = None,
         allow_argv_prog: Bool = None,
-        command: CommandObj | None = None,
+        command: Command | None = None,
         **kwargs,
     ):
         self.command_cls = command_cls
@@ -87,7 +89,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
     @classmethod
     def for_prog(cls, prog: PathLike, *args, **kwargs) -> Context:
         self = cls(*args, **kwargs)
-        self.prog = getattr(prog, 'name', prog)
+        self.prog = getattr(prog, 'name', prog)  # type: ignore[arg-type]
         return self
 
     def _set_argv(self, prog: OptStr, argv: Argv):
@@ -101,7 +103,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self.remaining = list(self.argv)
 
     def _sub_context(
-        self, command_cls: CommandCls, argv: Argv = None, command: CommandObj | None = None, **kwargs
+        self, command_cls: CommandCls, argv: Argv = None, command: Command | None = None, **kwargs
     ) -> Context:
         return self.__class__(
             self.remaining if argv is None else argv,
@@ -249,13 +251,16 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def get_missing(self) -> list[Parameter]:
         """Not intended to be called by users.  Used during parsing to determine if any Parameters are missing."""
-        return [p for p in self.params.required_check_params() if not self._provided[p]]
+        if self.params:
+            return [p for p in self.params.required_check_params() if not self._provided[p]]
+        return []
 
     def missing_options_with_env_var(self) -> Iterator[BaseOption]:
         """Yields Option parameters that have an environment variable configured, and did not have any CLI values."""
-        for param in self.params.options:
-            if param.env_var and not self._provided[param]:
-                yield param
+        if self.params:
+            for param in self.params.options:
+                if param.env_var and not self._provided[param]:
+                    yield param
 
     # endregion
 
@@ -268,7 +273,8 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         action flags to run before main, and the action flags to run after main.
         """
         try:
-            before_main, after_main = self.params.split_action_flags  # Each part is already sorted
+            # Each part is already sorted
+            before_main, after_main = self.params.split_action_flags  # type: ignore[union-attr]
         except AttributeError:  # self.command_cls is None
             return 0, [], []
 
@@ -427,6 +433,14 @@ ctx: Context = cast(Context, ContextProxy())
 # region Public / Semi-Public Functions
 
 
+@overload
+def get_current_context(silent: Literal[False] = False) -> Context: ...
+
+
+@overload
+def get_current_context(silent: Literal[True]) -> Context | None: ...
+
+
 def get_current_context(silent: bool = False) -> Context | None:
     """
     Get the currently active parsing context.
@@ -444,7 +458,7 @@ def get_current_context(silent: bool = False) -> Context | None:
 
 
 def get_or_create_context(
-    command_cls: CommandCls, argv: Argv = None, *, command: CommandObj | None = None, **kwargs
+    command_cls: CommandCls, argv: Argv = None, *, command: Command | None = None, **kwargs
 ) -> Context:
     """
     Used internally by Commands to re-use an existing user-activated Context, or to create a new Context if there was
@@ -464,7 +478,7 @@ def get_context(command: Command) -> Context:
     :return: The Context associated with the given Command
     """
     try:
-        return command._Command__ctx  # noqa
+        return command._Command__ctx  # type: ignore[attr-defined]
     except AttributeError as e:
         raise TypeError('get_context only supports Command objects') from e
 

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Collection, Iterator
+from typing import TYPE_CHECKING, Any, Collection, Iterator, Type, TypeAlias
 
 from .config import AmbiguousComboMode, CommandConfig
 from .exceptions import AmbiguousCombo, AmbiguousShortForm, CommandDefinitionError, ParameterDefinitionError
@@ -21,11 +21,13 @@ from .parameters.base import BaseOption, BasePositional, ParamBase, Parameter
 from .parameters.choice_map import Action, SubCommand
 
 if TYPE_CHECKING:
+    from .commands import Command
     from .context import Context
     from .core import CommandMeta
     from .formatting.commands import CommandHelpFormatter
     from .typing import Bool, Strings
 
+    CommandCls: TypeAlias = Type[Command] | CommandMeta
     OptionMap = dict[str, BaseOption]
     ActionFlags = list[ActionFlag]
     Positionals = list[BasePositional] | tuple[()]
@@ -35,7 +37,7 @@ __all__ = ['CommandParameters']
 
 class CommandParameters:
     # fmt: off
-    command: CommandMeta                                 #: The Command associated with this CommandParameters object
+    command: CommandCls                                  #: The Command associated with this CommandParameters object
     parent: CommandParameters | None                     #: The parent Command's CommandParameters
     action_flags: ActionFlags                            #: List of action flags
     split_action_flags: tuple[ActionFlags, ActionFlags]  #: Action flags split by before/after main
@@ -47,7 +49,7 @@ class CommandParameters:
     option_map: OptionMap                                #: Mapping of {--opt / -opt: Parameter}
     # fmt: on
 
-    def __init__(self, command: CommandMeta, parent_params: CommandParameters | None, config: CommandConfig):
+    def __init__(self, command: CommandCls, parent_params: CommandParameters | None, config: CommandConfig):
         self.command = command
         self.parent = parent_params
         self.config = config

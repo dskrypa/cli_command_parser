@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from collections import deque
 from os import environ
-from typing import TYPE_CHECKING, Deque, Sequence
+from typing import TYPE_CHECKING, Deque, Sequence, Type, TypeAlias
 
 from .context import ActionPhase, Context
 from .core import get_parent
@@ -30,8 +30,10 @@ if TYPE_CHECKING:
     from .command_parameters import CommandParameters
     from .commands import Command
     from .config import CommandConfig
-    from .core import CommandMeta
     from .typing import Bool, OptStr
+
+    CommandCls: TypeAlias = Type[Command]
+    Positionals = Sequence[BasePositional]
 
 __all__ = ['CommandParser', 'parse_args_and_get_next_cmd']
 log = logging.getLogger(__name__)
@@ -47,32 +49,31 @@ class CommandParser:
 
     __slots__ = ('_last', 'arg_deque', 'ctx', 'config', 'deferred', 'params', 'positionals')
 
-    arg_deque: Deque[str] | None
+    arg_deque: Deque[str]
     config: CommandConfig
-    deferred: list[str] | None
+    deferred: list[str]
     params: CommandParameters
     positionals: list[BasePositional]
-    _last: Parameter | None
 
     def __init__(self, ctx: Context, params: CommandParameters, config: CommandConfig):
-        self._last = None
+        self._last: Parameter | None = None
         self.ctx = ctx
         self.params = params
         self.positionals = params.get_positionals_to_parse(ctx)
         self.config = config
         if config.reject_ambiguous_pos_combos:
-            PosNode.build_tree(ctx.command_cls)
+            PosNode.build_tree(ctx.command_cls)  # type: ignore[arg-type]
 
     @classmethod
-    def parse_args_and_get_next_cmd(cls, ctx: Context) -> CommandMeta | None:
+    def parse_args_and_get_next_cmd(cls, ctx: Context) -> CommandCls | None:
         try:
-            return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)
+            return cls(ctx, ctx.params, ctx.config).get_next_cmd(ctx)  # type: ignore[arg-type]
         except UsageError:
             if not ctx.categorized_action_flags[_PRE_INIT]:
                 raise
             return None
 
-    def get_next_cmd(self, ctx: Context) -> CommandMeta | None:
+    def get_next_cmd(self, ctx: Context) -> CommandCls | None:
         self._parse_args(ctx)
         self._validate_groups()
         missing = ctx.get_missing()
@@ -115,7 +116,8 @@ class CommandParser:
 
         self._parse_env_vars(ctx)
 
-    def _parse_env_vars(self, ctx: Context):
+    @classmethod
+    def _parse_env_vars(cls, ctx: Context):
         for param in ctx.missing_options_with_env_var():
             for env_var in param.env_vars():
                 try:
@@ -298,16 +300,12 @@ class CommandParser:
         else:
             return found
 
-    def _get_backtrack_count(
-        self, param: Parameter, extras: Sequence[str] = (), positionals: Sequence[BasePositional] = ()
-    ) -> int:
+    def _get_backtrack_count(self, param: Parameter, extras: Sequence[str] = (), positionals: Positionals = ()) -> int:
         if poppable_groups := param.action.get_maybe_poppable_values():
             return next((len(g) for g in poppable_groups if self._should_backtrack(g, extras, positionals)), 0)
         return 0
 
-    def _should_backtrack(
-        self, group: list[str], extras: Sequence[str] = (), positionals: Sequence[BasePositional] = ()
-    ) -> bool:
+    def _should_backtrack(self, group: list[str], extras: Sequence[str] = (), positionals: Positionals = ()) -> bool:
         args = [*group, *extras, *self.arg_deque]
         for pos_param in positionals or self.positionals:
             n = pos_param.nargs.min
@@ -329,7 +327,7 @@ class CommandParser:
         By the time this method is called, it has already been discovered that `found` does not satisfy `param`'s
         nargs requirements.
         """
-        if not self.config.allow_backtrack:
+        if not self.config.allow_backtrack or not self._last:
             # This method is called extremely rarely & it's cleaner to have this check here than in _finalize_consume
             return
 

@@ -13,7 +13,7 @@ from collections import defaultdict
 from fnmatch import fnmatch
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Mapping
+from typing import TYPE_CHECKING, Any, Iterable, Mapping, Type
 
 from .commands import Command
 from .context import Context
@@ -22,8 +22,9 @@ from .formatting.commands import NameFunc, get_formatter
 from .formatting.restructured_text import MODULE_TEMPLATE, rst_header, rst_toc_tree
 
 if TYPE_CHECKING:
-    from .typing import Bool, CommandCls, OptStr, PathLike, Strings
+    from .typing import Bool, OptStr, PathLike, Strings
 
+    CommandCls = Type[Command]
     Commands = dict[str, CommandCls]
 
 __all__ = ['render_script_rst', 'render_command_rst', 'load_commands', 'RstWriter']
@@ -79,7 +80,7 @@ def load_commands(path: PathLike, top_only: Bool = False, include_abc: Bool = Fa
     Load all of the commands from the file with the given path and return them as a dict of ``{name: Command}``.
 
     If an :class:`python:OSError` or a subclass thereof is encountered while attempting to load the file (due to the
-    path not existing, or a permission error, etc), it will be allowed to propagate.  An :class:`python:ImportError`
+    path not existing, or a permission error, etc.), it will be allowed to propagate.  An :class:`python:ImportError`
     may be raised by :func:`import_module` if the specified path cannot be imported.
 
     :param path: The path to a file containing one or more :class:`.Command` classes
@@ -136,7 +137,12 @@ def import_module(path: PathLike):
     if path.is_dir():
         path /= '__init__.py'
 
-    spec = spec_from_file_location(name, path)
+    if not (spec := spec_from_file_location(name, path)):
+        path_str = path.as_posix()
+        raise ImportError(
+            f'Unable to find module={name!r} at path={path_str!r} - are you sure it is a Python module?', path=path_str
+        )
+
     try:
         module = module_from_spec(spec)
     except AttributeError as e:
@@ -145,7 +151,7 @@ def import_module(path: PathLike):
 
     sys.modules[spec.name] = module  # This is required for the program metadata introspection
     try:
-        spec.loader.exec_module(module)
+        spec.loader.exec_module(module)  # type: ignore[union-attr]
     except Exception:
         del sys.modules[spec.name]
         raise
@@ -264,7 +270,7 @@ class RstWriter:
     ):
         names = [self.document_script(path, subdir, top_only=top_only, **kwargs) for path in paths]
         if index_name or index_header or index_subdir:
-            name = index_name or subdir
+            name: str = index_name or subdir or index_header or index_subdir  # type: ignore[assignment]
             self.write_index(
                 name, index_header or name.title(), names, content_subdir=subdir, caption=caption, subdir=index_subdir
             )
@@ -310,7 +316,7 @@ class RstWriter:
             index_subdir = content_subdir = f'{subdir}/{name}' if subdir else name
         else:
             index_subdir = None
-            content_subdir = subdir
+            content_subdir = subdir  # type: ignore[assignment]
 
         # TODO: This needs improvement for multi-package repos
         contents = self._generate_code_rsts(pkg_name, pkg_path, content_subdir, max_depth=max_depth)
