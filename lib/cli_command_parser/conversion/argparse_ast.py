@@ -9,7 +9,7 @@ from ast import AST, Assign, Call, withitem
 from functools import cached_property, partial
 from inspect import BoundArguments, Signature
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, ClassVar, Generic, Iterator, Literal, Type, TypeVar, overload
+from typing import TYPE_CHECKING, Callable, ClassVar, Generic, Literal, Type, TypeAlias, TypeVar, overload
 
 try:
     from typing import Self
@@ -22,8 +22,9 @@ from .utils import get_name_repr, iter_module_parents, unparse
 
 if TYPE_CHECKING:
     from collections.abc import Collection
+    from typing import Any, Iterator
 
-    from cli_command_parser.typing import PathLike
+    from cli_command_parser.typing import OptStr, PathLike
 
     from .visitor import TrackedRef, TrackedRefMap
 
@@ -36,6 +37,7 @@ ParserCls = Type['AstArgumentParser']
 ParserObj = TypeVar('ParserObj', bound='AstArgumentParser')
 RepresentedCallable = Callable
 AC = TypeVar('AC', bound='AstCallable')
+ACGroup: TypeAlias = tuple[Type[AC], list[AC]]
 D = TypeVar('D')
 VisitFunc = Callable[[InitNode, OptCall, 'TrackedRefMap'], AC]
 
@@ -255,11 +257,11 @@ class AstCallable(ABC):
                 kwargs.update(kwargs.pop('kwargs'))
             return kwargs
 
-    def _init_func_kwargs(self) -> dict[str, str]:
+    def _init_func_kwargs(self) -> dict[str, OptStr]:
         return {key: unparse(val) for key, val in self.init_func_raw_kwargs.items()}
 
     @cached_property
-    def init_func_kwargs(self) -> dict[str, str]:
+    def init_func_kwargs(self) -> dict[str, OptStr]:
         return self._init_func_kwargs()
 
     def init_call_repr(self) -> str:
@@ -318,9 +320,9 @@ class ArgCollection(AstCallable, ABC):
     def add_argument_group(self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap) -> ArgGroup:
         return self._add_child(ArgGroup, self.groups, node, call, tracked_refs)
 
-    def grouped_children(self) -> Iterator[tuple[Type[AC], list[AC]]]:
-        yield ParserArg, self.args  # type: ignore[misc]
-        yield ArgGroup, self.groups  # type: ignore[misc]
+    def grouped_children(self) -> Iterator[ACGroup]:
+        yield ParserArg, self.args
+        yield ArgGroup, self.groups
 
     # region Output Methods
 
@@ -400,7 +402,7 @@ class SubParser(AstArgumentParser, represents=_SubParsersAction.add_parser):
     sp_parent: SubparsersAction
 
     @cached_property
-    def init_func_kwargs(self) -> dict[str, str]:
+    def init_func_kwargs(self) -> dict[str, OptStr]:
         kwargs = self.sp_parent.init_func_kwargs.copy()
         kwargs.update(self._init_func_kwargs())
         return kwargs

@@ -44,7 +44,7 @@ if TYPE_CHECKING:
     _CmdCls = Type[Command]
     _CmdObjOrCls: TypeAlias = Command | _CmdCls
 
-__all__ = ['Parameter', 'BasePositional', 'BaseOption']
+__all__ = ['Param', 'Parameter', 'BasePositional', 'BaseOption']
 
 _group_stack: ContextVar[list[ParamGroup]] = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
@@ -58,6 +58,20 @@ CommandMethod = Callable[['Command'], T]
 DefaultFunc = Callable[[], T] | CommandMethod
 
 TD = TypeVar('TD')
+
+
+class Param(Generic[T]):
+    __slots__ = ()
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
+
+        @overload
+        def __get__(self, command: object, owner: Any = None) -> T | None: ...
+
+        def __get__(self, command: object | None, owner: Any = None) -> Self | T | None: ...
 
 
 class ParamBase(ABC):
@@ -188,7 +202,7 @@ class ParamBase(ABC):
     # endregion
 
 
-class Parameter(ParamBase, Generic[T], ABC):
+class Parameter(ParamBase, Param[T], ABC):
     """
     Base class for all other parameters.  It is not meant to be used directly.
 
@@ -558,7 +572,7 @@ class BaseOption(Parameter[T], ABC):
     show_env_var: Bool = None
     strict_env: Bool
     use_env_value: Bool
-    const = _NotSet
+    const: T | _NotSetType = _NotSet
 
     def __init__(
         self,
@@ -616,12 +630,18 @@ class AllowLeadingDashProperty:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    def __get__(self, instance: Parameter | None, owner) -> AllowLeadingDash | AllowLeadingDashProperty:
+    @overload
+    def __get__(self, instance: None, owner: Any) -> AllowLeadingDashProperty: ...
+
+    @overload
+    def __get__(self, instance: Parameter, owner: Any) -> AllowLeadingDash: ...
+
+    def __get__(self, instance: Parameter | None, owner: Any) -> AllowLeadingDash | AllowLeadingDashProperty:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)
 
-    def __set__(self, instance: Parameter, value: LeadingDash):
+    def __set__(self, instance: Parameter, value: LeadingDash | None):
         if value is not None:
             value = AllowLeadingDash(value)
 

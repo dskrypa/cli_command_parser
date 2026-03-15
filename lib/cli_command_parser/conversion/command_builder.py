@@ -7,24 +7,26 @@ from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, Set
 from dataclasses import dataclass, fields
 from functools import cached_property
 from itertools import count
-from typing import TYPE_CHECKING, Generic, Iterable, Iterator, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Iterable, Iterator, MutableMapping, Type, TypeVar
 
 from cli_command_parser.nargs import Nargs
 
-from .argparse_ast import AC, ArgGroup, AstArgumentParser, MutuallyExclusiveGroup, ParserArg, Script
+from .argparse_ast import ArgGroup, AstArgumentParser, AstCallable, MutuallyExclusiveGroup, ParserArg, Script
 from .utils import collection_contents, unparse
 
 if TYPE_CHECKING:
-    from cli_command_parser.typing import OptStr
+    from cli_command_parser.typing import Bool, OptStr
 
     from .argparse_ast import ArgCollection
 
 __all__ = ['convert_script']
 log = logging.getLogger(__name__)
 
+AC = TypeVar('AC', bound=AstCallable | Script)
+ACol = TypeVar('ACol', bound='ArgCollection')
 C = TypeVar('C', bound='Converter')
 
-RESERVED = set(keyword.kwlist) | set(getattr(keyword, 'softkwlist', ('_', 'case', 'match')))  # soft was added in 3.9
+RESERVED = set(keyword.kwlist) | set(keyword.softkwlist)
 # TODO: Handle argparse.SUPPRESS ('==SUPPRESS==')
 
 
@@ -35,7 +37,7 @@ def convert_script(script: Script, add_methods: bool = False) -> str:
 class Converter(Generic[AC], ABC):
     converts: Type[AC] | None = None
     newline_between_members: bool = False
-    _ac_converter_map = {}
+    _ac_converter_map = {}  # type: ignore[var-annotated]
 
     def __init_subclass__(cls, converts: Type[AC] | None = None, newline_between_members: bool | None = None, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -51,16 +53,15 @@ class Converter(Generic[AC], ABC):
 
     @classmethod
     def for_ast_callable(cls, ast_obj: AC | Type[AC]) -> Type[Converter[AC]]:
-        if not isinstance(ast_obj, type):
-            ast_obj = ast_obj.__class__
+        ast_cls = ast_obj if isinstance(ast_obj, type) else ast_obj.__class__
         try:
-            return cls._ac_converter_map[ast_obj]
+            return cls._ac_converter_map[ast_cls]
         except KeyError:
             pass
         for converts_cls, converter_cls in cls._ac_converter_map.items():
-            if issubclass(ast_obj, converts_cls):
+            if issubclass(ast_cls, converts_cls):
                 return converter_cls
-        raise TypeError(f'No Converter is registered for {ast_obj.__class__.__name__} objects')
+        raise TypeError(f'No Converter is registered for {ast_cls.__class__.__name__} objects')
 
     @classmethod
     def init_for_ast_callable(cls, ast_obj: AC, *args, **kwargs) -> Converter[AC]:
@@ -119,10 +120,10 @@ class ScriptConverter(Converter, converts=Script):
             yield from ParserConverter(parser, counter=counter, add_methods=self.add_methods).format_lines()
 
 
-class CollectionConverter(Converter[AC], ABC):
-    ast_obj: ArgCollection
+class CollectionConverter(Converter[ACol], ABC):
+    ast_obj: ACol
     parent: CollectionConverter | None
-    _name_mode = None
+    _name_mode: OptStr = None
 
     @cached_property
     def name_mode(self) -> str | None:
@@ -130,7 +131,10 @@ class CollectionConverter(Converter[AC], ABC):
 
     @cached_property
     def grouped_children(self) -> list[ConverterGroup[ParamConverter | GroupConverter | Converter]]:
-        return [self.for_ast_callable(cg_cls).init_group(self, cg) for cg_cls, cg in self.ast_obj.grouped_children()]
+        return [
+            self.for_ast_callable(cg_cls).init_group(self, cg)  # type: ignore[misc]
+            for cg_cls, cg in self.ast_obj.grouped_children()
+        ]
 
     def descendant_args(self) -> Iterator[ParamConverter]:
         for child_group in self.grouped_children:
@@ -138,9 +142,9 @@ class CollectionConverter(Converter[AC], ABC):
                 continue
             elif hasattr(child_group[0], 'descendant_args'):
                 for child in child_group:
-                    yield from child.descendant_args()
+                    yield from child.descendant_args()  # type: ignore[union-attr]
             elif isinstance(child_group[0], ParamConverter):
-                yield from child_group
+                yield from child_group  # type: ignore[misc]
 
     def format_members(self, prefix: str, indent: int = 4) -> Iterator[str]:
         last = False
@@ -284,7 +288,7 @@ class ParserConverter(CollectionConverter[AstArgumentParser], converts=AstArgume
         return self._name_mode or (self.parent.name_mode if self.parent else None)
 
     @cached_property
-    def _name_mode(self) -> str | None:
+    def _name_mode(self) -> str | None:  # type: ignore[override]
         if self.parent and self.parent._name_mode:
             return None
         name_modes = {pc._name_mode for pc in self.descendant_args() if pc.is_option and '_' in pc.attr_name}
@@ -330,8 +334,8 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         super().__init__(arg, parent)
         self.num = num
 
-    def __eq__(self, other: ParamConverter) -> bool:
-        return self.ast_obj == other.ast_obj and self.num == other.num
+    def __eq__(self, other) -> bool:
+        return isinstance(other, ParamConverter) and self.ast_obj == other.ast_obj and self.num == other.num
 
     def __lt__(self, other: ParamConverter) -> bool:
         if self.is_positional and not other.is_positional:
@@ -360,7 +364,7 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
 
     @cached_property
     def name_mode(self) -> str | None:
-        return None if self.parent.name_mode else self._name_mode
+        return None if self.parent and self.parent.name_mode else self._name_mode
 
     @cached_property
     def _name_mode(self) -> str | None:
@@ -452,12 +456,12 @@ class ParamConverter(Converter[ParserArg], converts=ParserArg):
         return nargs in self.ast_obj.get_tracked_refs('argparse', 'REMAINDER', ())
 
     @cached_property
-    def is_positional(self) -> bool:
+    def is_positional(self) -> Bool:
         long, short, plain = self._grouped_opt_strs
         return plain and not long and not short
 
     @cached_property
-    def is_option(self) -> bool:
+    def is_option(self) -> Bool:
         long, short, plain = self._grouped_opt_strs
         return (long or short) and not plain
 
@@ -635,10 +639,10 @@ class FlagArgs(OptionArgs):
     const: OptStr = None
 
     @classmethod
-    def init_flag(cls, action: str, const: OptStr = None, default: OptStr = None, **kwargs):
+    def init_flag(cls, action: OptStr, const: OptStr = None, default: OptStr = None, **kwargs):
         values = {'store_true': ('True', 'False'), 'store_false': ('False', 'True')}
         try:
-            value, opposite = values[action]
+            value, opposite = values[action]  # type: ignore[index]
         except KeyError:
             if action == 'store_const':
                 action = None
@@ -671,10 +675,10 @@ class FlagArgs(OptionArgs):
 # endregion
 
 
-def literal_eval_or_none(expr: str) -> str | None:
+def literal_eval_or_none(expr: str | None) -> str | None:
     try:
-        return literal_eval(expr)
-    except ValueError:
+        return literal_eval(expr)  # type: ignore[arg-type]
+    except ValueError:  # expr could not be evaluated, or it was None
         return None
 
 

@@ -6,16 +6,18 @@ variables.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Callable, Generic, Iterable, Iterator, NoReturn, Sequence, TypeVar, Union
+from enum import Enum
+from typing import TYPE_CHECKING, ClassVar, Generic, NoReturn, TypeVar, Union
 
 from ..context import ctx
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
 from ..inputs import InputType
 from ..nargs import Nargs
-from ..utils import _NotSet, camel_to_snake_case
+from ..utils import _NotSet, _NotSetType, camel_to_snake_case
 
 if TYPE_CHECKING:
     from .base import Parameter  # noqa
+    from .options import Counter
     from ..typing import Bool, CommandObj, OptStr
 
 __all__ = [
@@ -30,16 +32,26 @@ __all__ = [
     'StoreAll',
 ]
 
-_PANotSet = object()
 
-Param = TypeVar('Param', bound='Parameter')
+class _PANotSetType(Enum):
+    """Provides the sentinel value for _PANotSet in a way that is fully compatible with type checkers."""
+
+    _PANotSet = '_PANotSet'
+
+    def __str__(self) -> str:
+        return self.name
+
+
+_PANotSet = _PANotSetType._PANotSet
+
+P = TypeVar('P', bound='Parameter')
 Found = Union[int, NoReturn]
 
 
-class ParamAction(ABC, Generic[Param]):
+class ParamAction(ABC, Generic[P]):
     __slots__ = ('param',)
     name: str
-    param: Param
+    # param: P
     default = _NotSet
     accepts_values: bool = False
     accepts_consts: bool = False
@@ -56,8 +68,8 @@ class ParamAction(ABC, Generic[Param]):
         if accepts_consts is not None:
             cls.accepts_consts = accepts_consts
 
-    def __init__(self, param: Param):
-        self.param = param
+    def __init__(self, param: P):
+        self.param: P = param
 
     def __str__(self) -> str:
         return self.name
@@ -171,10 +183,8 @@ class ParamAction(ABC, Generic[Param]):
 # region Mixins
 
 
-class ValueMixin:
+class _ValueAction(ParamAction[P], ABC):
     __slots__ = ()
-    param: Param  # noqa
-    get_default: Callable
 
     def set_value(self, value):
         if (prev := ctx.get_parsed_value(self.param)) is not _NotSet:
@@ -204,12 +214,10 @@ class ValueMixin:
     #     parsed.extend(values)
 
 
-class ConstMixin:
+class _ConstAction(ParamAction[P], ABC):
     __slots__ = ()
-    param: Param  # noqa
-    get_default: Callable
-    add_const: Callable
-    add_value: Callable
+
+    _append: ClassVar[bool]
 
     def __init_subclass__(cls, append: bool = False, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -249,15 +257,16 @@ class ConstMixin:
                 self.append_const(const)
             else:
                 self.set_const(const)
-            return 1
         elif const:
             return self.add_const()
+
+        return 1
 
 
 # endregion
 
 
-class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
+class Store(_ValueAction, default=None, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs(1)
 
@@ -293,7 +302,7 @@ class Store(ValueMixin, ParamAction, default=None, accepts_values=True):
     # endregion
 
 
-class Append(ValueMixin, ParamAction, accepts_values=True):
+class Append(_ValueAction, accepts_values=True):
     __slots__ = ()
     default_nargs = Nargs('+')
 
@@ -388,7 +397,7 @@ class Append(ValueMixin, ParamAction, accepts_values=True):
     # endregion
 
 
-class BasicConstAction(ConstMixin, ParamAction, ABC, accepts_consts=True):
+class BasicConstAction(_ConstAction, ABC, accepts_consts=True):
     __slots__ = ()
     default_nargs = Nargs(0)
 
@@ -485,9 +494,9 @@ class Count(ParamAction, accepts_values=True, accepts_consts=True):
 
     def add_value(self, value: str, *, combo: bool = False, joined: Bool = False, env_var: OptStr = None) -> Found:
         ctx.record_action(self.param)
-        value = self.param.prepare_value(value, combo, env_var)
-        self.param.validate(value, joined)
-        self._add(value)
+        int_val = self.param.prepare_value(value, combo, env_var)
+        self.param.validate(int_val, joined)
+        self._add(int_val)
         return 1
 
     # endregion

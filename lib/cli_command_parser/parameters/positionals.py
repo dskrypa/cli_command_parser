@@ -6,7 +6,7 @@ Positional Parameters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, TypeVar
 
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
@@ -20,8 +20,10 @@ if TYPE_CHECKING:
 
 __all__ = ['Positional']
 
+T = TypeVar('T')
 
-class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
+
+class Positional(BasePositional[T], default_ok=True, actions=(Store, Append)):
     """
     A parameter that must be provided positionally.
 
@@ -65,23 +67,23 @@ class Positional(BasePositional, default_ok=True, actions=(Store, Append)):
         **kwargs,
     ):
         if nargs_provided := nargs is not None:
-            self.nargs = nargs = Nargs(nargs)
-            if nargs == 0:
+            self.nargs = Nargs(nargs)
+            if self.nargs == 0:
                 raise ParameterDefinitionError(
                     f'Invalid {nargs=} - {self.__class__.__name__} must allow at least 1 value'
                 )
         else:
-            self.nargs = nargs = Nargs(1)
+            self.nargs = Nargs(1)
 
         if not action:
             if nargs_provided:
-                action = 'store' if nargs == 1 or nargs == Nargs('?') else 'append'
+                action = 'store' if self.nargs == 1 or self.nargs == Nargs('?') else 'append'
             else:
                 action = 'store'
-        elif nargs_provided and action == 'store' and nargs.max != 1:
-            raise ParameterDefinitionError(f'Invalid {action=} for {nargs=}')
+        elif nargs_provided and action == 'store' and self.nargs.max != 1:
+            raise ParameterDefinitionError(f'Invalid {action=} for nargs={self.nargs}')
 
-        if (required := 0 not in nargs) and (default is not _NotSet or default_cb is not None):
+        if (required := 0 not in self.nargs) and (default is not _NotSet or default_cb is not None):
             raise ParameterDefinitionError(
                 f'Invalid {default=} or {default_cb=} - only allowed for Positional parameters when nargs=? or nargs=*'
             )
