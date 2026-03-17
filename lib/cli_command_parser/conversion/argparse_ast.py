@@ -39,7 +39,7 @@ RepresentedCallable = Callable
 AC = TypeVar('AC', bound='AstCallable')
 ACGroup: TypeAlias = tuple[Type[AC], list[AC]]
 D = TypeVar('D')
-VisitFunc = Callable[[InitNode, OptCall, 'TrackedRefMap'], AC]
+VisitFunc = Callable[[InitNode, 'TrackedRefMap'], AC]
 
 
 class Script:
@@ -80,10 +80,8 @@ class Script:
         cls._register_parser(real_cls.__module__, real_cls.__name__, ast_cls)  # type: ignore[union-attr]
         return ast_cls
 
-    def add_parser(
-        self, ast_cls: Type[ParserObj], node: InitNode, call: OptCall, tracked_refs: TrackedRefMap
-    ) -> ParserObj:
-        parser = ast_cls(node, self, tracked_refs, call)
+    def add_parser(self, ast_cls: Type[ParserObj], node: InitNode, tracked_refs: TrackedRefMap) -> ParserObj:
+        parser = ast_cls(node, self, tracked_refs)
         self._parsers.append(parser)
         return parser
 
@@ -190,16 +188,17 @@ class AstCallable(ABC):
         elif ABC not in cls.__bases__:
             raise NotImplementedError(f'Missing required "represents" class param for {cls.__name__}')
 
-    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: OptCall = None):
+    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap):
         self.init_node = node
-        self._init_call(call if call else node.value if isinstance(node, Assign) else node)  # type: ignore[arg-type]
+        if call := _get_call(node):
+            self.call_node = call
+            self.call_args = call.args
+            self.call_kwargs = call.keywords
+        else:
+            raise ValueError(f'Unexpected {node=}')
+
         self._tracked_refs = tracked_refs
         self.parent = parent
-
-    def _init_call(self, call: Call):
-        self.call_node = call
-        self.call_args = call.args
-        self.call_kwargs = call.keywords
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}[{self.init_call_repr()}]>'
@@ -276,6 +275,20 @@ class AstCallable(ABC):
         print(f'{" " * indent} - {self!r}')
 
 
+def _get_call(node: InitNode) -> Call | None:
+    match node:
+        case Call():
+            return node
+        case withitem():
+            if isinstance(node.context_expr, Call):
+                return node.context_expr
+        case Assign():
+            if isinstance(node.value, Call):
+                return node.value
+
+    return None
+
+
 # region Stdlib Argparse Wrappers
 
 
@@ -295,30 +308,26 @@ class ArgCollection(AstCallable, ABC):
         if children:
             cls._children = (*cls._children, *children)
 
-    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap, call: OptCall = None):
-        super().__init__(node, parent, tracked_refs, call)
+    def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap):
+        super().__init__(node, parent, tracked_refs)
         self.args = []
         self.groups = []
 
     def __repr__(self) -> str:
         return f'<{self.__class__.__name__}: ``{self.init_call_repr()}``>'
 
-    def _add_child(self, cls: Type[AC], container: list[AC], node: InitNode, call: OptCall, refs: TrackedRefMap) -> AC:
-        child = cls(node, self, refs, call)
+    def _add_child(self, cls: Type[AC], container: list[AC], node: InitNode, refs: TrackedRefMap) -> AC:
+        child = cls(node, self, refs)
         container.append(child)
         return child
 
     @visit_func
-    def add_mutually_exclusive_group(
-        self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap
-    ) -> MutuallyExclusiveGroup:
-        return self._add_child(  # type: ignore[return-value]
-            MutuallyExclusiveGroup, self.groups, node, call, tracked_refs
-        )
+    def add_mutually_exclusive_group(self, node: InitNode, tracked_refs: TrackedRefMap) -> MutuallyExclusiveGroup:
+        return self._add_child(MutuallyExclusiveGroup, self.groups, node, tracked_refs)  # type: ignore[return-value]
 
     @visit_func
-    def add_argument_group(self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap) -> ArgGroup:
-        return self._add_child(ArgGroup, self.groups, node, call, tracked_refs)
+    def add_argument_group(self, node: InitNode, tracked_refs: TrackedRefMap) -> ArgGroup:
+        return self._add_child(ArgGroup, self.groups, node, tracked_refs)
 
     def grouped_children(self) -> Iterator[ACGroup]:
         yield ParserArg, self.args
@@ -355,8 +364,8 @@ class SubparsersAction(AstCallable, represents=_ArgumentParser.add_subparsers):
     parent: AstArgumentParser
 
     @visit_func
-    def add_parser(self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap):
-        sub_parser = self.parent._add_subparser(node, call, tracked_refs)
+    def add_parser(self, node: InitNode, tracked_refs: TrackedRefMap):
+        sub_parser = self.parent._add_subparser(node, tracked_refs)
         sub_parser.sp_parent = self
         return sub_parser
 
@@ -367,8 +376,8 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
     sub_parsers: list[SubParser]
     add_subparsers: AddVisitedChild[SubparsersAction] = AddVisitedChild(SubparsersAction, '_subparsers_actions')
 
-    def __init__(self, node: InitNode, parent: Script | ParserObj, tracked_refs: TrackedRefMap, call: OptCall = None):
-        super().__init__(node, parent, tracked_refs, call)
+    def __init__(self, node: InitNode, parent: Script | ParserObj, tracked_refs: TrackedRefMap):
+        super().__init__(node, parent, tracked_refs)
         self._subparsers_actions: list[SubparsersAction] = []
         # Note: sub_parsers aren't included in grouped_children since they need different handling during conversion
         self.sub_parsers = []
@@ -379,21 +388,21 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
 
     @overload
     def _add_subparser(
-        self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap, sub_parser_cls: Literal[None] = None
+        self, node: InitNode, tracked_refs: TrackedRefMap, sub_parser_cls: Literal[None] = None
     ) -> SubParser: ...
 
     @overload
     def _add_subparser(
-        self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap, sub_parser_cls: Type[ParserObj]
+        self, node: InitNode, tracked_refs: TrackedRefMap, sub_parser_cls: Type[ParserObj]
     ) -> ParserObj: ...
 
     def _add_subparser(
-        self, node: InitNode, call: OptCall, tracked_refs: TrackedRefMap, sub_parser_cls: Type[ParserObj] | None = None
+        self, node: InitNode, tracked_refs: TrackedRefMap, sub_parser_cls: Type[ParserObj] | None = None
     ) -> SubParser | ParserObj:
         """Add a subparser to this parser.  Only meant to be called by :class:`SubparsersAction`."""
         # Using default of None since the class hasn't been defined at the time it would need to be set as default
         return self._add_child(  # type: ignore[misc]
-            sub_parser_cls or SubParser, self.sub_parsers, node, call, tracked_refs
+            sub_parser_cls or SubParser, self.sub_parsers, node, tracked_refs
         )
 
 

@@ -6,15 +6,15 @@ from ast import AST, Assign, Attribute, Call, For, Import, ImportFrom, Name, Nod
 from collections import ChainMap, defaultdict
 from enum import Enum
 from functools import partial, wraps
-from typing import TYPE_CHECKING, Callable, Collection, Iterator, Literal, Union, overload
+from typing import TYPE_CHECKING, Callable, Collection, Iterator, Literal, Type, Union, overload
 
 from .argparse_ast import AstArgumentParser, AstCallable, VisitFunc
 from .utils import get_name_repr
 
 if TYPE_CHECKING:
     TrackedRefMap = dict['TrackedRef', set[str]]
-    NameTrackedMap = dict[str, Union[Callable, 'TrackedRef']]
     TrackedValue = Union['TrackedRef', VisitFunc, AstCallable]
+    NameTrackedMap = dict[str, TrackedValue]
     RefName = str | AST
 
 __all__ = ['ScriptVisitor', 'TrackedRef']
@@ -48,8 +48,10 @@ def scoped(func):
 class ScopedVisit:
     __slots__ = ()
 
-    def __get__(self, instance: ScriptVisitor, owner):
-        return self if instance is None else partial(scoped(owner.generic_visit), instance)
+    def __get__(self, instance: ScriptVisitor | None, owner: Type[ScriptVisitor]):
+        if instance is None:
+            return self
+        return partial(scoped(owner.generic_visit), instance)
 
 
 class ScriptVisitor(NodeVisitor):
@@ -64,6 +66,7 @@ class ScriptVisitor(NodeVisitor):
         self.smart_loop_handling = smart_loop_handling
         self.scopes = ChainMap()  # ChainMap that tracks the var/class/func/etc names available in a given scope
         self._tracked_refs: set[TrackedRef] = set()  # References that are tracked, but not meant to be called
+
         self._mod_name_tracked_map: dict[str, NameTrackedMap] = defaultdict(dict)  # All tracked items by source module
         for ref in track_refs:
             self.track_refs_to(ref)
@@ -206,6 +209,12 @@ class ScriptVisitor(NodeVisitor):
         self._visit_for_elements(node, loop_var, ele_names)
 
     def _visit_for_elements(self, node: For, loop_var: str, ele_names: list[str]):
+        """
+        Iterates over the discovered elements, calling :meth:`.generic_visit` for each iteration where one of the
+        elements is an item that is being tracked.
+
+        When visiting a *for* loop with :meth:`.generic_visit`, the body of the loop is only visited once.
+        """
         visited_any = False
         for name in ele_names:
             if ref := self.scopes.get(name):
@@ -274,11 +283,9 @@ class ScriptVisitor(NodeVisitor):
         Visit a single ``withitem`` / context expression within a ``with ...:`` statement that may include one or more
         ``withitem``s / content expressions.
         """
-        context_expr = item.context_expr
-        if func := self.resolve_ref(context_expr, True):
-            # Found a ``with foo(...):`` statement where *foo* is being tracked
-            call = context_expr if isinstance(context_expr, Call) else None
-            result = func(item, call, self.get_tracked_refs())
+        if func := self.resolve_ref(item.context_expr, True):
+            # Found a `with foo(...):` statement where `foo` is being tracked or a `with bar:` where `bar = foo(...)`
+            result = func(item, self.get_tracked_refs())
             if as_name := item.optional_vars:
                 self.scopes[get_name_repr(as_name)] = result
 
@@ -303,7 +310,7 @@ class ScriptVisitor(NodeVisitor):
 
     def visit_Call(self, node: Call) -> AstCallable | _NoCallType:
         if func := self.resolve_ref(node.func, True):
-            return func(node, node, self.get_tracked_refs())
+            return func(node, self.get_tracked_refs())
         return _NoCall
 
 
