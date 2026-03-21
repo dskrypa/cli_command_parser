@@ -2,7 +2,7 @@
 
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from subprocess import check_call, check_output
 from tempfile import TemporaryDirectory
@@ -14,8 +14,8 @@ DEFAULT_PATH = Path('lib/cli_command_parser/__version__.py')
 
 
 class TagUpdater(Command):
-    version_file_path: Path = Option(
-        '-p', metavar='PATH', default=DEFAULT_PATH, help='Path to the __version__.py file to update'
+    version_file_path = Option(
+        '-p', metavar='PATH', type=Path, default=DEFAULT_PATH, help='Path to the __version__.py file to update'
     )
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
     dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
@@ -23,7 +23,7 @@ class TagUpdater(Command):
         '-S', help='Always include a suffix (default: only when multiple versions are created on the same day)'
     )
 
-    def main(self):
+    def main(self) -> None:
         log_fmt = '%(asctime)s %(levelname)s %(name)s %(lineno)d %(message)s' if self.verbose > 1 else '%(message)s'
         logging.basicConfig(level=logging.DEBUG if self.verbose else logging.INFO, format=log_fmt)
 
@@ -44,37 +44,35 @@ class TagUpdater(Command):
             check_call(['git', 'tag', next_version])
             check_call(['git', 'push', '--tags'])
 
-    def update_version(self) -> str | None:
+    def update_version(self) -> str:
         version_pat = re.compile(r'^(\s*__version__\s?=\s?)(["\'])(\d{4}\.\d{2}\.\d{2}(?:-\d+)?)\2$')
         path = self.version_file_path
-        found = False
-        new_ver = None
+        new_ver: str | None = None
         with TemporaryDirectory() as tmp_dir:
             tmp_path = Path(tmp_dir).joinpath('tmp.txt')
             log.debug(f'Writing updated file to temp file={tmp_path}')
             with path.open('r', encoding='utf-8') as f_in, tmp_path.open('w', encoding='utf-8', newline='\n') as f_out:
                 for line in f_in:
-                    if found:
+                    if new_ver:
                         f_out.write(line)
                     elif m := version_pat.match(line):
-                        found = True
                         new_ver, new_line = self._updated_version_line(m.groups())
                         f_out.write(new_line)
                     else:
                         f_out.write(line)
 
-            if found:
+            if new_ver:
                 if self.dry_run:
                     log.info(f'[DRY RUN] Would replace original file={path.as_posix()} with modified version')
                 else:
                     log.info(f'Replacing original file={path.as_posix()} with modified version')
                     tmp_path.replace(path)
-            else:
-                raise RuntimeError(f'No valid version was found in {path.as_posix()}')
 
-        return new_ver
+                return new_ver
 
-    def _updated_version_line(self, groups):
+        raise RuntimeError(f'No valid version was found in {path.as_posix()}')
+
+    def _updated_version_line(self, groups) -> tuple[str, str]:
         var, quote, old_ver = groups
         new_ver = get_next_version(old_ver, self.force_suffix)
         prefix = '[DRY RUN] Would replace' if self.dry_run else 'Replacing'
@@ -83,25 +81,25 @@ class TagUpdater(Command):
         return new_ver, new_line
 
 
-def get_latest_tag():
+def get_latest_tag() -> str:
     stdout: str = check_output(['git', 'tag', '--list'], text=True)
 
     versions = []
     for line in stdout.splitlines():
         try:
-            date, suffix = line.split('-')
+            date, str_suffix = line.split('-')
         except ValueError:
             date = line
             suffix = 0
         else:
-            suffix = int(suffix)
+            suffix = int(str_suffix)
         versions.append((date, suffix))
 
     date, suffix = max(versions)
     return f'{date}-{suffix}'
 
 
-def get_next_version(old_ver: str, force_suffix: bool = False):
+def get_next_version(old_ver: str, force_suffix: bool = False) -> str:
     try:
         old_date_str, old_suffix = old_ver.split('-')
     except ValueError:
@@ -111,7 +109,7 @@ def get_next_version(old_ver: str, force_suffix: bool = False):
         new_suffix = int(old_suffix) + 1
 
     old_date = datetime.strptime(old_date_str, '%Y.%m.%d').date()
-    today = datetime.utcnow().date()
+    today = datetime.now(UTC).date()
     today_str = today.strftime('%Y.%m.%d')
     if old_date < today:
         if force_suffix:
