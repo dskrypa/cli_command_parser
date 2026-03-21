@@ -11,11 +11,6 @@ from inspect import BoundArguments, Signature
 from pathlib import Path
 from typing import TYPE_CHECKING, Callable, ClassVar, Generic, Literal, Type, TypeAlias, TypeVar, overload
 
-try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
-
 from ..utils import _NotSet, _NotSetType
 from .argparse_utils import ArgumentParser as _ArgumentParser, SubParsersAction as _SubParsersAction
 from .utils import get_name_repr, iter_module_parents, unparse
@@ -24,8 +19,7 @@ if TYPE_CHECKING:
     from collections.abc import Collection
     from typing import Any, Iterator
 
-    from cli_command_parser.typing import OptStr, PathLike
-
+    from ..typing import OptStr, PathLike, Self
     from .visitor import TrackedRef, TrackedRefMap
 
 __all__ = ['ParserArg', 'ArgGroup', 'MutuallyExclusiveGroup', 'AstArgumentParser', 'SubParser', 'Script']
@@ -189,14 +183,13 @@ class AstCallable(ABC):
             raise NotImplementedError(f'Missing required "represents" class param for {cls.__name__}')
 
     def __init__(self, node: InitNode, parent: AstCallable | Script, tracked_refs: TrackedRefMap):
+        """
+        :param node: The AST node that this object represents.
+        :param parent: The parent script or AstCallable in which the node that this object represents exists.
+        :param tracked_refs: Mapping of :class:`~TrackedRef` objects to the set of variable names that are references
+          to the tracked item.
+        """
         self.init_node = node
-        if call := _get_call(node):
-            self.call_node = call
-            self.call_args = call.args
-            self.call_kwargs = call.keywords
-        else:
-            raise ValueError(f'Unexpected {node=}')
-
         self._tracked_refs = tracked_refs
         self.parent = parent
 
@@ -204,6 +197,7 @@ class AstCallable(ABC):
         return f'<{self.__class__.__name__}[{self.init_call_repr()}]>'
 
     def get_tracked_refs(self, module: str, name: str, default: D | _NotSetType = _NotSet) -> set[str] | D:
+        """Get the set of variable names that are references to the specified tracked item."""
         for tracked_ref, refs in self._tracked_refs.items():
             if tracked_ref.module == module and tracked_ref.name == name:
                 return refs
@@ -224,21 +218,27 @@ class AstCallable(ABC):
         return self._signature()
 
     @cached_property
+    def call(self) -> Call:
+        if call := _get_call(self.init_node):
+            return call
+        raise AttributeError(f'Unable to determine call for node={self.init_node}')
+
+    @cached_property
     def init_func_name(self) -> str:
         """The name or alias of the function/callable that was used to initialize this object"""
-        return get_name_repr(self.call_node.func)
+        return get_name_repr(self.call.func)
 
     @cached_property
     def _init_func_bound(self) -> BoundArguments:
-        args = self.call_args if isinstance(self.represents, type) else ('self', *self.call_args)
-        return self.signature.bind(*args, **{kw.arg: kw.value for kw in self.call_kwargs if kw.arg is not None})
+        args = self.call.args if isinstance(self.represents, type) else ('self', *self.call.args)
+        return self.signature.bind(*args, **{kw.arg: kw.value for kw in self.call.keywords if kw.arg is not None})
 
     @cached_property
     def init_func_args(self) -> list[str]:
         try:
             args = self._init_func_bound.args[1:]
         except (TypeError, AttributeError):  # No represents func
-            args = self.call_args  # type: ignore[assignment]
+            args = self.call.args  # type: ignore[assignment]
         return [unparse(arg) for arg in args]
 
     @cached_property
@@ -246,7 +246,7 @@ class AstCallable(ABC):
         try:
             kwargs = self._init_func_bound.arguments
         except (TypeError, AttributeError):  # No represents func
-            return {kw.arg: kw.value for kw in self.call_kwargs if kw.arg is not None}
+            return {kw.arg: kw.value for kw in self.call.keywords if kw.arg is not None}
         else:
             kwargs = kwargs.copy()
             kwargs.pop('self', None)
@@ -401,9 +401,7 @@ class AstArgumentParser(ArgCollection, represents=ArgumentParser, children=('sub
     ) -> SubParser | ParserObj:
         """Add a subparser to this parser.  Only meant to be called by :class:`SubparsersAction`."""
         # Using default of None since the class hasn't been defined at the time it would need to be set as default
-        return self._add_child(  # type: ignore[misc]
-            sub_parser_cls or SubParser, self.sub_parsers, node, tracked_refs
-        )
+        return self._add_child(sub_parser_cls or SubParser, self.sub_parsers, node, tracked_refs)  # type: ignore[misc]
 
 
 class SubParser(AstArgumentParser, represents=_SubParsersAction.add_parser):

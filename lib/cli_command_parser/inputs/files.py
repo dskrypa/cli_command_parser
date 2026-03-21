@@ -9,12 +9,16 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import IO
+from typing import IO, TYPE_CHECKING
 
-from ..typing import Bool, Converter, OptStr, PathLike, T
+from ..typing import T
 from .base import InputType
 from .exceptions import InputValidationError
 from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
+
+if TYPE_CHECKING:
+    from ..typing import Bool, OptStr, PathLike
+    from ._typing import Converter
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
 

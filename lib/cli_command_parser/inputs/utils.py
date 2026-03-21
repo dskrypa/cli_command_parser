@@ -14,16 +14,12 @@ from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S
 from typing import IO, TYPE_CHECKING, Any, Generic, Iterator, Literal, TypeVar, overload
 from weakref import finalize
 
-try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
-
 from ..utils import FixedFlag
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
-    from ..typing import Bool, Converter, Number, OptStr
+    from ..typing import Bool, OptStr, Self
+    from ._typing import Converter, Number
 
 __all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path', 'range_str', 'RangeMixin']
 

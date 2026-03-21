@@ -16,7 +16,9 @@ from .pass_thru import PassThru
 
 if TYPE_CHECKING:
     from ..formatting.params import GroupHelpFormatter
-    from ..typing import Bool, ParamList, ParamOrGroup
+    from ..typing import Bool, ParamOrGroup
+
+    ParamList = list[ParamOrGroup]
 
 __all__ = ['ParamGroup']
 
@@ -187,8 +189,8 @@ class ParamGroup(ParamBase):
 
     def _categorize_params(self) -> tuple[ParamList, ParamList]:
         """Called after parsing to group this group's members by whether they were provided or not."""
-        provided = []
-        missing = []
+        provided: ParamList = []
+        missing: ParamList = []
         for obj in self.members:
             if ctx.num_provided(obj):
                 provided.append(obj)

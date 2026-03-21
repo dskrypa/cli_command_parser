@@ -6,7 +6,7 @@ PassThru Parameters
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import ClassVar, Literal
 
 from ..nargs import Nargs
 from .actions import StoreAll
@@ -24,8 +24,10 @@ class PassThru(Parameter, actions=(StoreAll,)):
     :param kwargs: Additional keyword arguments to pass to :class:`.Parameter`.
     """
 
+    action: StoreAll
     nargs = Nargs('REMAINDER')
-    missing_hint: str = " (missing pass thru args separated from others with '--')"  # leading space is intentional
+    # missing_hint: Hint to provide in exceptions if this param/group is missing; the leading space is intentional
+    missing_hint: ClassVar[str] = " (missing pass thru args separated from others with '--')"
 
     def __init__(self, action: Literal['store_all'] = 'store_all', **kwargs):
         super().__init__(action=action, **kwargs)

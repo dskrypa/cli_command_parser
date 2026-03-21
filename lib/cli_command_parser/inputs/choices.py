@@ -6,25 +6,21 @@ Custom input handlers for Parameters to restrict allowed values to a set of choi
 
 from __future__ import annotations
 
-import sys
 from abc import ABC, abstractmethod
-from enum import Enum
 from typing import TYPE_CHECKING, Any, Callable, Collection, Iterator, Mapping, Type, TypeVar
 
+from ..typing import T
 from .base import InputType
 from .exceptions import InvalidChoiceError
 
 if TYPE_CHECKING:
+    from enum import Enum
+
     from ..typing import Bool
 
 __all__ = ['Choices', 'ChoiceMap', 'EnumChoices']
 
-if sys.version_info >= (3, 13):
-    T = TypeVar('T', default=str)
-else:
-    T = TypeVar('T')
-
-EnumT = TypeVar('EnumT', bound=Enum)
+E = TypeVar('E', bound='Enum')
 
 
 class _ChoicesBase(InputType[T], ABC):
@@ -175,7 +171,7 @@ class ChoiceMap(Choices[T]):
             return self(value)
 
 
-class EnumChoices(_ChoicesBase[EnumT]):
+class EnumChoices(_ChoicesBase[E]):
     """
     Similar to :class:`ChoiceMap`, but uses an Enum to validate / normalize input instead of the keys in a dict.
 
@@ -184,10 +180,10 @@ class EnumChoices(_ChoicesBase[EnumT]):
     """
 
     __slots__ = ()
-    type: Type[EnumT]
-    choices: Mapping[str, EnumT]
+    type: Type[E]
+    choices: Mapping[str, E]
 
-    def __init__(self, enum: Type[EnumT], case_sensitive: Bool = False):
+    def __init__(self, enum: Type[E], case_sensitive: Bool = False):
         super().__init__()  # fix_default is not implemented here, so it's not necessary to expose
         self.type = enum
         self.case_sensitive = case_sensitive
@@ -199,7 +195,7 @@ class EnumChoices(_ChoicesBase[EnumT]):
     def _choices_repr(self, delim: str = ',') -> str:
         return delim.join(self.type._member_map_)
 
-    def __call__(self, value: str) -> EnumT:
+    def __call__(self, value: str) -> E:
         enum = self.type
         for val in self._iter_normalized(value):
             try:

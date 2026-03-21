@@ -6,24 +6,24 @@ Positional Parameters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal, TypeVar
+from typing import TYPE_CHECKING, Literal
 
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..utils import _NotSet
+from ..typing import D, T
+from ..utils import _NotSet, _NotSetType
 from .actions import Append, Store
-from .base import AllowLeadingDashProperty, BasePositional, DefaultFunc
+from .base import AllowLeadingDashProperty, BasePositional
 
 if TYPE_CHECKING:
-    from ..typing import ChoicesType, InputTypeFunc, LeadingDash
+    from ..typing import ChoicesType, InputTypeFunc
+    from ._typing import DefaultFunc, LeadingDash
 
 __all__ = ['Positional']
 
-T = TypeVar('T')
 
-
-class Positional(BasePositional[T], default_ok=True, actions=(Store, Append)):
+class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append)):
     """
     A parameter that must be provided positionally.
 
@@ -58,11 +58,11 @@ class Positional(BasePositional[T], default_ok=True, actions=(Store, Append)):
         self,
         nargs: NargsValue | None = None,
         action: Literal['store', 'append'] | None = None,
-        type: InputTypeFunc = None,  # noqa
-        default: Any = _NotSet,
+        type: InputTypeFunc[T] = None,  # noqa
+        default: D | _NotSetType = _NotSet,
         *,
-        default_cb: DefaultFunc | None = None,
-        choices: ChoicesType = None,
+        default_cb: DefaultFunc[D] | None = None,
+        choices: ChoicesType[T] = None,
         allow_leading_dash: LeadingDash | None = None,
         **kwargs,
     ):
@@ -89,5 +89,5 @@ class Positional(BasePositional[T], default_ok=True, actions=(Store, Append)):
             )
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, default_cb=default_cb, **kwargs)
-        self.type = normalize_input_type(type, choices)
+        self.type = normalize_input_type(type, choices)  # type: ignore[assignment]
         self.allow_leading_dash = allow_leading_dash

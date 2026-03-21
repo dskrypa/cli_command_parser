@@ -11,7 +11,7 @@ import re
 from abc import ABC
 from enum import Enum
 from fnmatch import translate
-from typing import Collection, Match, Pattern, Sequence, TypeVar
+from typing import TYPE_CHECKING, Collection, Literal, Match, Pattern, Sequence, TypeVar, overload
 
 from ..utils import MissingMixin
 from .base import InputType, T
@@ -19,7 +19,10 @@ from .exceptions import InputValidationError
 
 __all__ = ['Regex', 'RegexMode', 'Glob']
 
-RegexResult = TypeVar('RegexResult', str, Match, tuple[str, ...], dict[str, str])
+_Pat = str | Pattern
+GroupsResult = tuple[str, ...]
+DictResult = dict[str, str]
+RegexResult = TypeVar('RegexResult', str, Match, GroupsResult, DictResult)
 
 
 class PatternInput(InputType[T], ABC):
@@ -94,9 +97,60 @@ class Regex(PatternInput[RegexResult]):
 
     __slots__ = ('mode', 'group', 'groups')
 
+    # region Init Overloads
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Regex[str],
+            *patterns: _Pat,
+            group: str | int,
+            groups: Collection[str | int] | None = None,
+            mode: Literal['group', RegexMode.GROUP] | None = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Regex[GroupsResult],
+            *patterns: _Pat,
+            group: None = None,
+            groups: Collection[str | int],
+            mode: Literal['groups', RegexMode.GROUPS] | None = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Regex[str],
+            *patterns: _Pat,
+            group: None = None,
+            groups: None = None,
+            mode: Literal['string', RegexMode.STRING] | None = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Regex[Match],
+            *patterns: _Pat,
+            group: None = None,
+            groups: None = None,
+            mode: Literal['match', RegexMode.MATCH],
+        ): ...
+
+        @overload
+        def __init__(
+            self: Regex[DictResult],
+            *patterns: _Pat,
+            group: None = None,
+            groups: None = None,
+            mode: Literal['dict', RegexMode.DICT],
+        ): ...
+
+    # endregion
+
     def __init__(
         self,
-        *patterns: str | Pattern,
+        *patterns: _Pat,
         group: str | int | None = None,
         groups: Collection[str | int] | None = None,
         mode: RegexMode | str | None = None,
@@ -119,18 +173,19 @@ class Regex(PatternInput[RegexResult]):
         if not (m := next((pm for p in self.patterns if (pm := p.search(value))), None)):
             raise InputValidationError(f'expected a value matching {self._describe_patterns()}')
 
-        if (mode := self.mode) == RegexMode.STRING:
-            return value  # type: ignore[return-value]
-        elif mode == RegexMode.MATCH:
-            return m  # type: ignore[return-value]
-        elif mode == RegexMode.GROUP:
-            return m.group(self.group)  # type: ignore[arg-type,return-value]
-        elif mode == RegexMode.GROUPS:
-            if self.groups:
-                return tuple(m.group(g) for g in self.groups)  # type: ignore[return-value]
-            return m.groups()  # type: ignore[return-value]
-        else:  # mode == RegexMode.DICT
-            return m.groupdict()  # type: ignore[return-value]
+        match self.mode:
+            case RegexMode.STRING:
+                return value  # type: ignore[return-value]
+            case RegexMode.MATCH:
+                return m  # type: ignore[return-value]
+            case RegexMode.GROUP:
+                return m.group(self.group)  # type: ignore[return-value,arg-type]
+            case RegexMode.GROUPS:
+                if self.groups:
+                    return tuple(m.group(g) for g in self.groups)  # type: ignore[return-value]
+                return m.groups()  # type: ignore[return-value]
+            case _:  # mode == RegexMode.DICT
+                return m.groupdict()  # type: ignore[return-value]
 
 
 class Glob(PatternInput[str]):
@@ -138,7 +193,7 @@ class Glob(PatternInput[str]):
     Validates that values match one of the provided glob / :doc:`fnmatch <python:library/fnmatch>` patterns.
 
     :param patterns: One or more glob pattern strings.
-    :param match_case: Whether matches should be case sensitive or not (default: False).
+    :param match_case: Whether matches should be case-sensitive or not (default: False).
     :param normcase: Whether :func:`python:os.path.normcase` should be called on patterns and values (default: False).
     """
 

@@ -161,6 +161,10 @@ class CounterTest(ParserTest):
             with self.assert_raises_contains_str(BadArgument, "bad counter value='foo' from env var='BAR'"):
                 Foo.parse([])
 
+    def test_default_unused_get_env_const(self):
+        # This is a contrived test - this method is not actually used during parsing of Counter env variables
+        self.assertEqual((_NotSet, False), Counter().get_env_const('123456', ''))
+
     # endregion
 
 

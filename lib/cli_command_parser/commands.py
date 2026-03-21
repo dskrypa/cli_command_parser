@@ -18,7 +18,7 @@ from .parser import parse_args_and_get_next_cmd
 from .utils import maybe_await
 
 if TYPE_CHECKING:
-    from .typing import Bool, CommandObj
+    from .typing import Bool, Self
 
 __all__ = ['Command', 'AsyncCommand', 'main', 'print_help']
 log = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ class Command(ABC, metaclass=CommandMeta):
     # region Parse & Run
 
     @classmethod
-    def parse_and_run(cls: Type[CommandObj], argv: Argv | None = None, **kwargs) -> CommandObj | None:
+    def parse_and_run(cls, argv: Argv | None = None, **kwargs) -> Self | None:
         """
         Primary entry point for parsing arguments, resolving subcommands, and running a command.
 
@@ -81,7 +81,7 @@ class Command(ABC, metaclass=CommandMeta):
     # region Parse
 
     @classmethod
-    def parse(cls: Type[CommandObj], argv: Argv | None = None) -> CommandObj:
+    def parse(cls, argv: Argv | None = None) -> Self:
         """
         Parses the specified arguments (or :data:`sys.argv`), and resolves the final subcommand class based on the
         parsed arguments, if necessary.  Initializes the Command, but does not call any of its other methods.
@@ -338,7 +338,7 @@ class AsyncCommand(Command, ABC):
         await self._run_actions_(ActionPhase.AFTER_MAIN, args, kwargs)
 
 
-def main(argv: Argv | None = None, return_command: Bool = False, **kwargs) -> CommandObj | None:
+def main(argv: Argv | None = None, return_command: Bool = False, **kwargs) -> Command | None:
     """
     Convenience function that can be used as the main entry point for a program.
 

@@ -8,8 +8,7 @@ from __future__ import annotations
 
 from functools import partial
 from string import printable, whitespace
-from types import MethodType
-from typing import TYPE_CHECKING, Callable, Collection, Generic, Mapping, NoReturn, Sequence, Type, TypeVar
+from typing import TYPE_CHECKING, Callable, Collection, Generic, Mapping, NoReturn, ParamSpec, Sequence, Type, TypeVar
 
 from ..context import ctx
 from ..exceptions import BadArgument, CommandDefinitionError, InvalidChoice, ParameterDefinitionError
@@ -21,14 +20,17 @@ from .actions import Concatenate
 from .base import BasePositional
 
 if TYPE_CHECKING:
+    from ..commands import Command
     from ..formatting.params import ChoiceMapHelpFormatter
     from ..metadata import ProgramMetadata
-    from ..typing import Bool, CommandObj, OptStr
+    from ..typing import Bool, OptStr
 
 __all__ = ['SubCommand', 'Action', 'Choice', 'ChoiceMap']
 
 T = TypeVar('T')
 TD = TypeVar('TD')
+P = ParamSpec('P')
+Method = Callable[P, T]
 # TODO: Combine SubCommand and Action, replacing `local_choices` with stackable decorators on the target method,
 #  optionally injecting the selected choice into positional args for the decorated method, which may be main?
 
@@ -62,7 +64,7 @@ class Choice(Generic[T]):
         return format_help_entry((self.format_usage(),), self.help, prefix, lpad=lpad)
 
 
-class ChoiceMap(BasePositional[str | None], Generic[T], actions=(Concatenate,)):
+class ChoiceMap(BasePositional[str, None], Generic[T], actions=(Concatenate,)):
     """
     Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.
 
@@ -175,7 +177,7 @@ class ChoiceMap(BasePositional[str | None], Generic[T], actions=(Concatenate,)):
         if not any(c.startswith(prefix) for c in self.choices if c):
             raise InvalidChoice(self, prefix[:-1], self.choices)
 
-    def result(self, command: CommandObj | None = None, missing_default: TD | _NotSetType = _NotSet) -> OptStr | TD:
+    def result(self, command: Command | None = None, missing_default: TD | _NotSetType = _NotSet) -> OptStr | TD:
         if not self.choices:
             self._no_choices_error()
         return super().result(command, missing_default)
@@ -308,7 +310,7 @@ class SubCommand(ChoiceMap[CommandCls | None], title='Subcommands', choice_valid
         raise CommandDefinitionError(f'{ctx.command_cls}.{self.name} = {self} has no sub Commands')
 
 
-class Action(ChoiceMap[MethodType], title='Actions'):
+class Action(ChoiceMap[Method], title='Actions'):
     """
     Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to
     be registered as a callable to be executed based on a user's choice instead of separate sub Commands.
@@ -321,10 +323,10 @@ class Action(ChoiceMap[MethodType], title='Actions'):
     def register_action(
         self,
         choice: OptStr,
-        method: MethodType,
+        method: Method,
         help: OptStr = None,  # noqa
         default: Bool = False,
-    ) -> MethodType:
+    ) -> Method:
         if help is None:
             try:
                 help = method.__doc__  # noqa
@@ -346,12 +348,12 @@ class Action(ChoiceMap[MethodType], title='Actions'):
 
     def register(
         self,
-        method_or_choice: str | MethodType | None = None,
+        method_or_choice: str | Method | None = None,
         *,
         choice: OptStr = None,
         help: OptStr = None,  # noqa
         default: Bool = False,
-    ) -> MethodType | Callable[[MethodType], MethodType]:
+    ) -> Method | Callable[[Method], Method]:
         """
         Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.
         Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so
