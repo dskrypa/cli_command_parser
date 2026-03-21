@@ -8,7 +8,7 @@ top-level Command.
 from __future__ import annotations
 
 from abc import ABC, ABCMeta
-from typing import TYPE_CHECKING, Any, Callable, Collection, Iterable, Iterator, Mapping, TypeVar, Union, overload
+from typing import TYPE_CHECKING, overload
 from warnings import warn
 from weakref import WeakSet
 
@@ -19,8 +19,12 @@ from .metadata import ProgramMetadata
 from .utils import _NotSet, _NotSetType
 
 if TYPE_CHECKING:
-    from .typing import AnyConfig, CommandAny, CommandCls, Config, OptStr
+    from collections.abc import Collection
+    from typing import Any, Callable, Iterable, Iterator, Mapping, TypeVar
 
+    from .typing import CommandAny, CommandCls, OptStr
+
+    AnyConfig = CommandConfig | dict[str, Any] | None
     Bases = tuple[type, ...]
     Choice = str | None | _NotSetType
     Choices = Mapping[str, str | None] | Collection[str]
@@ -148,7 +152,7 @@ class CommandMeta(ABCMeta, type):
     # region Config Methods
 
     @classmethod
-    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: dict[str, Any]) -> Config:
+    def _prepare_config(mcs, bases: Bases, config: AnyConfig, kwargs: dict[str, Any]) -> CommandConfig | None:
         if config is not None:
             if kwargs:
                 raise CommandDefinitionError(f'Cannot combine {config=} with keyword config arguments={kwargs}')

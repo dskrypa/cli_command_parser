@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import logging
 import re
-from ast import AST, Assign, Attribute, Call, For, Import, ImportFrom, Name, NodeVisitor, withitem
+from ast import AST, Assign, Attribute, Call, For, Import, ImportFrom, List, Name, NodeVisitor, Tuple, withitem
 from collections import ChainMap, defaultdict
 from enum import Enum
 from functools import partial, wraps
-from typing import TYPE_CHECKING, Callable, Collection, Iterator, Literal, Type, Union, overload
+from typing import TYPE_CHECKING, Collection, Iterator, Literal, Type, Union, overload
 
 from .argparse_ast import AstArgumentParser, AstCallable, VisitFunc
 from .utils import get_name_repr
@@ -66,12 +66,11 @@ class ScriptVisitor(NodeVisitor):
         self.smart_loop_handling = smart_loop_handling
         self.scopes = ChainMap()  # ChainMap that tracks the var/class/func/etc names available in a given scope
         self._tracked_refs: set[TrackedRef] = set()  # References that are tracked, but not meant to be called
-
         self._mod_name_tracked_map: dict[str, NameTrackedMap] = defaultdict(dict)  # All tracked items by source module
         for ref in track_refs:
             self.track_refs_to(ref)
 
-    def track_callable(self, module: str, name: str, cb: Callable):
+    def track_callable(self, module: str, name: str, cb: VisitFunc | AstCallable):
         self._mod_name_tracked_map[module][name] = cb
 
     def track_refs_to(self, ref: TrackedRef):
@@ -235,7 +234,7 @@ class ScriptVisitor(NodeVisitor):
     @overload
     def resolve_ref(self, name: RefName, only_visitable: Literal[True]) -> VisitFunc | None: ...
 
-    def resolve_ref(self, name: RefName, only_visitable: bool = False) -> VisitFunc | AstCallable | None:
+    def resolve_ref(self, name: RefName, only_visitable: bool = False) -> TrackedValue | None:
         """
         Resolve the given reference to a tracked item in the current scope.
 
@@ -250,7 +249,7 @@ class ScriptVisitor(NodeVisitor):
                     return getattr(obj, attr) if attr in obj.visit_funcs else None
                 return None if only_visitable else obj
             case None | TrackedRef():
-                return None
+                return None if only_visitable else obj
             case _:
                 return obj if attr is None else None
 
@@ -294,7 +293,8 @@ class ScriptVisitor(NodeVisitor):
         Visit an assignment statement where one or more variables (stored in ``Assign.targets``) are being assigned one
         or more values (stored in ``Assign.value``).
         """
-        match node.value:
+        # Note: node.targets only contains multiple elements for chained assignments like `a = b = c`
+        match node.value:  # The value on the right side of `=`
             case Attribute() | Name():
                 # Assigning an alias to a variable; e.g., `foo = bar` or `foo = bar.baz`
                 if ref := self.resolve_ref(node.value):
@@ -307,6 +307,12 @@ class ScriptVisitor(NodeVisitor):
                 if (result := self.visit_Call(node.value)) is not _NoCall:
                     for target in node.targets:
                         self.scopes[get_name_repr(target)] = result
+            case List() | Tuple():
+                for target in node.targets:
+                    if isinstance(target, (List, Tuple)) and len(target.elts) == len(node.value.elts):
+                        for target_var, value in zip(target.elts, node.value.elts):
+                            if ref := self.resolve_ref(value):
+                                self.scopes[get_name_repr(target_var)] = ref
 
     def visit_Call(self, node: Call) -> AstCallable | _NoCallType:
         if func := self.resolve_ref(node.func, True):

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from enum import Enum
-from typing import Any, Collection, FrozenSet, TypeAlias
+from typing import Any, Collection, FrozenSet, Literal, TypeAlias
 
 __all__ = ['Nargs', 'NargsValue', 'REMAINDER']
 
@@ -29,7 +29,10 @@ NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
-NargsValue: TypeAlias = str | int | tuple[int, _Max] | Sequence[int] | set[int] | FrozenSet[int] | range | _Remainder
+NargsStr = Literal['?', '*', '+', 'REMAINDER']
+NargsValue: TypeAlias = (
+    NargsStr | int | tuple[int, _Max] | Sequence[int] | set[int] | FrozenSet[int] | range | _Remainder
+)
 
 
 class Nargs:

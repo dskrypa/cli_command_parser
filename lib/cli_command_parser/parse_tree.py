@@ -65,17 +65,15 @@ class PosNode(MutableMapping[Word, 'PosNode']):
     __slots__ = ('links', 'param', 'parent', 'target', 'word', '_any_word', '_any_node')
 
     links: dict[Word, PosNode]
-    param: BasePositional | None
     parent: PosNode | None
-    target: Target
     word: Word
     _any_word: AnyWord
 
     def __init__(self, word: Word, param: BasePositional | None, target: Target = None, parent: PosNode | None = None):
         self.links = {}
-        self.param = param
+        self.param: BasePositional | None = param
         self.parent = parent
-        self.target = target
+        self.target: Target = target
         self.word = word
         if parent is not None:
             parent[word] = self

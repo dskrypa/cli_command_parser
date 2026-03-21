@@ -486,7 +486,7 @@ class AstCallableTest(ParserTest):
     def test_ast_callable_misc(self):
         call = ast.parse('foo(123, bar=456)').body[0].value
         ac = AstCallable(call, Mock(), {})
-        self.assertEqual(123, ac.call_args[0].value)
+        self.assertEqual(123, ac.call.args[0].value)
         self.assertIsNone(ac.get_tracked_refs('foo', 'bar', None))
         with self.assertRaises(KeyError):
             self.assertIsNone(ac.get_tracked_refs('foo', 'bar'))
@@ -633,15 +633,17 @@ class ArgparseConversionCustomSubclassTest(ParserTest):
         code = """
 from argparse import SUPPRESS as hide
 from foo.bar import ArgParser
+a = hide
 parser = ArgParser(description='Parse args')
 parser.add_constant('abc', 123)
 with parser.add_subparser('action', 'one') as sp1:
-    sp1.add_argument('--foo', help=hide)
+    sp1.add_argument('--foo', help=a)
+    sp1.add_argument('--bar', help=hide)
 sp2 = parser.add_subparser('action', 'two')
         """
         cmds = [
             prep_expected('abc = 123', 'action = SubCommand()', description="'Parse args'"),
-            prep_cmd('foo = Option(hide=True)', name='One', base=CMD0),
+            prep_cmd('foo = Option(hide=True)', 'bar = Option(hide=True)', name='One', base=CMD0),
             prep_cmd('pass', name='Two', base=CMD0),
         ]
         self.assert_strings_equal('\n\n\n'.join(cmds), convert_script(Script(code)))
@@ -650,11 +652,12 @@ sp2 = parser.add_subparser('action', 'two')
         code = """
 from argparse import SUPPRESS as hide
 from foo.bar import ArgParser
+a, b = hide, 123
 parser = ArgParser(description='Parse args')
 parser.add_constant('abc', 123)
 sp1 = parser.add_subparser('action', 'one')
 with sp1:
-    sp1.add_argument('--foo', help=hide)
+    sp1.add_argument('--foo', help=a)
 sp2 = parser.add_subparser('action', 'two')
         """
         cmds = [
