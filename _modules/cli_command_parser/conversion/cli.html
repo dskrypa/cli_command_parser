@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1009,12 +1018,10 @@
 
     <span class="n">action</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">()</span>
     <span class="nb">input</span><span class="p">:</span> <span class="n">Param</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span>
-    <span class="n">no_smart_for</span><span class="p">:</span> <span class="n">Param</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span>
-        <span class="s1">&#39;-S&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable &quot;smart&quot; for loop handling that attempts to dedupe common subparser params&#39;</span>
-    <span class="p">)</span>
+    <span class="n">no_smart_for</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-S&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Disable &quot;smart&quot; for loop handling that attempts to dedupe common subparser params&#39;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ParamGroup</span><span class="p">(</span><span class="s1">&#39;Common&#39;</span><span class="p">):</span>
         <span class="n">verbose</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Increase logging verbosity (can specify multiple times)&#39;</span><span class="p">)</span>
-        <span class="n">dry_run</span><span class="p">:</span> <span class="n">Flag</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
+        <span class="n">dry_run</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;-D&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Print the actions that would be taken instead of taking them&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ParserConverter._init_command_">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.ParserConverter._init_command_">[docs]</a>
@@ -1041,7 +1048,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Convert</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print the cli-command-parser Commands that are equivalent to the discovered argparse ArgumentParsers&quot;&quot;&quot;</span>
 
-    <span class="nb">input</span><span class="p">:</span> <span class="n">Param</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="n">add_methods</span> <span class="o">=</span> <span class="n">Flag</span><span class="p">(</span><span class="s1">&#39;--no-methods&#39;</span><span class="p">,</span> <span class="s1">&#39;-M&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Do not include boilerplate methods in Commands&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Convert.main">
@@ -1059,7 +1066,7 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">Pprint</span><span class="p">(</span><span class="n">ParserConverter</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print a tiered internal representation of the discovered argparse ArgumentParsers and their groups/arguments&quot;&quot;&quot;</span>
 
-    <span class="nb">input</span><span class="p">:</span> <span class="n">Param</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">input</span> <span class="o">=</span> <span class="n">Positional</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="n">IPath</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;file&#39;</span><span class="p">,</span> <span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;A file containing an </span><span class="si">{</span><span class="n">arg_parser</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Pprint.main">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.cli.html#cli_command_parser.conversion.cli.Pprint.main">[docs]</a>

@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -992,19 +1001,19 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Assign</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">For</span><span class="p">,</span> <span class="n">Import</span><span class="p">,</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">NodeVisitor</span><span class="p">,</span> <span class="n">withitem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AST</span><span class="p">,</span> <span class="n">Assign</span><span class="p">,</span> <span class="n">Attribute</span><span class="p">,</span> <span class="n">Call</span><span class="p">,</span> <span class="n">For</span><span class="p">,</span> <span class="n">Import</span><span class="p">,</span> <span class="n">ImportFrom</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Name</span><span class="p">,</span> <span class="n">NodeVisitor</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">withitem</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainMap</span><span class="p">,</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">wraps</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.argparse_ast</span><span class="w"> </span><span class="kn">import</span> <span class="n">AstArgumentParser</span><span class="p">,</span> <span class="n">AstCallable</span><span class="p">,</span> <span class="n">VisitFunc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_name_repr</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="n">TrackedRefMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="s1">&#39;TrackedRef&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
-    <span class="n">NameTrackedMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">Callable</span><span class="p">,</span> <span class="s1">&#39;TrackedRef&#39;</span><span class="p">]]</span>
     <span class="n">TrackedValue</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;TrackedRef&#39;</span><span class="p">,</span> <span class="n">VisitFunc</span><span class="p">,</span> <span class="n">AstCallable</span><span class="p">]</span>
+    <span class="n">NameTrackedMap</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TrackedValue</span><span class="p">]</span>
     <span class="n">RefName</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">AST</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ScriptVisitor&#39;</span><span class="p">,</span> <span class="s1">&#39;TrackedRef&#39;</span><span class="p">]</span>
@@ -1043,8 +1052,10 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">ScopedVisit</span><span class="p">:</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ScriptVisitor</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span> <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">partial</span><span class="p">(</span><span class="n">scoped</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">),</span> <span class="n">instance</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">ScriptVisitor</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">ScriptVisitor</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span>
+        <span class="k">return</span> <span class="n">partial</span><span class="p">(</span><span class="n">scoped</span><span class="p">(</span><span class="n">owner</span><span class="o">.</span><span class="n">generic_visit</span><span class="p">),</span> <span class="n">instance</span><span class="p">)</span></div>
 
 
 
@@ -1068,7 +1079,7 @@
 
 <div class="viewcode-block" id="ScriptVisitor.track_callable">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.track_callable">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">track_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">track_callable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">cb</span><span class="p">:</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="n">AstCallable</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mod_name_tracked_map</span><span class="p">[</span><span class="n">module</span><span class="p">][</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cb</span></div>
 
 
@@ -1222,6 +1233,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_visit_for_elements</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">loop_var</span><span class="p">,</span> <span class="n">ele_names</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_visit_for_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">For</span><span class="p">,</span> <span class="n">loop_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ele_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates over the discovered elements, calling :meth:`.generic_visit` for each iteration where one of the</span>
+<span class="sd">        elements is an item that is being tracked.</span>
+
+<span class="sd">        When visiting a *for* loop with :meth:`.generic_visit`, the body of the loop is only visited once.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">visited_any</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ele_names</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
@@ -1244,7 +1261,7 @@
 
 <div class="viewcode-block" id="ScriptVisitor.resolve_ref">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.resolve_ref">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">,</span> <span class="n">only_visitable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VisitFunc</span> <span class="o">|</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">resolve_ref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">RefName</span><span class="p">,</span> <span class="n">only_visitable</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TrackedValue</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resolve the given reference to a tracked item in the current scope.</span>
 
@@ -1259,7 +1276,7 @@
                     <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span> <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">visit_funcs</span> <span class="k">else</span> <span class="kc">None</span>
                 <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">only_visitable</span> <span class="k">else</span> <span class="n">obj</span>
             <span class="k">case</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">TrackedRef</span><span class="p">():</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">only_visitable</span> <span class="k">else</span> <span class="n">obj</span>
             <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">obj</span> <span class="k">if</span> <span class="n">attr</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span></div>
 
@@ -1295,11 +1312,9 @@
 <span class="sd">        Visit a single ``withitem`` / context expression within a ``with ...:`` statement that may include one or more</span>
 <span class="sd">        ``withitem``s / content expressions.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">context_expr</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">context_expr</span>
-        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">context_expr</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="c1"># Found a ``with foo(...):`` statement where *foo* is being tracked</span>
-            <span class="n">call</span> <span class="o">=</span> <span class="n">context_expr</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">context_expr</span><span class="p">,</span> <span class="n">Call</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">call</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">context_expr</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+            <span class="c1"># Found a `with foo(...):` statement where `foo` is being tracked or a `with bar:` where `bar = foo(...)`</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
             <span class="k">if</span> <span class="n">as_name</span> <span class="o">:=</span> <span class="n">item</span><span class="o">.</span><span class="n">optional_vars</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">as_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span></div>
 
@@ -1311,7 +1326,8 @@
 <span class="sd">        Visit an assignment statement where one or more variables (stored in ``Assign.targets``) are being assigned one</span>
 <span class="sd">        or more values (stored in ``Assign.value``).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">match</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+        <span class="c1"># Note: node.targets only contains multiple elements for chained assignments like `a = b = c`</span>
+        <span class="k">match</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>  <span class="c1"># The value on the right side of `=`</span>
             <span class="k">case</span> <span class="n">Attribute</span><span class="p">()</span> <span class="o">|</span> <span class="n">Name</span><span class="p">():</span>
                 <span class="c1"># Assigning an alias to a variable; e.g., `foo = bar` or `foo = bar.baz`</span>
                 <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
@@ -1323,14 +1339,20 @@
                 <span class="c1"># Storing the result of a function/similar call; e.g., `foo = bar()` or `foo = bar.baz()`</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">result</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">visit_Call</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NoCall</span><span class="p">:</span>
                     <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span></div>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target</span><span class="p">)]</span> <span class="o">=</span> <span class="n">result</span>
+            <span class="k">case</span> <span class="n">List</span><span class="p">()</span> <span class="o">|</span> <span class="n">Tuple</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">targets</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">elts</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">elts</span><span class="p">):</span>
+                        <span class="k">for</span> <span class="n">target_var</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">elts</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">elts</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">ref</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">scopes</span><span class="p">[</span><span class="n">get_name_repr</span><span class="p">(</span><span class="n">target_var</span><span class="p">)]</span> <span class="o">=</span> <span class="n">ref</span></div>
 
 
 <div class="viewcode-block" id="ScriptVisitor.visit_Call">
 <a class="viewcode-back" href="../../../api/cli_command_parser.conversion.visitor.html#cli_command_parser.conversion.visitor.ScriptVisitor.visit_Call">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">visit_Call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">:</span> <span class="n">Call</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AstCallable</span> <span class="o">|</span> <span class="n">_NoCallType</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">func</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_ref</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_tracked_refs</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">_NoCall</span></div>
 </div>
 

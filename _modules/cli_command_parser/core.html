@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -998,7 +1007,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">ABCMeta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">overload</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">weakref</span><span class="w"> </span><span class="kn">import</span> <span class="n">WeakSet</span>
 
@@ -1009,8 +1018,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnyConfig</span><span class="p">,</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">Config</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Collection</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">TypeVar</span>
 
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAny</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">OptStr</span>
+
+    <span class="n">AnyConfig</span> <span class="o">=</span> <span class="n">CommandConfig</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
     <span class="n">Bases</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
     <span class="n">Choice</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">_NotSetType</span>
     <span class="n">Choices</span> <span class="o">=</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
@@ -1140,7 +1153,7 @@
     <span class="c1"># region Config Methods</span>
 
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_config</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Config</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_config</span><span class="p">(</span><span class="n">mcs</span><span class="p">,</span> <span class="n">bases</span><span class="p">:</span> <span class="n">Bases</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">AnyConfig</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CommandConfig</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot combine </span><span class="si">{</span><span class="n">config</span><span class="si">=}</span><span class="s1"> with keyword config arguments=</span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>

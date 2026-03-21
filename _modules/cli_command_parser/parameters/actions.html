@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1003,12 +1012,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">MissingArgument</span><span class="p">,</span> <span class="n">ParamConflict</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">TooManyArguments</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">camel_to_snake_case</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>  <span class="c1"># noqa</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseFlag</span><span class="p">,</span> <span class="n">Parameter</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;ParamAction&#39;</span><span class="p">,</span>
@@ -1035,6 +1044,7 @@
 <span class="n">_PANotSet</span> <span class="o">=</span> <span class="n">_PANotSetType</span><span class="o">.</span><span class="n">_PANotSet</span>
 
 <span class="n">P</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;Parameter&#39;</span><span class="p">)</span>
+<span class="n">F</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;F&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="s1">&#39;BaseFlag&#39;</span><span class="p">)</span>
 <span class="n">Found</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">]</span>
 
 
@@ -1181,7 +1191,7 @@
 
 <div class="viewcode-block" id="ParamAction.get_default">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.get_default">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">default</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize_default</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">default_cb</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">default_cb</span><span class="p">)</span> <span class="ow">and</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1243,7 +1253,7 @@
     <span class="c1">#     parsed.extend(values)</span>
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">_ConstAction</span><span class="p">(</span><span class="n">ParamAction</span><span class="p">[</span><span class="n">P</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_ConstAction</span><span class="p">(</span><span class="n">ParamAction</span><span class="p">[</span><span class="n">F</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="n">_append</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
@@ -1413,7 +1423,7 @@
 
 <div class="viewcode-block" id="Append.get_default">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.get_default">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">default</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">default</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize_default</span><span class="p">(</span><span class="n">default</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span><span class="n">default_cb</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">default_cb</span><span class="p">)</span> <span class="ow">and</span> <span class="n">command</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1535,7 +1545,7 @@
 
 <div class="viewcode-block" id="AppendConst.get_default">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst.get_default">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[]</span></div>
 </div>
 

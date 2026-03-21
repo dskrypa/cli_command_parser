@@ -4,6 +4,7 @@ Inputs Package
 .. toctree::
     :maxdepth: 3
 
+    cli_command_parser.inputs._typing
     cli_command_parser.inputs.base
     cli_command_parser.inputs.choices
     cli_command_parser.inputs.exceptions

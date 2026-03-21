@@ -20,7 +20,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Actions Module" href="cli_command_parser.parameters.actions.html" />
+    <link rel="next" title="_Typing Module" href="cli_command_parser.parameters._typing.html" />
     <link rel="prev" title="Nargs Module" href="cli_command_parser.nargs.html" />
     <link href="../_static/rtd_custom.css" rel="stylesheet", type="text/css">
 
@@ -593,6 +593,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -732,6 +733,7 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -750,6 +752,7 @@
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -880,7 +883,13 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -996,6 +1005,7 @@
 <h1>Parameters Package<a class="headerlink" href="#parameters-package" title="Link to this heading"></a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction.name"><code class="docutils literal notranslate"><span class="pre">ParamAction.name</span></code></a></li>
@@ -1102,10 +1112,10 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">Parameter.__init_subclass__()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.allow_leading_dash"><code class="docutils literal notranslate"><span class="pre">Parameter.allow_leading_dash</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.nargs"><code class="docutils literal notranslate"><span class="pre">Parameter.nargs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.type"><code class="docutils literal notranslate"><span class="pre">Parameter.type</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.allow_leading_dash"><code class="docutils literal notranslate"><span class="pre">Parameter.allow_leading_dash</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.__init_subclass__"><code class="docutils literal notranslate"><span class="pre">Parameter.__init_subclass__()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.metavar"><code class="docutils literal notranslate"><span class="pre">Parameter.metavar</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.default"><code class="docutils literal notranslate"><span class="pre">Parameter.default</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.default_cb"><code class="docutils literal notranslate"><span class="pre">Parameter.default_cb</span></code></a></li>
@@ -1113,8 +1123,6 @@
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.show_default"><code class="docutils literal notranslate"><span class="pre">Parameter.show_default</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.has_choices"><code class="docutils literal notranslate"><span class="pre">Parameter.has_choices</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.register_default_cb"><code class="docutils literal notranslate"><span class="pre">Parameter.register_default_cb()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_const"><code class="docutils literal notranslate"><span class="pre">Parameter.get_const()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_env_const"><code class="docutils literal notranslate"><span class="pre">Parameter.get_env_const()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.prepare_value"><code class="docutils literal notranslate"><span class="pre">Parameter.prepare_value()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.prepare_validation_value"><code class="docutils literal notranslate"><span class="pre">Parameter.prepare_validation_value()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.validate"><code class="docutils literal notranslate"><span class="pre">Parameter.validate()</span></code></a></li>
@@ -1128,14 +1136,18 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.const"><code class="docutils literal notranslate"><span class="pre">BaseOption.const</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.option_strs"><code class="docutils literal notranslate"><span class="pre">BaseOption.option_strs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.strict_env"><code class="docutils literal notranslate"><span class="pre">BaseOption.strict_env</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.env_var"><code class="docutils literal notranslate"><span class="pre">BaseOption.env_var</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.use_env_value"><code class="docutils literal notranslate"><span class="pre">BaseOption.use_env_value</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.show_env_var"><code class="docutils literal notranslate"><span class="pre">BaseOption.show_env_var</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.env_vars"><code class="docutils literal notranslate"><span class="pre">BaseOption.env_vars()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.get_const"><code class="docutils literal notranslate"><span class="pre">BaseOption.get_const()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.const"><code class="docutils literal notranslate"><span class="pre">BaseFlag.const</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.get_const"><code class="docutils literal notranslate"><span class="pre">BaseFlag.get_const()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.get_env_const"><code class="docutils literal notranslate"><span class="pre">BaseFlag.get_env_const()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a><ul>
@@ -1292,6 +1304,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html">Pass_Thru Module</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru"><code class="docutils literal notranslate"><span class="pre">PassThru</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.action"><code class="docutils literal notranslate"><span class="pre">PassThru.action</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.nargs"><code class="docutils literal notranslate"><span class="pre">PassThru.nargs</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.missing_hint"><code class="docutils literal notranslate"><span class="pre">PassThru.missing_hint</span></code></a></li>
 </ul>
@@ -1314,7 +1327,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="cli_command_parser.nargs.html" class="btn btn-neutral float-left" title="Nargs Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cli_command_parser.parameters.actions.html" class="btn btn-neutral float-right" title="Actions Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cli_command_parser.parameters._typing.html" class="btn btn-neutral float-right" title="_Typing Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

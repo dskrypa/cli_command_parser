@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -998,12 +1007,15 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Literal</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NT</span><span class="p">,</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">NumType</span><span class="p">,</span> <span class="n">RngType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">N</span><span class="p">,</span> <span class="n">Number</span><span class="p">,</span> <span class="n">NumType</span><span class="p">,</span> <span class="n">RngType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">_FixedInputType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">RangeMixin</span><span class="p">,</span> <span class="n">range_str</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;NumericInput&#39;</span><span class="p">,</span> <span class="s1">&#39;Range&#39;</span><span class="p">,</span> <span class="s1">&#39;NumRange&#39;</span><span class="p">,</span> <span class="s1">&#39;Bytes&#39;</span><span class="p">]</span>
 
@@ -1012,12 +1024,12 @@
 
 <div class="viewcode-block" id="NumericInput">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumericInput">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NumericInput</span><span class="p">(</span><span class="n">_FixedInputType</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumericInput</span><span class="p">(</span><span class="n">_FixedInputType</span><span class="p">[</span><span class="n">N</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span></div>
 
 
 
-<span class="k">class</span><span class="w"> </span><span class="nc">_RangeInput</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">NT</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_RangeInput</span><span class="p">(</span><span class="n">NumericInput</span><span class="p">[</span><span class="n">N</span><span class="p">],</span> <span class="n">ABC</span><span class="p">):</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">NumType</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">is_valid_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1045,7 +1057,7 @@
 
 <div class="viewcode-block" id="Range">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Range</span><span class="p">(</span><span class="n">_RangeInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Range</span><span class="p">(</span><span class="n">_RangeInput</span><span class="p">[</span><span class="n">N</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A range of integers that uses the builtin :class:`python:range`.  If a range object is passed to a</span>
 <span class="sd">    :class:`.Parameter` as the ``type=`` value, it will automatically be wrapped by this class.</span>
@@ -1094,7 +1106,7 @@
 
 <div class="viewcode-block" id="Range.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.Range.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">N</span><span class="p">:</span>
         <span class="n">num_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_val</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">range</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">num_val</span>
@@ -1109,7 +1121,7 @@
 
 <div class="viewcode-block" id="NumRange">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">NumRange</span><span class="p">(</span><span class="n">RangeMixin</span><span class="p">,</span> <span class="n">_RangeInput</span><span class="p">[</span><span class="n">NT</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">NumRange</span><span class="p">(</span><span class="n">RangeMixin</span><span class="p">,</span> <span class="n">_RangeInput</span><span class="p">[</span><span class="n">N</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A range of integers or floats, optionally only bounded on one side.</span>
 
@@ -1179,7 +1191,7 @@
 
 <div class="viewcode-block" id="NumRange.handle_invalid">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.handle_invalid">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">snap_dir</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_invalid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bound</span><span class="p">:</span> <span class="n">Number</span><span class="p">,</span> <span class="n">inclusive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">snap_dir</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">N</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Handle calculating / returning a snap value or raise an exception if snapping to the bound is not allowed.</span>
 
@@ -1197,7 +1209,7 @@
 
 <div class="viewcode-block" id="NumRange.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NT</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">N</span><span class="p">:</span>
         <span class="n">num_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="c1"># Note: if snap is enabled, it is applied by `handle_invalid`</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_lt_min</span><span class="p">(</span><span class="n">num_val</span><span class="p">):</span>

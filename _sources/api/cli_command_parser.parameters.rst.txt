@@ -4,6 +4,7 @@ Parameters Package
 .. toctree::
     :maxdepth: 3
 
+    cli_command_parser.parameters._typing
     cli_command_parser.parameters.actions
     cli_command_parser.parameters.base
     cli_command_parser.parameters.choice_map

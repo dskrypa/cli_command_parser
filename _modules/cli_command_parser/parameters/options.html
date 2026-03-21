@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -997,21 +1006,23 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParserExit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_input_type</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeFunc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">B</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">,</span> <span class="n">str_to_bool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Store</span><span class="p">,</span> <span class="n">StoreConst</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllowLeadingDashProperty</span><span class="p">,</span> <span class="n">BaseOption</span><span class="p">,</span> <span class="n">CommandMethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllowLeadingDashProperty</span><span class="p">,</span> <span class="n">BaseFlag</span><span class="p">,</span> <span class="n">BaseOption</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.option_strings</span><span class="w"> </span><span class="kn">import</span> <span class="n">TriFlagOptionStrings</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">LeadingDash</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionNameMode</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStrs</span><span class="p">,</span> <span class="n">TypeFunc</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMethod</span><span class="p">,</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">LeadingDash</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s1">&#39;Option&#39;</span><span class="p">,</span>
@@ -1026,21 +1037,13 @@
 <span class="p">]</span>
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-    <span class="n">B</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-    <span class="n">TF</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;TF&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
-    <span class="n">B</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
-    <span class="n">TF</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;TF&#39;</span><span class="p">)</span>
-
+<span class="n">OptAct</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
 <span class="n">ConstAct</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store_const&#39;</span><span class="p">,</span> <span class="s1">&#39;append_const&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Option">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">T</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Option</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A generic option that can be specified as ``--foo bar`` or by using other similar forms.</span>
 
@@ -1070,18 +1073,76 @@
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">default</span><span class="p">:</span> <span class="n">T</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">D</span>
     <span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">AllowLeadingDashProperty</span><span class="p">()</span>
+
+    <span class="c1"># region Init Overloads</span>
+
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">OptAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">OptAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+    <span class="c1"># endregion</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">T</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="n">OptAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-        <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1096,7 +1157,7 @@
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="n">required</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">nargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">default_nargs</span> <span class="k">if</span> <span class="n">_nargs</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">_nargs</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">allow_leading_dash</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_bad_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
@@ -1123,7 +1184,7 @@
 
 <div class="viewcode-block" id="Flag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Flag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">B</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Flag</span><span class="p">(</span><span class="n">BaseFlag</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">B</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A (typically boolean) option that does not accept any values.</span>
 
@@ -1154,20 +1215,96 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
+    <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">__default_const_map</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">B</span>
     <span class="n">const</span><span class="p">:</span> <span class="n">B</span>
+
+    <span class="c1"># region Init Overloads</span>
+
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Flag</span><span class="p">[</span><span class="nb">bool</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">const</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Flag</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">B</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">const</span><span class="p">:</span> <span class="n">B</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Flag</span><span class="p">[</span><span class="n">B</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">B</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">const</span><span class="p">:</span> <span class="n">B</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+    <span class="c1"># endregion</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">B</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-        <span class="n">default_cb</span><span class="o">=</span><span class="n">_NotSet</span><span class="p">,</span>
+        <span class="n">default_cb</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="n">const</span><span class="p">:</span> <span class="n">B</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">const</span> <span class="ow">is</span> <span class="n">_NotSet</span><span class="p">:</span>
@@ -1213,7 +1350,7 @@
 
 <div class="viewcode-block" id="TriFlag">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="n">TF</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TriFlag</span><span class="p">(</span><span class="n">BaseFlag</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">StoreConst</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not</span>
 <span class="sd">    provided, this class accepts a pair of constants for the primary and alternate values to store, along with a</span>
@@ -1249,27 +1386,28 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
+    <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
     <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_default_cb_ok</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">_opt_str_cls</span> <span class="o">=</span> <span class="n">TriFlagOptionStrings</span>
     <span class="n">option_strs</span><span class="p">:</span> <span class="n">TriFlagOptionStrings</span>
     <span class="n">alt_help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">default</span><span class="p">:</span> <span class="n">TF</span> <span class="o">|</span> <span class="n">_NotSetType</span>
-    <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TF</span><span class="p">,</span> <span class="n">TF</span><span class="p">]</span>
+    <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span>
+    <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">B</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TF</span><span class="p">,</span> <span class="n">TF</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="n">consts</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>  <span class="c1"># type: ignore[assignment]</span>
         <span class="n">alt_prefix</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alt_long</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alt_short</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">alt_help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="n">ConstAct</span> <span class="o">=</span> <span class="s1">&#39;store_const&#39;</span><span class="p">,</span>
-        <span class="n">default</span><span class="p">:</span> <span class="n">TF</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-        <span class="n">default_cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">TF</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+        <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+        <span class="n">default_cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="k">if</span> <span class="n">alt_short</span> <span class="ow">and</span> <span class="s1">&#39;-&#39;</span> <span class="ow">in</span> <span class="n">alt_short</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -1305,13 +1443,13 @@
         <span class="k">if</span> <span class="nb">type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="nb">type</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">Command</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__set_name__</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">update_alts</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TriFlag.register_default_cb">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.register_default_cb">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">[</span><span class="n">D</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">[</span><span class="n">D</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_cb_ok</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="n">_NotSet</span>  <span class="c1"># The default was set by __init__ - remove it so the method can be registered</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">register_default_cb</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
@@ -1319,7 +1457,7 @@
 
 <div class="viewcode-block" id="TriFlag.get_const">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.get_const">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TF</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">opt_str</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">opt_str</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">option_strs</span><span class="o">.</span><span class="n">alt_allowed</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1328,11 +1466,12 @@
 
 <div class="viewcode-block" id="TriFlag.get_env_const">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.get_env_const">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">TF</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_env_const</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">B</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">parsed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ParamUsageError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;unable to parse </span><span class="si">{</span><span class="n">value</span><span class="si">=}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_env_value</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">parsed</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">consts</span> <span class="ow">and</span> <span class="n">parsed</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">BadArgument</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;invalid value=</span><span class="si">{</span><span class="n">parsed</span><span class="si">!r}</span><span class="s1"> from env var=</span><span class="si">{</span><span class="n">env_var</span><span class="si">!r}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1499,7 +1638,7 @@
 
 <div class="viewcode-block" id="Counter">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Counter</span><span class="p">(</span><span class="n">BaseOption</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Count</span><span class="p">,)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Counter</span><span class="p">(</span><span class="n">BaseFlag</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Count</span><span class="p">,)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value</span>
 <span class="sd">    to explicitly increase the stored value by that amount.</span>
@@ -1530,7 +1669,7 @@
         <span class="n">init</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
         <span class="n">const</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">default</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-        <span class="n">default_cb</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">required</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1549,7 +1688,7 @@
 
 <div class="viewcode-block" id="Counter.register_default_cb">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.register_default_cb">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">register_default_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">CommandMethod</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">CommandMethod</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span><span class="o">.</span><span class="n">func</span> <span class="ow">is</span> <span class="n">_counter_default</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">register_default_cb</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
@@ -1586,7 +1725,7 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_counter_default</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_counter_default</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
     <span class="k">return</span> <span class="mi">0</span>
 </pre></div>
 

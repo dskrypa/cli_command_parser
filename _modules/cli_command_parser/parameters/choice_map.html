@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -998,8 +1007,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">string</span><span class="w"> </span><span class="kn">import</span> <span class="n">printable</span><span class="p">,</span> <span class="n">whitespace</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">MethodType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Collection</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">ParamSpec</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..context</span><span class="w"> </span><span class="kn">import</span> <span class="n">ctx</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">InvalidChoice</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span>
@@ -1011,14 +1019,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BasePositional</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..formatting.params</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChoiceMapHelpFormatter</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgramMetadata</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">CommandObj</span><span class="p">,</span> <span class="n">OptStr</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SubCommand&#39;</span><span class="p">,</span> <span class="s1">&#39;Action&#39;</span><span class="p">,</span> <span class="s1">&#39;Choice&#39;</span><span class="p">,</span> <span class="s1">&#39;ChoiceMap&#39;</span><span class="p">]</span>
 
 <span class="n">T</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
 <span class="n">TD</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;TD&#39;</span><span class="p">)</span>
+<span class="n">P</span> <span class="o">=</span> <span class="n">ParamSpec</span><span class="p">(</span><span class="s1">&#39;P&#39;</span><span class="p">)</span>
+<span class="n">Method</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="n">P</span><span class="p">,</span> <span class="n">T</span><span class="p">]</span>
 <span class="c1"># TODO: Combine SubCommand and Action, replacing `local_choices` with stackable decorators on the target method,</span>
 <span class="c1">#  optionally injecting the selected choice into positional args for the decorated method, which may be main?</span>
 
@@ -1063,7 +1074,7 @@
 
 <div class="viewcode-block" id="ChoiceMap">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Concatenate</span><span class="p">,)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChoiceMap</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Concatenate</span><span class="p">,)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class for :class:`SubCommand` and :class:`Action`.  It is not meant to be used directly.</span>
 
@@ -1193,7 +1204,7 @@
 
 <div class="viewcode-block" id="ChoiceMap.result">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.ChoiceMap.result">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandObj</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">TD</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">Command</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">:</span> <span class="n">TD</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">TD</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_no_choices_error</span><span class="p">()</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">missing_default</span><span class="p">)</span></div>
@@ -1348,7 +1359,7 @@
 
 <div class="viewcode-block" id="Action">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">MethodType</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Action</span><span class="p">(</span><span class="n">ChoiceMap</span><span class="p">[</span><span class="n">Method</span><span class="p">],</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Actions&#39;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Actions are similar to :class:`.SubCommand` parameters, but allow methods in :class:`.Command` classes to</span>
 <span class="sd">    be registered as a callable to be executed based on a user&#39;s choice instead of separate sub Commands.</span>
@@ -1363,10 +1374,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">register_action</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span>
-        <span class="n">method</span><span class="p">:</span> <span class="n">MethodType</span><span class="p">,</span>
+        <span class="n">method</span><span class="p">:</span> <span class="n">Method</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MethodType</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Method</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">help</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">help</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="vm">__doc__</span>  <span class="c1"># noqa</span>
@@ -1391,12 +1402,12 @@
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.Action.register">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">method_or_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">MethodType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">method_or_choice</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Method</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MethodType</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">MethodType</span><span class="p">],</span> <span class="n">MethodType</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Method</span> <span class="o">|</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Method</span><span class="p">],</span> <span class="n">Method</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Decorator that registers the wrapped method to be called when the given choice is specified for this parameter.</span>
 <span class="sd">        Methods may also be registered by decorating them with the instantiated Action parameter directly - doing so</span>

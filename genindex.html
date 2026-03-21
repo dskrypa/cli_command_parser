@@ -590,6 +590,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.inputs.html">Inputs Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -729,6 +730,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.parameters.html">Parameters Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters._typing.html">_Typing Module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html">Actions Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
@@ -747,6 +749,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter"><code class="docutils literal notranslate"><span class="pre">Parameter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional"><code class="docutils literal notranslate"><span class="pre">BasePositional</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption"><code class="docutils literal notranslate"><span class="pre">BaseOption</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag"><code class="docutils literal notranslate"><span class="pre">BaseFlag</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.AllowLeadingDashProperty"><code class="docutils literal notranslate"><span class="pre">AllowLeadingDashProperty</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.DefaultCallback"><code class="docutils literal notranslate"><span class="pre">DefaultCallback</span></code></a></li>
 </ul>
@@ -877,7 +880,13 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1059,6 +1068,8 @@
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.__call__">(cli_command_parser.parameters.options.ActionFlag method)</a>
 </li>
+        <li><a href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__">(cli_command_parser.typing.TypeFunc method)</a>
+</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -1210,6 +1221,8 @@
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.params.action">(cli_command_parser.parameters.options.TriFlag parameter)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.Parameter.params.action">(cli_command_parser.parameters.pass_thru.Parameter parameter)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.action">(cli_command_parser.parameters.pass_thru.PassThru attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.pass_thru.html#cli_command_parser.parameters.pass_thru.PassThru.params.action">(cli_command_parser.parameters.pass_thru.PassThru parameter)</a>
 </li>
@@ -1570,6 +1583,8 @@
 </li>
       <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.BaseArgs">BaseArgs (class in cli_command_parser.conversion.command_builder)</a>
 </li>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag">BaseFlag (class in cli_command_parser.parameters.base)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption">BaseOption (class in cli_command_parser.parameters.base)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BasePositional">BasePositional (class in cli_command_parser.parameters.base)</a>
@@ -1580,10 +1595,10 @@
 </li>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.ActionPhase.BEFORE_MAIN">BEFORE_MAIN (cli_command_parser.context.ActionPhase attribute)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.before_main">before_main (cli_command_parser.parameters.options.ActionFlag parameter)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.ActionFlag.params.before_main">before_main (cli_command_parser.parameters.options.ActionFlag parameter)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.before_main">before_main() (in module cli_command_parser.parameters.options)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.BLOCK">BLOCK (cli_command_parser.inputs.utils.StatMode attribute)</a>
@@ -1611,6 +1626,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.inputs.time.html#cli_command_parser.inputs.time.CalendarUnitInput">CalendarUnitInput (class in cli_command_parser.inputs.time)</a>
+</li>
+      <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AstCallable.call">call (cli_command_parser.conversion.argparse_ast.AstCallable property)</a>
 </li>
       <li><a href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case">camel_to_snake_case() (in module cli_command_parser.utils)</a>
 </li>
@@ -1884,6 +1901,13 @@
 </li>
       </ul></li>
       <li>
+    cli_command_parser.inputs._typing
+
+      <ul>
+        <li><a href="api/cli_command_parser.inputs._typing.html#module-cli_command_parser.inputs._typing">module</a>
+</li>
+      </ul></li>
+      <li>
     cli_command_parser.inputs.base
 
       <ul>
@@ -1953,6 +1977,13 @@
 
       <ul>
         <li><a href="api/cli_command_parser.nargs.html#module-cli_command_parser.nargs">module</a>
+</li>
+      </ul></li>
+      <li>
+    cli_command_parser.parameters._typing
+
+      <ul>
+        <li><a href="api/cli_command_parser.parameters._typing.html#module-cli_command_parser.parameters._typing">module</a>
 </li>
       </ul></li>
       <li>
@@ -2147,7 +2178,7 @@
 </li>
         <li><a href="api/cli_command_parser.conversion.command_builder.html#cli_command_parser.conversion.command_builder.FlagArgs.const">(cli_command_parser.conversion.command_builder.FlagArgs attribute)</a>
 </li>
-        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.const">(cli_command_parser.parameters.base.BaseOption attribute)</a>
+        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.const">(cli_command_parser.parameters.base.BaseFlag attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Counter.params.const">(cli_command_parser.parameters.options.Counter parameter)</a>
 </li>
@@ -2882,11 +2913,9 @@
 </li>
       <li><a href="api/cli_command_parser.core.html#cli_command_parser.core.get_config">get_config() (in module cli_command_parser.core)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseOption.get_const">get_const() (cli_command_parser.parameters.base.BaseOption method)</a>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.get_const">get_const() (cli_command_parser.parameters.base.BaseFlag method)</a>
 
       <ul>
-        <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_const">(cli_command_parser.parameters.base.Parameter method)</a>
-</li>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.get_const">(cli_command_parser.parameters.options.TriFlag method)</a>
 </li>
       </ul></li>
@@ -2908,7 +2937,7 @@
 </li>
       <li><a href="api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgramMetadata.get_doc_str">get_doc_str() (cli_command_parser.metadata.ProgramMetadata method)</a>
 </li>
-      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Parameter.get_env_const">get_env_const() (cli_command_parser.parameters.base.Parameter method)</a>
+      <li><a href="api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.BaseFlag.get_env_const">get_env_const() (cli_command_parser.parameters.base.BaseFlag method)</a>
 
       <ul>
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Flag.get_env_const">(cli_command_parser.parameters.options.Flag method)</a>
@@ -3760,6 +3789,8 @@
 </li>
         <li><a href="api/cli_command_parser.formatting.utils.html#module-cli_command_parser.formatting.utils">cli_command_parser.formatting.utils</a>
 </li>
+        <li><a href="api/cli_command_parser.inputs._typing.html#module-cli_command_parser.inputs._typing">cli_command_parser.inputs._typing</a>
+</li>
         <li><a href="api/cli_command_parser.inputs.base.html#module-cli_command_parser.inputs.base">cli_command_parser.inputs.base</a>
 </li>
         <li><a href="api/cli_command_parser.inputs.choices.html#module-cli_command_parser.inputs.choices">cli_command_parser.inputs.choices</a>
@@ -3779,6 +3810,8 @@
         <li><a href="api/cli_command_parser.metadata.html#module-cli_command_parser.metadata">cli_command_parser.metadata</a>
 </li>
         <li><a href="api/cli_command_parser.nargs.html#module-cli_command_parser.nargs">cli_command_parser.nargs</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters._typing.html#module-cli_command_parser.parameters._typing">cli_command_parser.parameters._typing</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.actions.html#module-cli_command_parser.parameters.actions">cli_command_parser.parameters.actions</a>
 </li>
@@ -5054,6 +5087,8 @@
         <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.TriFlag.type">(cli_command_parser.parameters.options.TriFlag static method)</a>
 </li>
       </ul></li>
+      <li><a href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc">TypeFunc (class in cli_command_parser.typing)</a>
+</li>
   </ul></td>
 </tr></table>
 
