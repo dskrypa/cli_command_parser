@@ -7,17 +7,11 @@ Base classes and helpers for Parameters and Groups
 from __future__ import annotations
 
 import re
-import sys
 from abc import ABC, abstractmethod
 from contextvars import ContextVar
 from functools import cached_property
 from itertools import chain
-from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Type, TypeAlias, TypeVar, overload
-
-try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
+from typing import TYPE_CHECKING, Any, ClassVar, Generic, Iterator, Type, TypeVar, overload
 
 from ..annotations import get_descriptor_value_type
 from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
@@ -28,34 +22,29 @@ from ..inputs.choices import _ChoicesBase
 from ..inputs.exceptions import InputValidationError, InvalidChoiceError
 from ..inputs.numeric import NumericInput
 from ..nargs import REMAINDER, Nargs
+from ..typing import D, T
 from ..utils import _NotSet, _NotSetType
 from .option_strings import OptionStrings
 
 if TYPE_CHECKING:
     from collections.abc import Collection
-    from typing import Literal, NoReturn
+    from typing import Literal, NoReturn, TypeAlias
 
     from ..commands import Command
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import Bool, LeadingDash, OptStr, OptStrs, Strings
+    from ..typing import Bool, NormalizedType, OptStr, OptStrs, Self, Strings
+    from ._typing import CommandMethod, DefaultFunc, LeadingDash
     from .actions import ParamAction
     from .groups import ParamGroup
 
+    _ActCls = Type[ParamAction]
     _CmdCls = Type[Command]
     _CmdObjOrCls: TypeAlias = Command | _CmdCls
 
-__all__ = ['Param', 'Parameter', 'BasePositional', 'BaseOption']
+__all__ = ['Param', 'Parameter', 'BasePositional', 'BaseOption', 'BaseFlag']
 
 _group_stack: ContextVar[list[ParamGroup]] = ContextVar('cli_command_parser.parameters.base.group_stack')
 _is_numeric = re.compile(r'^-\d+$|^-\d*\.\d+?$').match
-
-if sys.version_info >= (3, 13):
-    T = TypeVar('T', default=str)
-else:
-    T = TypeVar('T')
-
-CommandMethod = Callable[['Command'], T]
-DefaultFunc = Callable[[], T] | CommandMethod
 
 TD = TypeVar('TD')
 
@@ -69,9 +58,12 @@ class Param(Generic[T]):
         def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
 
         @overload
-        def __get__(self, command: object, owner: Any = None) -> T | None: ...
+        def __get__(self, command: Command, owner: Any = None) -> T | None: ...
 
-        def __get__(self, command: object | None, owner: Any = None) -> Self | T | None: ...
+        @overload
+        def __get__(self, command: object, owner: Any = None) -> Self: ...
+
+        def __get__(self, command: Command | object | None, owner: Any = None) -> Self | T | None: ...
 
 
 class ParamBase(ABC):
@@ -85,10 +77,11 @@ class ParamBase(ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
+    missing_hint: ClassVar[OptStr] = None  #: Hint to provide in exceptions if this param/group is missing
+
+    # region Instance Attributes
+
     # fmt: off
-    # Class Attributes
-    missing_hint: OptStr = None         #: Hint to provide if this param/group is missing
-    # Instance Attributes
     _attr_name: OptStr = None           #: Always the name of the attr that points to this object
     _name: OptStr = None                #: An explicitly provided name, or the name of the attr that points to this obj
     group: ParamGroup | None = None     #: The group this object is a member of, if any
@@ -98,13 +91,9 @@ class ParamBase(ABC):
     hide: Bool                          #: Whether this param/group should be hidden in ``--help`` text
     # fmt: on
 
-    def __init__(
-        self,
-        name: OptStr = None,
-        required: Bool = False,
-        help: OptStr = None,  # noqa
-        hide: Bool = False,
-    ):
+    # endregion
+
+    def __init__(self, name: OptStr = None, required: Bool = False, help: OptStr = None, hide: Bool = False):  # noqa
         self.__doc__ = help  # Prevent this class's docstring from showing up for params in generated documentation
         self.required = required
         self.help = help
@@ -137,24 +126,18 @@ class ParamBase(ABC):
 
     # endregion
 
-    def __eq__(self, other) -> bool:
-        return (
-            self.__class__ == other.__class__
-            and self._attr_name == other._attr_name
-            and self._name == other._name
-            and self.command == other.command
-        )
-
-    def __hash__(self) -> int:
-        return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
+    # region Internal Context & Config
 
     @overload
-    def _ctx(self, command: _CmdObjOrCls) -> Context: ...
+    def _ctx(self, command: _CmdObjOrCls, strict: bool = False) -> Context: ...
 
     @overload
-    def _ctx(self, command: Any) -> Context | None: ...
+    def _ctx(self, command: Any, strict: Literal[True]) -> Context: ...
 
-    def _ctx(self, command: _CmdObjOrCls | Any = None) -> Context | None:
+    @overload
+    def _ctx(self, command: Any, strict: bool = False) -> Context | None: ...
+
+    def _ctx(self, command: _CmdObjOrCls | Any = None, strict: bool = False) -> Context | None:
         if context := get_current_context(True):
             return context
 
@@ -164,6 +147,8 @@ class ParamBase(ABC):
         try:
             return command._Command__ctx  # type: ignore[union-attr]  # noqa
         except AttributeError:
+            if strict:
+                return get_current_context()
             return None
 
     def _config(self, command: _CmdCls | None = None) -> CommandConfig:
@@ -172,6 +157,8 @@ class ParamBase(ABC):
         if command is None:
             command = self.command
         return command.__class__.config(command, DEFAULT_CONFIG)  # type: ignore[union-attr]
+
+    # endregion
 
     # region Usage / Help Text
 
@@ -202,7 +189,7 @@ class ParamBase(ABC):
     # endregion
 
 
-class Parameter(ParamBase, Param[T], ABC):
+class Parameter(ParamBase, Param[T | D], ABC):
     """
     Base class for all other parameters.  It is not meant to be used directly.
 
@@ -231,26 +218,12 @@ class Parameter(ParamBase, Param[T], ABC):
     :param hide: If ``True``, this parameter will not be included in usage / help messages.  Defaults to ``False``.
     """
 
-    # region Attributes & Initialization
+    # region Class Attributes & Initialization
 
-    # fmt: off
-    # Class attributes
-    _action_map: dict[str, Type[ParamAction]] = {}
-    _repr_attrs: Strings = ()                                           #: Attributes to include in ``repr()`` output
-    # Instance attributes with class defaults
-    metavar: OptStr = None
-    nargs: Nargs                                                        # Expected to be set in subclasses
-    type: Callable[[str], T] | None = None                              # Expected to be set in subclasses
-    allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
-    default: T | _NotSetType = _NotSet
-    default_cb: DefaultCallback | None = None
-    show_default: Bool = None
-    strict_default: Bool = False
-    # fmt: on
+    _action_map: ClassVar[dict[str, _ActCls]] = {}
+    _repr_attrs: ClassVar[Strings] = ()  #: Attributes to include in ``repr()`` output
 
-    def __init_subclass__(
-        cls, repr_attrs: Strings | None = None, actions: Collection[Type[ParamAction]] | None = None, **kwargs
-    ):
+    def __init_subclass__(cls, repr_attrs: Strings | None = None, actions: Collection[_ActCls] | None = None, **kwargs):
         """
         :param repr_attrs: Additional attributes to include in the repr.
         :param actions: Collection of ParamAction classes that this type of Parameter supports
@@ -263,7 +236,66 @@ class Parameter(ParamBase, Param[T], ABC):
         if repr_attrs:
             cls._repr_attrs = repr_attrs
 
-    def __init__(  # pylint: disable=R0913
+    # endregion
+
+    # region Instance Attributes & Initialization
+
+    # fmt: off
+    metavar: OptStr = None
+    allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
+    nargs: Nargs                                                        # Expected to be set in subclasses
+
+    type: NormalizedType[T] = None
+
+    # Expected to be set in subclasses
+
+    default: D | _NotSetType = _NotSet                                  #: Default value when no arg is provided
+    default_cb: DefaultCallback | None = None                           #: Callback that provides the default value
+    show_default: Bool = None                                           #: Whether the default should be shown in help
+    strict_default: Bool = False                                        #: Whether the default should be fixed by type
+    # fmt: on
+
+    # region Init Overloads
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Parameter[T, _NotSetType],
+            action: str,
+            *,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            required: Literal[True],
+            default: _NotSetType = _NotSet,
+            default_cb: None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Parameter[T, D],
+            action: str,
+            *,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            required: Bool = False,
+            default: D | _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+        ): ...
+
+    # endregion
+
+    def __init__(
         self,
         action: str,
         *,
@@ -272,8 +304,8 @@ class Parameter(ParamBase, Param[T], ABC):
         metavar: OptStr = None,
         name: OptStr = None,
         required: Bool = False,
-        default: T | _NotSetType = _NotSet,
-        default_cb: DefaultFunc | None = None,
+        default: D | _NotSetType = _NotSet,
+        default_cb: DefaultFunc[D] | None = None,
         cb_with_cmd: Bool = False,
         show_default: Bool = None,
         strict_default: Bool = False,
@@ -336,7 +368,7 @@ class Parameter(ParamBase, Param[T], ABC):
             return isinstance(self.type, _ChoicesBase) and self.type.choices
         return False
 
-    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+    def register_default_cb(self, method: CommandMethod[D]) -> CommandMethod[D]:
         """
         Intended to be used as a decorator to register a method in a Command to be used as the default callback for
         this Parameter.  The method will only be called during parsing if no value was explicitly provided for this
@@ -357,10 +389,13 @@ class Parameter(ParamBase, Param[T], ABC):
             raise ParameterDefinitionError(
                 f'Cannot register a default callback method for {self} because it already has {problem}'
             )
+
         self.default_cb = DefaultCallback(method, True)
         return method
 
     # endregion
+
+    # region Boilerplate Methods
 
     def __repr__(self) -> str:
         names = ('action', 'const', 'default', 'default_cb', 'type', 'choices', 'required', 'hide', 'help')
@@ -376,13 +411,20 @@ class Parameter(ParamBase, Param[T], ABC):
         kwargs = ', '.join(f'{a}={v!r}' for a, v in attrs)
         return f'{self.__class__.__name__}({self.name!r}, {kwargs})'
 
+    def __eq__(self, other) -> bool:
+        return (
+            self.__class__ == other.__class__
+            and self._attr_name == other._attr_name
+            and self._name == other._name
+            and self.command == other.command
+        )
+
+    def __hash__(self) -> int:
+        return hash(self.__class__) ^ hash(self._attr_name) ^ hash(self._name) ^ hash(self.command)
+
+    # endregion
+
     # region Parsing / Argument Handling
-
-    def get_const(self, opt_str: OptStr = None):
-        return _NotSet
-
-    def get_env_const(self, value: str, env_var: str) -> tuple[T | _NotSetType, bool]:
-        return _NotSet, False
 
     def prepare_value(self, value: str, short_combo: Bool = False, env_var: OptStr = None) -> T | str:
         if self.type is None:
@@ -434,29 +476,36 @@ class Parameter(ParamBase, Param[T], ABC):
 
     # region Parse Results / Argument Value Handling
 
-    @overload
-    def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
+    if TYPE_CHECKING:
 
-    @overload
-    def __get__(self, command: object, owner: Any = None) -> T | None: ...
+        @overload  # type: ignore[override]
+        def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
 
-    def __get__(self, command: object | None, owner: Any = None) -> Self | T | None:
+        @overload
+        def __get__(self: Parameter[T, _NotSetType], command: Command, owner: Any = None) -> T: ...
+
+        @overload
+        def __get__(self: Parameter[T, D], command: Command, owner: Any = None) -> T | D: ...
+
+        @overload
+        def __get__(self, command: object, owner: Any = None) -> Self: ...
+
+    def __get__(self, command: Command | object | None, owner: Any = None) -> Self | T | D:
         if command is None:
             return self
 
-        if context := self._ctx(command):
-            with context:
-                value = self.result(command)
-        else:
-            # This would only ever happen if this Parameter was created in a non-Command class, but it makes mypy happy
-            value = None
+        with self._ctx(command, True):
+            value = self.result(command)
 
+        # If `_attr_name` is set, it indicates that this parameter was present when the Command was initially defined.
+        # If it was not set, it means this parameter was added to the class late.  Such cases are supported, but they
+        # do not benefit from parsed value caching within the command instance's `__dict__`.
         if self._attr_name:
             command.__dict__[self._attr_name] = value  # Skip __get__ on subsequent accesses
 
         return value
 
-    def result(self, command: Command | Any = None, missing_default: TD | _NotSetType = _NotSet) -> T | TD | None:
+    def result(self, command: Command | Any = None, missing_default: TD | _NotSetType = _NotSet) -> T | D | TD:
         """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
         if (value := ctx.get_parsed_value(self)) is not _NotSet:
             return self.action.finalize_value(value)
@@ -489,7 +538,7 @@ class Parameter(ParamBase, Param[T], ABC):
     # endregion
 
 
-class BasePositional(Parameter[T], ABC):
+class BasePositional(Parameter[T, D], ABC):
     """
     Base class for :class:`.Positional`, :class:`.SubCommand`, :class:`.Action`, and any other parameters that are
     provided positionally, without prefixes.  It is not meant to be used directly.
@@ -504,7 +553,7 @@ class BasePositional(Parameter[T], ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    _default_ok: bool = False
+    _default_ok: ClassVar[bool] = False
 
     def __init_subclass__(cls, default_ok: bool | None = None, **kwargs):  # pylint: disable=W0222
         """
@@ -521,20 +570,22 @@ class BasePositional(Parameter[T], ABC):
         *,
         required: Bool = True,
         default: Any = _NotSet,
-        default_cb: DefaultFunc | None = None,
+        default_cb: Any = None,
         **kwargs,
     ):
         if not (self._default_ok and 0 in self.nargs):  # Indicates that having a default is bad
             if not required:
                 cls_name = self.__class__.__name__
                 raise ParameterDefinitionError(f'All {cls_name} parameters must be required - invalid {required=}')
-            elif kw := ('default' if default is not _NotSet else 'default_cb' if default_cb is not None else None):
+
+            if kw := ('default' if default is not _NotSet else 'default_cb' if default_cb is not None else None):
                 cls_name = self.__class__.__name__
                 raise ParameterDefinitionError(f'The {kw!r} arg is not supported for {cls_name} parameters')
+
         super().__init__(action, default=default, required=required, default_cb=default_cb, **kwargs)
 
 
-class BaseOption(Parameter[T], ABC):
+class BaseOption(Parameter[T, D], ABC):
     """
     Base class for :class:`.Option`, :class:`.Flag`, :class:`.Counter`, and any other keyword-like parameters that have
     ``--long`` and ``-short`` prefixes before values.
@@ -566,13 +617,63 @@ class BaseOption(Parameter[T], ABC):
     :param kwargs: Additional keyword arguments to pass to :class:`Parameter`.
     """
 
-    _opt_str_cls: Type[OptionStrings] = OptionStrings
+    _opt_str_cls: ClassVar[Type[OptionStrings]] = OptionStrings
+
     option_strs: OptionStrings
     env_var: OptStrs = None
     show_env_var: Bool = None
     strict_env: Bool
     use_env_value: Bool
-    const: T | _NotSetType = _NotSet
+
+    # region Init Overloads
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: BaseOption[T, _NotSetType],
+            *option_strs: str,
+            action: str,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            required: Literal[True],
+            default: _NotSetType = _NotSet,
+            default_cb: None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: BaseOption[T, D],
+            *option_strs: str,
+            action: str,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            required: Bool = False,
+            default: D | _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+        ): ...
+
+    # endregion
 
     def __init__(
         self,
@@ -613,8 +714,17 @@ class BaseOption(Parameter[T], ABC):
             else:
                 yield from self.env_var
 
+
+class BaseFlag(BaseOption[T, D], ABC):
+    const: T | _NotSetType = _NotSet
+
     def get_const(self, opt_str: OptStr = None):
         return self.const
+
+    def get_env_const(self, value: str, env_var: str) -> tuple[T | _NotSetType, bool]:
+        # Counter is the only flag-like param that doesn't override this / use this for handling env variables, but
+        # making this abstract would complicate things elsewhere
+        return _NotSet, False
 
 
 class AllowLeadingDashProperty:
@@ -662,7 +772,9 @@ class AllowLeadingDashProperty:
 class DefaultCallback(Generic[T]):
     __slots__ = ('func', 'use_cmd')
 
-    def __init__(self, func: CommandMethod | DefaultFunc, use_cmd: bool = False):
+    func: DefaultFunc[T]
+
+    def __init__(self, func: DefaultFunc[T], use_cmd: bool = False):
         self.func = func
         self.use_cmd = use_cmd
 

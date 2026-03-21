@@ -262,7 +262,7 @@ class CommandParameters:
                 )
 
     def _process_action_flags(self) -> None:
-        action_flags: list[ActionFlag] = sorted(p for p in self.options if isinstance(p, ActionFlag))
+        action_flags: ActionFlags = sorted(p for p in self.options if isinstance(p, ActionFlag))  # type: ignore[misc]
         grouped_ordered_flags: dict[bool, dict[int | float, ActionFlags]] = {
             True: defaultdict(list),
             False: defaultdict(list),

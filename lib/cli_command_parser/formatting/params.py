@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from functools import cached_property
-from typing import TYPE_CHECKING, Callable, ClassVar, Generic, Iterable, Iterator, Type, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, ClassVar, Generic, Iterable, Iterator, Type, TypeVar
 
 from ..config import CmdAliasMode, SubcommandAliasHelpMode
 from ..context import ctx
@@ -28,9 +28,9 @@ if TYPE_CHECKING:
 
 
 BaseP = TypeVar('BaseP', bound=ParamBase)
-ParamP = TypeVar('ParamP', bound=Parameter)
-PosP = TypeVar('PosP', bound=BasePositional)
-OptP = TypeVar('OptP', bound=BaseOption)
+ParamP = TypeVar('ParamP', bound=Parameter[Any, Any])
+PosP = TypeVar('PosP', bound=BasePositional[Any, Any])
+OptP = TypeVar('OptP', bound=BaseOption[Any, Any])
 
 
 class ParamHelpFormatter(ABC, Generic[BaseP]):
@@ -123,7 +123,9 @@ class ParameterHelpFormatter(ParamHelpFormatter[ParamP], param_cls=Parameter):
         config = ctx.config
         if (t := param.type) is not None:
             try:
-                metavar = t.format_metavar(config.choice_delim, config.sort_choices)  # type: ignore[attr-defined]
+                metavar = t.format_metavar(  # type: ignore[union-attr,attr-defined]
+                    config.choice_delim, config.sort_choices
+                )
             except Exception:  # noqa  # pylint: disable=W0703
                 pass
             else:
@@ -132,7 +134,7 @@ class ParameterHelpFormatter(ParamHelpFormatter[ParamP], param_cls=Parameter):
 
         if config.use_type_metavar and t is not None:
             try:
-                name = t.__name__
+                name = t.__name__  # type: ignore[union-attr,attr-defined]
             except AttributeError:
                 pass
             else:
@@ -527,7 +529,7 @@ class GroupHelpFormatter(ParamHelpFormatter[ParamGroup], param_cls=ParamGroup):
 
             formatter = member.formatter
             try:
-                sub_table: RstTable = formatter.rst_table()  # noqa
+                sub_table: RstTable = formatter.rst_table()  # type: ignore[attr-defined]
             except AttributeError:
                 table.add_rows(formatter.rst_rows())
             else:

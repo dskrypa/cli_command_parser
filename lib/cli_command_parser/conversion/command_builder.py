@@ -7,7 +7,7 @@ from ast import Attribute, Constant, DictComp, GeneratorExp, ListComp, Name, Set
 from dataclasses import dataclass, fields
 from functools import cached_property
 from itertools import count
-from typing import TYPE_CHECKING, Generic, Iterable, Iterator, MutableMapping, Type, TypeVar
+from typing import TYPE_CHECKING, Generic, Iterable, Iterator, Type, TypeVar
 
 from cli_command_parser.nargs import Nargs
 
@@ -597,7 +597,7 @@ class ParamArgs(ParamBaseArgs):
     def init_positional(cls, action: OptStr = None, nargs: OptStr = None, **kwargs):
         if nargs is not None:
             if (parsed := literal_eval_or_none(nargs)) is not None:
-                nargs_obj = Nargs(parsed)
+                nargs_obj = Nargs(parsed)  # type: ignore[arg-type]
                 if action in ('store', None) and nargs_obj == 1:
                     action = nargs = None
             else:

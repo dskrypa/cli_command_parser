@@ -7,21 +7,23 @@ Optional Parameters
 from __future__ import annotations
 
 import logging
-import sys
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, Type, overload
 
 from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
 from ..nargs import Nargs, NargsValue
-from ..typing import TypeFunc
+from ..typing import B, D, T
 from ..utils import _NotSet, _NotSetType, str_to_bool
 from .actions import Append, AppendConst, Count, Store, StoreConst
-from .base import AllowLeadingDashProperty, BaseOption, CommandMethod
+from .base import AllowLeadingDashProperty, BaseFlag, BaseOption
 from .option_strings import TriFlagOptionStrings
 
 if TYPE_CHECKING:
-    from ..typing import Bool, ChoicesType, CommandCls, CommandObj, InputTypeFunc, LeadingDash, OptStr
+    from ..commands import Command
+    from ..config import OptionNameMode
+    from ..typing import Bool, ChoicesType, InputTypeFunc, OptStr, OptStrs, TypeFunc
+    from ._typing import CommandMethod, DefaultFunc, LeadingDash
 
 __all__ = [
     'Option',
@@ -36,19 +38,11 @@ __all__ = [
 ]
 log = logging.getLogger(__name__)
 
-if sys.version_info >= (3, 13):
-    T = TypeVar('T', default=str)
-    B = TypeVar('B', default=bool)
-    TF = TypeVar('TF', default=bool | None)
-else:
-    T = TypeVar('T')
-    B = TypeVar('B')
-    TF = TypeVar('TF')
-
+OptAct = Literal['store', 'append'] | None
 ConstAct = Literal['store_const', 'append_const']
 
 
-class Option(BaseOption[T | None], actions=(Store, Append)):
+class Option(BaseOption[T, D], actions=(Store, Append)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -78,18 +72,76 @@ class Option(BaseOption[T | None], actions=(Store, Append)):
     :param kwargs: Additional keyword arguments to pass to :class:`.BaseOption`.
     """
 
-    default: T
+    default: D
     allow_leading_dash = AllowLeadingDashProperty()
+
+    # region Init Overloads
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Option[T, _NotSetType],
+            *option_strs: str,
+            required: Literal[True],
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: None = None,
+            nargs: NargsValue | None = None,
+            action: OptAct = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            allow_leading_dash: LeadingDash | None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[T, D],
+            *option_strs: str,
+            required: Bool = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: D | _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | None = None,
+            nargs: NargsValue | None = None,
+            action: OptAct = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            allow_leading_dash: LeadingDash | None = None,
+            cb_with_cmd: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+        ): ...
+
+    # endregion
 
     def __init__(
         self,
         *option_strs: str,
         nargs: NargsValue | None = None,
-        action: Literal['store', 'append'] | None = None,
-        default: T | _NotSetType = _NotSet,
+        action: OptAct = None,
+        default: D | _NotSetType = _NotSet,
         required: Bool = False,
-        type: InputTypeFunc = None,  # noqa
-        choices: ChoicesType = None,
+        type: InputTypeFunc[T] = None,  # noqa
+        choices: ChoicesType[T] = None,
         allow_leading_dash: LeadingDash | None = None,
         **kwargs,
     ):
@@ -104,7 +156,7 @@ class Option(BaseOption[T | None], actions=(Store, Append)):
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
         self.nargs = self.action.default_nargs if _nargs is None else _nargs
-        self.type = normalize_input_type(type, choices)
+        self.type = normalize_input_type(type, choices)  # type: ignore[assignment]
         self.allow_leading_dash = allow_leading_dash
 
     def _handle_bad_action(self, action: str) -> NoReturn:
@@ -128,7 +180,7 @@ def _validate_option_nargs(nargs_val: NargsValue | None) -> Nargs | None:
     raise ParameterDefinitionError(f'Invalid nargs={nargs_val} - {details}')
 
 
-class Flag(BaseOption[B], actions=(StoreConst, AppendConst)):
+class Flag(BaseFlag[B, B], actions=(StoreConst, AppendConst)):
     """
     A (typically boolean) option that does not accept any values.
 
@@ -159,20 +211,96 @@ class Flag(BaseOption[B], actions=(StoreConst, AppendConst)):
     """
 
     nargs = Nargs(0)
-    type: TypeFunc = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    # Without staticmethod, this would be interpreted as a normal method
+    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[arg-type]
     use_env_value: bool = False
     __default_const_map = {True: False, False: True, _NotSet: True}
     default: B
     const: B
+
+    # region Init Overloads
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Flag[bool],
+            *option_strs: str,
+            action: ConstAct = 'store_const',
+            default: _NotSetType = _NotSet,
+            default_cb: _NotSetType = _NotSet,
+            const: _NotSetType = _NotSet,
+            type: None = None,  # noqa
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            required: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Flag[B],
+            *option_strs: str,
+            action: ConstAct = 'store_const',
+            default: B,
+            default_cb: _NotSetType = _NotSet,
+            const: B | _NotSetType = _NotSet,
+            type: TypeFunc[B] | None = None,  # noqa
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            required: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Flag[B],
+            *option_strs: str,
+            action: ConstAct = 'store_const',
+            default: B | _NotSetType = _NotSet,
+            default_cb: _NotSetType = _NotSet,
+            const: B,
+            type: TypeFunc[B] | None = None,  # noqa
+            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
+            env_var: OptStrs = None,
+            strict_env: bool = True,
+            use_env_value: Bool = None,
+            show_env_var: Bool = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+            required: Bool = False,
+            show_default: Bool = None,
+            strict_default: Bool = False,
+        ): ...
+
+    # endregion
 
     def __init__(
         self,
         *option_strs: str,
         action: ConstAct = 'store_const',
         default: B | _NotSetType = _NotSet,
-        default_cb=_NotSet,
+        default_cb: _NotSetType = _NotSet,
         const: B | _NotSetType = _NotSet,
-        type: TypeFunc | None = None,  # noqa
+        type: TypeFunc[B] | None = None,  # noqa
         **kwargs,
     ):
         if const is _NotSet:
@@ -209,7 +337,7 @@ class Flag(BaseOption[B], actions=(StoreConst, AppendConst)):
         return parsed, self.use_env_value
 
 
-class TriFlag(BaseOption[TF], actions=(StoreConst, AppendConst)):
+class TriFlag(BaseFlag[B, D], actions=(StoreConst, AppendConst)):
     """
     A trinary / ternary Flag.  While :class:`.Flag` only supports 1 constant when provided, with 1 default if not
     provided, this class accepts a pair of constants for the primary and alternate values to store, along with a
@@ -245,27 +373,28 @@ class TriFlag(BaseOption[TF], actions=(StoreConst, AppendConst)):
     """
 
     nargs = Nargs(0)
-    type: TypeFunc = staticmethod(str_to_bool)  # Without staticmethod, this would be interpreted as a normal method
+    # Without staticmethod, this would be interpreted as a normal method
+    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[arg-type]
     use_env_value: bool = False
     _default_cb_ok = True
     _opt_str_cls = TriFlagOptionStrings
     option_strs: TriFlagOptionStrings
     alt_help: OptStr = None
-    default: TF | _NotSetType
-    consts: tuple[TF, TF]
+    default: D | _NotSetType
+    consts: tuple[B, B]
 
     def __init__(
         self,
         *option_strs: str,
-        consts: tuple[TF, TF] = (True, False),  # type: ignore[assignment]
+        consts: tuple[B, B] = (True, False),  # type: ignore[assignment]
         alt_prefix: OptStr = None,
         alt_long: OptStr = None,
         alt_short: OptStr = None,
         alt_help: OptStr = None,
         action: ConstAct = 'store_const',
-        default: TF | _NotSetType = _NotSet,
-        default_cb: Callable[[], TF] | None = None,
-        type: TypeFunc | None = None,  # noqa
+        default: D | _NotSetType = _NotSet,
+        default_cb: Callable[[], D] | None = None,
+        type: TypeFunc[B] | None = None,  # noqa
         **kwargs,
     ):
         if alt_short and '-' in alt_short[1:]:
@@ -301,26 +430,27 @@ class TriFlag(BaseOption[TF], actions=(StoreConst, AppendConst)):
         if type is not None:
             self.type = type
 
-    def __set_name__(self, command: CommandCls, name: str):
+    def __set_name__(self, command: Type[Command], name: str):
         super().__set_name__(command, name)
         self.option_strs.update_alts(name)
 
-    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+    def register_default_cb(self, method: CommandMethod[D]) -> CommandMethod[D]:
         if self._default_cb_ok and self.default is not _NotSet:
             self.default = _NotSet  # The default was set by __init__ - remove it so the method can be registered
         return super().register_default_cb(method)
 
-    def get_const(self, opt_str: OptStr = None) -> TF:
+    def get_const(self, opt_str: OptStr = None) -> B:
         if opt_str in self.option_strs.alt_allowed:
             return self.consts[1]
         else:
             return self.consts[0]
 
-    def get_env_const(self, value: str, env_var: str) -> tuple[TF, bool]:
+    def get_env_const(self, value: str, env_var: str) -> tuple[B, bool]:
         try:
             parsed = self.type(value)
         except Exception as e:
             raise ParamUsageError(self, f'unable to parse {value=} from env var={env_var!r}: {e}') from e
+
         if self.use_env_value:
             if parsed not in self.consts and parsed != self.default:
                 raise BadArgument(self, f'invalid value={parsed!r} from env var={env_var!r}')
@@ -465,7 +595,7 @@ def help_action(self):
 # endregion
 
 
-class Counter(BaseOption[int], actions=(Count,)):
+class Counter(BaseFlag[int, int], actions=(Count,)):
     """
     A :class:`.Flag`-like option that counts the number of times it was specified.  Supports an optional integer value
     to explicitly increase the stored value by that amount.
@@ -496,7 +626,7 @@ class Counter(BaseOption[int], actions=(Count,)):
         init: int = 0,
         const: int = 1,
         default: int | _NotSetType = _NotSet,
-        default_cb: Callable[[], int] | None = None,
+        default_cb: DefaultFunc[int] | None = None,
         required: bool = False,
         **kwargs,
     ):
@@ -513,7 +643,7 @@ class Counter(BaseOption[int], actions=(Count,)):
         self.init = init
         self.const = const
 
-    def register_default_cb(self, method: CommandMethod) -> CommandMethod:
+    def register_default_cb(self, method: CommandMethod[int]) -> CommandMethod[int]:
         if self.default_cb and self.default_cb.func is _counter_default:
             self.default_cb = None
         return super().register_default_cb(method)
@@ -542,5 +672,5 @@ class Counter(BaseOption[int], actions=(Count,)):
             return
 
 
-def _counter_default():
+def _counter_default() -> int:
     return 0

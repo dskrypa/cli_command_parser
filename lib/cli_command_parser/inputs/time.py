@@ -22,13 +22,17 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import Collection, Iterator, Literal, NoReturn, Sequence, Type, TypeVar, overload
+from typing import TYPE_CHECKING, ClassVar, Collection, Iterator, Literal, NoReturn, Sequence, Type, TypeVar, overload
 
-from ..typing import Bool, Locale, Number, OptStr, T, TimeBound
+from ..typing import T
 from ..utils import MissingMixin
 from .base import InputType, _FixedInputType
 from .exceptions import InputValidationError, InvalidChoiceError
 from .utils import RangeMixin, range_str
+
+if TYPE_CHECKING:
+    from ..typing import Bool, OptStr
+    from ._typing import Locale, Number, TimeBound
 
 __all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
@@ -403,7 +407,7 @@ class TimeDelta(RangeMixin, InputType[timedelta]):
 
 class DateTimeInput(DTInput[DT], ABC):
     formats: Collection[str]
-    _type: Type[DT]
+    _type: ClassVar[Type[DT]]
     _earliest: TimeBound = None
     _latest: TimeBound = None
     # TODO: Add usage examples to the more user-friendly docs

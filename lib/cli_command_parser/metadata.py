@@ -18,16 +18,11 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, Type, TypeVar, overload
 from urllib.parse import urlparse
 
-try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
-
 from .context import NoActiveContext, ctx
 
 if TYPE_CHECKING:
     from .core import CommandMeta
-    from .typing import Bool, OptStr
+    from .typing import Bool, OptStr, Self
 
 __all__ = ['ProgramMetadata']
 

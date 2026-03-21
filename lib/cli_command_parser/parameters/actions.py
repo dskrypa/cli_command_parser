@@ -13,12 +13,12 @@ from ..context import ctx
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
 from ..inputs import InputType
 from ..nargs import Nargs
-from ..utils import _NotSet, _NotSetType, camel_to_snake_case
+from ..utils import _NotSet, camel_to_snake_case
 
 if TYPE_CHECKING:
-    from .base import Parameter  # noqa
-    from .options import Counter
-    from ..typing import Bool, CommandObj, OptStr
+    from ..commands import Command
+    from ..typing import Bool, OptStr
+    from .base import BaseFlag, Parameter
 
 __all__ = [
     'ParamAction',
@@ -45,6 +45,7 @@ class _PANotSetType(Enum):
 _PANotSet = _PANotSetType._PANotSet
 
 P = TypeVar('P', bound='Parameter')
+F = TypeVar('F', bound='BaseFlag')
 Found = Union[int, NoReturn]
 
 
@@ -160,7 +161,7 @@ class ParamAction(ABC, Generic[P]):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
+    def get_default(self, command: Command | None = None, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
             return self.finalize_default(default)
         elif (default_cb := self.param.default_cb) and command is not None:
@@ -214,7 +215,7 @@ class _ValueAction(ParamAction[P], ABC):
     #     parsed.extend(values)
 
 
-class _ConstAction(ParamAction[P], ABC):
+class _ConstAction(ParamAction[F], ABC):
     __slots__ = ()
 
     _append: ClassVar[bool]
@@ -359,7 +360,7 @@ class Append(_ValueAction, accepts_values=True):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
+    def get_default(self, command: Command | None = None, missing_default=_NotSet):
         if (default := self.param.default) is not _NotSet:
             return self.finalize_default(default)
         elif (default_cb := self.param.default_cb) and command is not None:
@@ -448,7 +449,7 @@ class AppendConst(BasicConstAction, append=True):
 
     # region Parsed Value / Default Finalization
 
-    def get_default(self, command: CommandObj | None = None, missing_default=_NotSet):
+    def get_default(self, command: Command | None = None, missing_default=_NotSet):
         return []
 
     # endregion

@@ -11,11 +11,6 @@ from enum import Enum
 from string import whitespace
 from typing import TYPE_CHECKING, Any, Callable, Generic, Literal, Sequence, Type, TypeAlias, TypeVar, overload
 
-try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
-
 from .exceptions import CommandDefinitionError
 from .utils import FixedFlag, MissingMixin, _NotSet, _NotSetType, positive_int
 
@@ -25,7 +20,7 @@ if TYPE_CHECKING:
     from .error_handling import ErrorHandler
     from .formatting.commands import CommandHelpFormatter
     from .formatting.params import ParamHelpFormatter
-    from .typing import Bool, ParamOrGroup
+    from .typing import Bool, ParamOrGroup, Self
 
     _CmdHelpFormatter: TypeAlias = Callable[[CommandMeta, CommandParameters], CommandHelpFormatter]
     _ParamHelpFormatter: TypeAlias = Callable[[ParamOrGroup], ParamHelpFormatter]

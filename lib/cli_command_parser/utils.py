@@ -10,7 +10,7 @@ from enum import Enum, EnumMeta, Flag
 from inspect import isawaitable
 from shutil import get_terminal_size
 from time import monotonic
-from typing import Any, Awaitable, Callable, TypeVar
+from typing import TYPE_CHECKING, Any, Awaitable, Callable, TypeVar
 
 try:
     from enum import CONFORM
@@ -18,14 +18,12 @@ except ImportError:  # added in 3.11
     CONFORM = None  # type: ignore[misc,assignment]
 
 try:
-    from typing import Self
-except ImportError:  # added in 3.11
-    Self = TypeVar('Self')  # type: ignore[misc,assignment]
-
-try:
     from wcwidth import wcwidth  # type: ignore[import-untyped]
 except ImportError:
     wcwidth = len
+
+if TYPE_CHECKING:
+    from .typing import Self
 
 
 # region Text Processing / Formatting

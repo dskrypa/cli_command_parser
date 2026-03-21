@@ -6,14 +6,14 @@ Type checking aliases.
 
 from __future__ import annotations
 
+import sys
+from collections.abc import Collection
 from typing import (
-    IO,
     TYPE_CHECKING,
     Any,
-    Callable,
-    Collection,
     Iterable,
     Pattern,
+    Protocol,
     Sequence,
     Type,
     TypeAlias,
@@ -21,54 +21,52 @@ from typing import (
     Union,
 )
 
+try:
+    from typing import Self
+except ImportError:  # added in 3.11
+    Self = TypeVar('Self')  # type: ignore[misc,assignment]
+
 if TYPE_CHECKING:
-    from datetime import date, datetime, time, timedelta
-    from enum import Enum
-    from numbers import Number as _Number
     from pathlib import Path
 
     from .commands import Command
-    from .config import AllowLeadingDash, CommandConfig
-    from .core import CommandMeta
-    from .inputs import InputType
+    from .inputs import InputType, Regex
     from .parameters import Parameter, ParamGroup
+    from .parameters.base import ParamBase
 
-T = TypeVar('T')
-TypeFunc = Callable[[str], T]
 
-NT = TypeVar('NT', bound='_Number')
-Number: TypeAlias = NT | None
-NumType = Callable[[Any], NT]
-RngType = range | int | Sequence[int]
-
-InputTypeFunc = Union[None, TypeFunc, 'InputType', range, Type['Enum'], Pattern]
-ChoicesType = Collection[Any] | None
-
-Bool = bool | Any
-StrSeq = Sequence[str]
-Strs = str | StrSeq
-StrIter = Iterable[str]
-IStrs = str | StrIter
-OptStr = str | None
-OptStrs = Strs | None
-Strings = Collection[str]
-PathLike = Union[str, 'Path']
-
-Locale = str | tuple[OptStr, OptStr]
-TimeBound = Union['datetime', 'date', 'time', 'timedelta', None]
-
-Deserializer = Callable[[str | bytes | IO], Any]
-Serializer = Callable[[Any, IO], None] | Callable[[Any], str | bytes]
-Converter = Deserializer | Serializer
-
-Config = Union['CommandConfig', None]
-AnyConfig = Config | dict[str, Any]
-LeadingDash = Union['AllowLeadingDash', str, bool]
-
-P = TypeVar('P', bound='Parameter')
-ParamList = list[P]
-ParamOrGroup = Union[P, 'ParamGroup']
+Bool: TypeAlias = bool | Any
+StrSeq: TypeAlias = Sequence[str]
+Strs: TypeAlias = str | StrSeq
+StrIter: TypeAlias = Iterable[str]
+IStrs: TypeAlias = str | StrIter
+OptStr: TypeAlias = str | None
+OptStrs: TypeAlias = Strs | None
+Strings: TypeAlias = Collection[str]
+PathLike: TypeAlias = Union[str, 'Path']
 
 CommandObj = TypeVar('CommandObj', bound='Command')
 CommandCls: TypeAlias = Type[CommandObj]
 CommandAny: TypeAlias = CommandCls | CommandObj
+
+ParamOrGroup: TypeAlias = Union['Parameter', 'ParamGroup', 'ParamBase']
+
+
+if sys.version_info >= (3, 13):
+    T = TypeVar('T', default=str, covariant=True, bound=Any)
+    D = TypeVar('D', default=None, covariant=True, bound=Any)
+    B = TypeVar('B', default=bool, covariant=True, bound=Any)
+else:
+    T = TypeVar('T', covariant=True, bound=Any)
+    D = TypeVar('D', covariant=True, bound=Any)
+    B = TypeVar('B', covariant=True, bound=Any)
+
+
+class TypeFunc(Protocol[T]):
+    def __call__(self, value: str, /) -> T:
+        pass
+
+
+ChoicesType: TypeAlias = Collection[T] | None
+InputTypeFunc: TypeAlias = Union[Type[T], TypeFunc[T], 'InputType[T]', range, Pattern, None]
+NormalizedType: TypeAlias = Union[Type[T], TypeFunc[T], 'InputType[T]', 'Regex[str]', None]

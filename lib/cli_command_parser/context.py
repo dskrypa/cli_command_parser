@@ -26,9 +26,10 @@ if TYPE_CHECKING:
     from .commands import Command
     from .core import CommandMeta
     from .parameters import ActionFlag, BaseOption, Parameter
-    from .typing import AnyConfig, Bool, OptStr, ParamOrGroup, PathLike, StrSeq
+    from .typing import Bool, OptStr, ParamOrGroup, PathLike, StrSeq
 
     Argv = StrSeq | None
+    AnyConfig = CommandConfig | dict[str, Any] | None
     CommandCls: TypeAlias = Type[Command] | CommandMeta
 
 __all__ = ['Context', 'ctx', 'get_current_context', 'get_or_create_context', 'get_context', 'get_parsed', 'get_raw_arg']
@@ -59,7 +60,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         command_cls: CommandCls | None = None,
         *,
         parent: Context | None = None,
-        config: AnyConfig | None = None,
+        config: AnyConfig = None,
         terminal_width: int | None = None,
         allow_argv_prog: Bool = None,
         command: Command | None = None,
@@ -130,7 +131,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     def __contains__(self, param: ParamOrGroup | str | Any) -> bool:
         try:
-            self._parsed[param]
+            self._parsed[param]  # type: ignore[index]
         except KeyError:
             if isinstance(param, str):
                 try:
@@ -156,7 +157,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self,
         command: Command | None = None,
         *,
-        exclude: Collection[Parameter] = (),
+        exclude: Collection[Parameter[Any, Any]] = (),
         recursive: Bool = True,
         default: Any = None,
         include_defaults: Bool = True,
@@ -439,6 +440,10 @@ def get_current_context(silent: Literal[False] = False) -> Context: ...
 
 @overload
 def get_current_context(silent: Literal[True]) -> Context | None: ...
+
+
+@overload
+def get_current_context(silent: bool) -> Context | None: ...
 
 
 def get_current_context(silent: bool = False) -> Context | None:

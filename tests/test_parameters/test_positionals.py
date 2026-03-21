@@ -125,12 +125,6 @@ class PositionalTest(ParserTest):
                     class Foo(Command):
                         bar = Positional(nargs='REMAINDER', allow_leading_dash=allow_leading_dash)
 
-    def test_default_get_const(self):
-        self.assertIs(_NotSet, Positional().get_const())
-
-    def test_default_normalize_env_val(self):
-        self.assertEqual((_NotSet, False), Positional().get_env_const('123456', ''))
-
     def test_too_many_arguments(self):
         with Context():
             param = Positional(nargs=1, action='append')

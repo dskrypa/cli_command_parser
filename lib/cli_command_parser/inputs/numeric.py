@@ -8,23 +8,26 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-from ..typing import NT, Bool, Number, NumType, RngType
+from ._typing import N, Number, NumType, RngType
 from .base import _FixedInputType
 from .exceptions import InputValidationError
 from .utils import RangeMixin, range_str
+
+if TYPE_CHECKING:
+    from ..typing import Bool
 
 __all__ = ['NumericInput', 'Range', 'NumRange', 'Bytes']
 
 _range = range
 
 
-class NumericInput(_FixedInputType[NT], ABC):
+class NumericInput(_FixedInputType[N], ABC):
     __slots__ = ()
 
 
-class _RangeInput(NumericInput[NT], ABC):
+class _RangeInput(NumericInput[N], ABC):
     type: NumType
 
     def is_valid_type(self, value: str) -> bool:
@@ -50,7 +53,7 @@ class _RangeInput(NumericInput[NT], ABC):
         return f'{{{self._range_str()}}}'
 
 
-class Range(_RangeInput[NT]):
+class Range(_RangeInput[N]):
     """
     A range of integers that uses the builtin :class:`python:range`.  If a range object is passed to a
     :class:`.Parameter` as the ``type=`` value, it will automatically be wrapped by this class.
@@ -97,7 +100,7 @@ class Range(_RangeInput[NT]):
         base = f'{rng_min} <= {var} <= {rng_max}'
         return base if step == 1 else f'{base}, {step=}'
 
-    def __call__(self, value: str) -> NT:
+    def __call__(self, value: str) -> N:
         num_val = self.type(value)
         if num_val in self.range:
             return num_val
@@ -108,7 +111,7 @@ class Range(_RangeInput[NT]):
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
 
-class NumRange(RangeMixin, _RangeInput[NT]):
+class NumRange(RangeMixin, _RangeInput[N]):
     """
     A range of integers or floats, optionally only bounded on one side.
 
@@ -176,7 +179,7 @@ class NumRange(RangeMixin, _RangeInput[NT]):
     def _range_str(self, var: str = 'N') -> str:
         return range_str(self.min, self.max, self.include_min, self.include_max, var)
 
-    def handle_invalid(self, bound: Number, inclusive: bool, snap_dir: int) -> NT:
+    def handle_invalid(self, bound: Number, inclusive: bool, snap_dir: int) -> N:
         """
         Handle calculating / returning a snap value or raise an exception if snapping to the bound is not allowed.
 
@@ -191,7 +194,7 @@ class NumRange(RangeMixin, _RangeInput[NT]):
             return bound if inclusive else (bound + snap_dir)
         raise InputValidationError(f'expected a value in the range {self._range_str()}')
 
-    def __call__(self, value: str) -> NT:
+    def __call__(self, value: str) -> N:
         num_val = self.type(value)
         # Note: if snap is enabled, it is applied by `handle_invalid`
         if self.value_lt_min(num_val):
