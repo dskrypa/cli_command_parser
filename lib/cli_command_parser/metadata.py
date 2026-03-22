@@ -18,7 +18,8 @@ from textwrap import dedent
 from typing import TYPE_CHECKING, Any, Callable, Generic, Iterator, Literal, Type, TypeVar, overload
 from urllib.parse import urlparse
 
-from .context import NoActiveContext, ctx
+from .context import get_current_context
+from .exceptions import NoActiveContext
 
 if TYPE_CHECKING:
     from .core import CommandMeta
@@ -314,6 +315,8 @@ def _repr(obj, indent=0) -> str:
 
 
 class ProgFinder:
+    """Helper to find the name of the current program when ``prog`` was not set explicitly."""
+
     @cached_property
     def mod_obj_prog_map(self) -> dict[str, dict[str, str]]:
         mod_obj_prog_map: dict[str, dict[str, str]] = defaultdict(dict)
@@ -342,7 +345,7 @@ class ProgFinder:
 
         if allow_sys_argv is None:
             try:
-                allow_sys_argv = ctx.allow_argv_prog
+                allow_sys_argv = get_current_context().allow_argv_prog
             except NoActiveContext:
                 allow_sys_argv = True
 
@@ -384,9 +387,10 @@ class ProgFinder:
                 else:
                     yield prog, obj, getattr(obj, '__module__', ''), getattr(obj, '__qualname__', '')
 
-    def _from_sys_argv(self) -> OptStr:
+    @classmethod
+    def _from_sys_argv(cls) -> OptStr:
         try:
-            ctx_prog = ctx.prog
+            ctx_prog = get_current_context().prog
         except NoActiveContext:
             return None
 

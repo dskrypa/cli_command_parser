@@ -315,6 +315,9 @@ class ChoiceGroup:
 
     __slots__ = ('choice_strs', 'choices')
 
+    choices: list[Choice[Any]]
+    choice_strs: list[str]
+
     def __init__(self, choice: Choice):
         self.choices = [choice]
         self.choice_strs = [choice.choice] if choice.choice else []
@@ -351,10 +354,9 @@ class ChoiceGroup:
         :return: Generator that yields formatted help text entries (strings) for the Choices in this group.
         """
         for choice, usage, description in self.prepare(default_mode):
-            if usage is not None:
-                yield format_help_entry((usage,), description, lpad=4, prefix=prefix)
+            yield format_help_entry((usage,), description, lpad=4, prefix=prefix)
 
-    def prepare(self, default_mode: CmdAliasMode) -> Iterator[tuple[Choice, OptStr, OptStr]]:
+    def prepare(self, default_mode: CmdAliasMode) -> Iterator[tuple[Choice, str, OptStr]]:
         """
         Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias
         mode.
@@ -364,9 +366,8 @@ class ChoiceGroup:
         :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and
           the help text / description for that choice / alias.
         """
-        # If it's not a Command, get_config will return None.  If it is a Command, then it will use its config.  If the
-        # alias mode is not set on that target Command, but it is set on its parent, then this will use that parent's
-        # setting.
+        # If the target is a Command, its config will be used, otherwise, get_config will return None.  If the alias
+        # mode is not set on that target Command, but it is set on its parent, then this will use that parent's setting.
         if config := get_config(self.choices[0].target):
             mode = config.cmd_alias_mode or default_mode
         else:
@@ -383,7 +384,7 @@ class ChoiceGroup:
                 # Treat it as a format string
                 yield from self.prepare_aliases(mode)
 
-    def prepare_combined(self) -> tuple[Choice, OptStr, OptStr]:
+    def prepare_combined(self) -> tuple[Choice, str, OptStr]:
         """
         Prepare this group's Choices for inclusion in help text / documentation by combining all aliases into a single
         entry.
@@ -399,7 +400,7 @@ class ChoiceGroup:
 
         return first, usage, first.help
 
-    def prepare_aliases(self, format_str: str = 'Alias of: {choice}') -> Iterator[tuple[Choice, OptStr, OptStr]]:
+    def prepare_aliases(self, format_str: str = 'Alias of: {choice}') -> Iterator[tuple[Choice, str, OptStr]]:
         """
         Prepare this group's Choices for inclusion in help text / documentation using an alternate description for
         aliases.
@@ -431,7 +432,7 @@ class ChoiceGroup:
             for choice_str in choice_strs:
                 yield first, choice_str, format_str.format(choice=first_str, alias=choice_str, help=help_str)
 
-    def prepare_repeated(self) -> Iterator[tuple[Choice, OptStr, OptStr]]:
+    def prepare_repeated(self) -> Iterator[tuple[Choice, str, OptStr]]:
         """
         Prepare this group's Choices for inclusion in help text / documentation with no modifications.  Choices that
         are considered aliases are simply repeated as if they were not aliases.

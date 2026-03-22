@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, ClassVar, Generic, Iterator, Type, TypeVa
 
 from ..annotations import get_descriptor_value_type
 from ..config import DEFAULT_CONFIG, AllowLeadingDash, CommandConfig, OptionNameMode
-from ..context import Context, ctx, get_current_context
+from ..context import get_current_context
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParameterDefinitionError
 from ..inputs import InputType, normalize_input_type
 from ..inputs.choices import _ChoicesBase
@@ -31,6 +31,7 @@ if TYPE_CHECKING:
     from typing import Literal, NoReturn, TypeAlias
 
     from ..commands import Command
+    from ..context import Context
     from ..formatting.params import ParamHelpFormatter
     from ..typing import Bool, NormalizedType, OptStr, OptStrs, Self, Strings
     from ._typing import CommandMethod, DefaultFunc, LeadingDash
@@ -507,21 +508,21 @@ class Parameter(ParamBase, Param[T | D], ABC):
 
     def result(self, command: Command | Any = None, missing_default: TD | _NotSetType = _NotSet) -> T | D | TD:
         """The final result / parsed value for this Parameter that is returned upon access as a descriptor."""
-        if (value := ctx.get_parsed_value(self)) is not _NotSet:
+        if (value := get_current_context().get_parsed_value(self)) is not _NotSet:
             return self.action.finalize_value(value)
 
         if self.required:
             if missing_default is _NotSet:
                 raise MissingArgument(self)
             return missing_default
-        else:
-            try:
-                return self.action.get_default(command, missing_default)
-            except InputValidationError as e:
-                # At this point, a default value was provided when this param was defined, but it wasn't acceptable
-                # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
-                #  Need to test choices - a non-acceptable choice may make sense as the default in some cases
-                raise BadArgument(self, f'bad default value - {e}') from e
+
+        try:
+            return self.action.get_default(command, missing_default)
+        except InputValidationError as e:
+            # At this point, a default value was provided when this param was defined, but it wasn't acceptable
+            # TODO: Do any of the other cases handled by the `prepare_value` method need to be checked here?
+            #  Need to test choices - a non-acceptable choice may make sense as the default in some cases
+            raise BadArgument(self, f'bad default value - {e}') from e
 
     # endregion
 

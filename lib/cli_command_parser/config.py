@@ -121,7 +121,7 @@ class OptionNameMode(FixedFlag):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value: str | int | None) -> OptionNameMode:  # type: ignore[override]
+    def _missing_(cls, value: str | int | None) -> Self:  # type: ignore[override]
         try:
             return OPT_NAME_MODE_ALIASES[value]  # type: ignore[index]
         except KeyError:
@@ -212,7 +212,7 @@ class AllowLeadingDash(Enum):
     # fmt: on
 
     @classmethod
-    def _missing_(cls, value) -> Self:
+    def _missing_(cls, value: str | bool) -> Self:  # type: ignore[override]
         if isinstance(value, str):
             try:
                 return cls._member_map_[value.upper()]  # type: ignore[return-value]

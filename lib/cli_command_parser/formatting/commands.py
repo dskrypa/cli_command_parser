@@ -98,7 +98,8 @@ class CommandHelpFormatter:
         allow_sys_argv: Bool = True,
         cont_indent: int = 4,
     ) -> str:
-        if (wrap_usage_str := ctx.config.wrap_usage_str) is True:
+        if (wrap_usage_str := ctx.config.wrap_usage_str) is True:  # noqa
+            # `is True` is used because it supports True -> term width or an explicit width
             wrap_usage_str = ctx.terminal_width
 
         if usage := self._meta.usage:

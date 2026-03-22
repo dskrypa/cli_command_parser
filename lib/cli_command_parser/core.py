@@ -167,13 +167,15 @@ class CommandMeta(ABCMeta, type):
 
         return None
 
-    @overload
-    @classmethod
-    def config(mcs, cls: CommandAny, default: None = None) -> CommandConfig | None: ...
+    if TYPE_CHECKING:
 
-    @overload
-    @classmethod
-    def config(mcs, cls: CommandAny, default: T) -> CommandConfig | T: ...
+        @overload
+        @classmethod
+        def config(mcs, cls: CommandAny, default: None = None) -> CommandConfig | None: ...
+
+        @overload
+        @classmethod
+        def config(mcs, cls: CommandAny, default: T) -> CommandConfig | T: ...
 
     @classmethod
     def config(mcs, cls: CommandAny, default: T | None = None) -> CommandConfig | T | None:

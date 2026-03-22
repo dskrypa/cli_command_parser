@@ -9,7 +9,7 @@ from __future__ import annotations
 from itertools import count
 from typing import TYPE_CHECKING, Iterable, Iterator
 
-from ..context import ctx
+from ..context import get_current_context
 from ..exceptions import CommandDefinitionError, ParamConflict, ParameterDefinitionError, ParamsMissing
 from .base import BaseOption, BasePositional, ParamBase, _group_stack
 from .pass_thru import PassThru
@@ -191,6 +191,7 @@ class ParamGroup(ParamBase):
         """Called after parsing to group this group's members by whether they were provided or not."""
         provided: ParamList = []
         missing: ParamList = []
+        ctx = get_current_context()
         for obj in self.members:
             if ctx.num_provided(obj):
                 provided.append(obj)
@@ -242,7 +243,7 @@ class ParamGroup(ParamBase):
         that nested groups are validated before any group that they are a member of.
         """
         provided, missing = self._categorize_params()
-        ctx.record_action(self, len(provided))
+        get_current_context().record_action(self, len(provided))
         self._check_conflicts(provided, missing)
         if not missing:
             return
