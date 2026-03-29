@@ -118,20 +118,28 @@ In addition to plain text or binary files, custom input handlers also exist for 
 and a generic handler (:class:`.Serialized`) exists for any other serialization format.  They all extend
 :ref:`inputs:File`, so the same options are accepted.
 
+.. version-changed:: 2026-04-TBD
+
+    A breaking change was made to the generic :class:`.Serialized` class to remove support for a single ``converter``
+    callable that handled either serialization xor deserialization.  Instead, it now requires a ``serializer`` that
+    provides an interface with ``load`` / ``dump`` and/or ``loads`` / ``dumps``, similar to the *json* and *pickle*
+    modules.
+
+    Additionally, the ``pass_file`` parameter was removed from :class:`.Json`, :class:`.Pickle`, and
+    :class:`.Serialized`.  When the provided ``serializer`` has a ``load`` or ``dump`` attribute, it will always be
+    preferred over the ``loads`` / ``dumps`` variants.
+
+
 .. _serialized_init_params:
 
 **Additional Serialized initialization parameters:**
 
-:converter: The function to call to serialize or deserialize the content in the specified file
-:pass_file: True to call the given function with the file, False to handle (de)serialization and read/write as
-  separate steps.  If True, when reading, the converter will be called with the file as the only argument; when writing,
-  the converter will be called as ``converter(data, f)``.  If False, when reading, the converter will be called with
-  the content from the file; when writing, the converter will be called before writing the data to the file.
-
-
-The JSON and Pickle handlers do not accept the above 2 parameters.  The converter is automatically picked to be
-``dump`` or ``load`` based on whether the provided ``mode`` is for reading or writing, and the ``pass_file``
-option will be overridden if provided.
+:serializer: Class or module that provides ``load``/``dump`` and/or ``loads``/``dumps`` methods/functions for
+  deserialization and serialization, respectively.  Expects them to follow the same interface as the *json* or
+  *pickle* modules, with :func:`python:json.loads`, :func:`python:json.dumps`, :func:`python:pickle.load`, etc.
+:lazy: If True, a :class:`.SerializedFileWrapper` will be stored in the Parameter using this file, otherwise the file
+  will be eagerly read immediately upon parsing of the path argument.  When planning to write serialized data to a file,
+  only the default ``lazy=True`` is supported - eager writes are not supported.
 
 
 Adding another snippet to the above :gh_examples:`example <custom_inputs.py>`::
@@ -156,16 +164,19 @@ We can see that the JSON content from stdin was automatically deserialized when 
     [1] ('b', 2)
 
 
-When using the generic :class:`.Serialized` directly, the specific (de)serialization function needs to be provided::
+When using the generic :class:`.Serialized` directly, the module/object needs to be provided::
 
-    Serialized(pickle.loads, mode='rb', lazy=False)
-    Serialized(pickle.load, pass_file=True, mode='rb', lazy=False)
+    Serialized(pickle, mode='rb', lazy=False)  # Read pickled data eagerly upon accessing the attribute
 
-    Serialized(json.loads, lazy=False)
-    Serialized(json.load, pass_file=True, lazy=False)
+    Serialized(json, lazy=False)  # Read JSON data eagerly upon accessing the attribute
 
-    Serialized(json.dumps, mode='w')
-    Serialized(json.dump, pass_file=True, mode='w')
+    Serialized(json, mode='w')  # Provides a file wrapper with a `write` method
+
+
+Any module or object that provides an interface similar to the :mod:`python:json` and :mod:`python:pickle` stdlib
+modules is accepted as a *serializer*.  It must implement a subset of ``load`` / ``dump`` and/or ``loads`` / ``dumps``
+methods or functions.  When reading, ``load`` is always used if it is present, and ``loads`` is used as a fallback
+option.  Similarly for writing, ``dump`` is preferred over ``dumps``.
 
 
 

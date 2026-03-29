@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1162,7 +1173,7 @@
         <span class="n">config</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">t</span> <span class="o">:=</span> <span class="n">param</span><span class="o">.</span><span class="n">type</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">metavar</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">(</span>  <span class="c1"># type: ignore[union-attr,attr-defined]</span>
+                <span class="n">metavar</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">format_metavar</span><span class="p">(</span>  <span class="c1"># type: ignore[union-attr]</span>
                     <span class="n">config</span><span class="o">.</span><span class="n">choice_delim</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">sort_choices</span>
                 <span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># noqa  # pylint: disable=W0703</span>
@@ -1173,7 +1184,7 @@
 
         <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">use_type_metavar</span> <span class="ow">and</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>  <span class="c1"># type: ignore[union-attr,attr-defined]</span>
+                <span class="n">name</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="vm">__name__</span>  <span class="c1"># type: ignore[union-attr]</span>
             <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
                 <span class="k">pass</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1415,6 +1426,9 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;choice_strs&#39;</span><span class="p">,</span> <span class="s1">&#39;choices&#39;</span><span class="p">)</span>
 
+    <span class="n">choices</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Choice</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span>
+    <span class="n">choice_strs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="n">choice</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choice_strs</span> <span class="o">=</span> <span class="p">[</span><span class="n">choice</span><span class="o">.</span><span class="n">choice</span><span class="p">]</span> <span class="k">if</span> <span class="n">choice</span><span class="o">.</span><span class="n">choice</span> <span class="k">else</span> <span class="p">[]</span>
@@ -1459,13 +1473,12 @@
 <span class="sd">        :return: Generator that yields formatted help text entries (strings) for the Choices in this group.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">choice</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">description</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">default_mode</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">usage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="n">format_help_entry</span><span class="p">((</span><span class="n">usage</span><span class="p">,),</span> <span class="n">description</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
+            <span class="k">yield</span> <span class="n">format_help_entry</span><span class="p">((</span><span class="n">usage</span><span class="p">,),</span> <span class="n">description</span><span class="p">,</span> <span class="n">lpad</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ChoiceGroup.prepare">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_mode</span><span class="p">:</span> <span class="n">CmdAliasMode</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepares the choice values and descriptions to use for each Choice in this group based on the configured alias</span>
 <span class="sd">        mode.</span>
@@ -1475,9 +1488,8 @@
 <span class="sd">        :return: Generator that yields 3-tuples containing the :class:`.Choice` object, the choice string value, and</span>
 <span class="sd">          the help text / description for that choice / alias.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># If it&#39;s not a Command, get_config will return None.  If it is a Command, then it will use its config.  If the</span>
-        <span class="c1"># alias mode is not set on that target Command, but it is set on its parent, then this will use that parent&#39;s</span>
-        <span class="c1"># setting.</span>
+        <span class="c1"># If the target is a Command, its config will be used, otherwise, get_config will return None.  If the alias</span>
+        <span class="c1"># mode is not set on that target Command, but it is set on its parent, then this will use that parent&#39;s setting.</span>
         <span class="k">if</span> <span class="n">config</span> <span class="o">:=</span> <span class="n">get_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">target</span><span class="p">):</span>
             <span class="n">mode</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cmd_alias_mode</span> <span class="ow">or</span> <span class="n">default_mode</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1497,7 +1509,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_combined">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_combined">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_combined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation by combining all aliases into a single</span>
 <span class="sd">        entry.</span>
@@ -1516,7 +1528,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_aliases">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_aliases">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;Alias of: </span><span class="si">{choice}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation using an alternate description for</span>
 <span class="sd">        aliases.</span>
@@ -1551,7 +1563,7 @@
 
 <div class="viewcode-block" id="ChoiceGroup.prepare_repeated">
 <a class="viewcode-back" href="../../../api/cli_command_parser.formatting.params.html#cli_command_parser.formatting.params.ChoiceGroup.prepare_repeated">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_repeated</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Choice</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Prepare this group&#39;s Choices for inclusion in help text / documentation with no modifications.  Choices that</span>
 <span class="sd">        are considered aliases are simply repeated as if they were not aliases.</span>

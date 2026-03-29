@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1008,18 +1019,28 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span> <span class="k">as</span> <span class="n">_Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">IO</span><span class="p">,</span> <span class="n">TYPE_CHECKING</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">InputValidationError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileWrapper</span><span class="p">,</span> <span class="n">InputParam</span><span class="p">,</span> <span class="n">StatMode</span><span class="p">,</span> <span class="n">allows_write</span><span class="p">,</span> <span class="n">fix_windows_path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FileWrapper</span><span class="p">,</span>
+    <span class="n">InputParam</span><span class="p">,</span>
+    <span class="n">JsonSerializer</span><span class="p">,</span>
+    <span class="n">SerializedFileWrapper</span><span class="p">,</span>
+    <span class="n">StatMode</span><span class="p">,</span>
+    <span class="n">allows_write</span><span class="p">,</span>
+    <span class="n">fix_windows_path</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">PathLike</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Converter</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnySerializer</span><span class="p">,</span> <span class="n">OpenAnyMode</span><span class="p">,</span> <span class="n">OpenBinaryMode</span><span class="p">,</span> <span class="n">OpenTextMode</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Path&#39;</span><span class="p">,</span> <span class="s1">&#39;File&#39;</span><span class="p">,</span> <span class="s1">&#39;Serialized&#39;</span><span class="p">,</span> <span class="s1">&#39;Json&#39;</span><span class="p">,</span> <span class="s1">&#39;Pickle&#39;</span><span class="p">]</span>
+
+<span class="n">T_co</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T_co&#39;</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="FileInput">
@@ -1070,7 +1091,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fix_default</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">value</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FileInput.validated_path">
@@ -1149,7 +1170,7 @@
 
 <div class="viewcode-block" id="File">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">File</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">FileWrapper</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">]):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">File</span><span class="p">(</span><span class="n">FileInput</span><span class="p">[</span><span class="n">T_co</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.</span>
 <span class="sd">    :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.</span>
@@ -1160,16 +1181,118 @@
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.Path`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">mode</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="n">OpenAnyMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
     <span class="nb">type</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="n">StatMode</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">)</span>
     <span class="n">encoding</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">errors</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
     <span class="n">lazy</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">parents</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">File</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">File</span><span class="p">[</span><span class="n">FileWrapper</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">File</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">File</span><span class="p">[</span><span class="nb">bytes</span><span class="p">],</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenAnyMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+        <span class="n">mode</span><span class="p">:</span> <span class="n">OpenAnyMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1190,14 +1313,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">parents</span> <span class="o">=</span> <span class="n">parents</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">_Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileWrapper</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="n">parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span>
 
 <div class="viewcode-block" id="File.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.File.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileWrapper</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">PathLike</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T_co</span><span class="p">:</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validated_path</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">wrapper</span>
+            <span class="k">return</span> <span class="n">wrapper</span>  <span class="c1"># type: ignore[return-value]</span>
         <span class="k">return</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">read</span><span class="p">()</span></div>
 </div>
 
@@ -1205,85 +1328,255 @@
 
 <div class="viewcode-block" id="Serialized">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Serialized">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Serialized</span><span class="p">(</span><span class="n">File</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Serialized</span><span class="p">(</span><span class="n">File</span><span class="p">[</span><span class="n">T_co</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param converter: Function to use to (de)serialize the given file, such as :func:`python:json.loads`,</span>
-<span class="sd">      :func:`python:json.dumps`, :func:`python:pickle.load`, etc.</span>
-<span class="sd">    :param pass_file: For reading, if True, call the converter with the file object, otherwise read the</span>
-<span class="sd">      file first and call the converter with the result.  For writing, if True, call the converter with both the</span>
-<span class="sd">      data to be written and the file object, otherwise call the converter with only the data and then write the</span>
-<span class="sd">      result to the file.</span>
+<span class="sd">    :param serializer: Class or module that provides ``load``/``dump`` and/or ``loads``/``dumps`` methods/functions for</span>
+<span class="sd">      deserialization and serialization, respectively.  Expects them to follow the same interface as the *json* or</span>
+<span class="sd">      *pickle* modules, with :func:`python:json.loads`, :func:`python:json.dumps`, :func:`python:pickle.load`, etc.</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">converter</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="n">Converter</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">pass_file</span><span class="p">:</span> <span class="n">InputParam</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">InputParam</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">serializer</span><span class="p">:</span> <span class="n">AnySerializer</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">converter</span><span class="p">:</span> <span class="n">Converter</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">pass_file</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Serialized</span><span class="p">[</span><span class="n">SerializedFileWrapper</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]],</span>
+            <span class="n">serializer</span><span class="p">:</span> <span class="n">AnySerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenAnyMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Serialized</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+            <span class="n">serializer</span><span class="p">:</span> <span class="n">AnySerializer</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenAnyMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">serializer</span><span class="p">:</span> <span class="n">AnySerializer</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenAnyMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serializer</span><span class="p">:</span> <span class="n">AnySerializer</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">converter</span> <span class="o">=</span> <span class="n">converter</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span> <span class="o">=</span> <span class="n">pass_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">serializer</span> <span class="o">=</span> <span class="n">serializer</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">non_defaults</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;converter&#39;</span><span class="p">)</span>
-        <span class="c1"># `converter` must be excluded to prevent infinite recursion when an instance method is stored in that attr</span>
+        <span class="n">non_defaults</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">!r}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;serializer&#39;</span><span class="p">)</span>
+        <span class="c1"># `serializer` must be excluded to prevent infinite recursion when an instance method is stored in that attr</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">(</span><span class="si">{</span><span class="n">non_defaults</span><span class="si">}</span><span class="s1">)&gt;&#39;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">_Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileWrapper</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">FileWrapper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">converter</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pass_file</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prep_file_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">_Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SerializedFileWrapper</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="n">SerializedFileWrapper</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+            <span class="n">serializer</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">serializer</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoding</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">,</span>
+            <span class="n">parents</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parents</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="Json">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Json">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Json</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Json</span><span class="p">(</span><span class="n">Serialized</span><span class="p">[</span><span class="n">T_co</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">wrap_errors</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
 
-        <span class="n">write</span> <span class="o">=</span> <span class="n">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pass_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dump</span> <span class="k">if</span> <span class="n">write</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_json</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wrap_errors</span> <span class="o">=</span> <span class="n">wrap_errors</span>
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Json</span><span class="p">[</span><span class="n">SerializedFileWrapper</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">wrap_errors</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="n">IO</span><span class="p">):</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">json</span><span class="w"> </span><span class="kn">import</span> <span class="n">JSONDecodeError</span><span class="p">,</span> <span class="n">load</span>
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Json</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">wrap_errors</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wrap_errors</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">name</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;json from file=</span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s1"> - are you sure it contains properly formatted json?&#39;</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;the provided json content - are you sure it&#39;s properly formatted json?&quot;</span>
-                <span class="k">raise</span> <span class="n">InputValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unable to load </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s1"> - error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span></div>
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span>
+            <span class="n">wrap_errors</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">OpenTextMode</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">wrap_errors</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">JsonSerializer</span><span class="p">(</span><span class="n">wrap_errors</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="Pickle">
 <a class="viewcode-back" href="../../../api/cli_command_parser.inputs.files.html#cli_command_parser.inputs.files.Pickle">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Pickle</span><span class="p">(</span><span class="n">Serialized</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Pickle</span><span class="p">(</span><span class="n">Serialized</span><span class="p">[</span><span class="n">T_co</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    :param kwargs: Additional keyword arguments to pass to :class:`.File`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Pickle</span><span class="p">[</span><span class="n">SerializedFileWrapper</span><span class="p">[</span><span class="nb">bytes</span><span class="p">]],</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Pickle</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">],</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span>
+            <span class="n">exists</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">expand</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">resolve</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">StatMode</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">StatMode</span><span class="o">.</span><span class="n">FILE</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">readable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">writable</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">allow_dash</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="n">use_windows_fix</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">fix_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">errors</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">lazy</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="n">parents</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">OpenBinaryMode</span> <span class="o">=</span> <span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 
-        <span class="k">if</span> <span class="s1">&#39;t&#39;</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">mode</span><span class="si">=}</span><span class="s1"> - pickle does not read/write text&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s1">&#39;b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">+=</span> <span class="s1">&#39;b&#39;</span>
+        <span class="k">if</span> <span class="s1">&#39;t&#39;</span> <span class="ow">in</span> <span class="n">mode</span> <span class="ow">or</span> <span class="s1">&#39;b&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">mode</span><span class="si">=}</span><span class="s1"> - pickle does not read/write text - it requires a binary open mode&#39;</span><span class="p">)</span>
 
-        <span class="n">write</span> <span class="o">=</span> <span class="n">allows_write</span><span class="p">(</span><span class="n">mode</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
-        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;pass_file&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pickle</span><span class="o">.</span><span class="n">dump</span> <span class="k">if</span> <span class="n">write</span> <span class="k">else</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">pickle</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 </pre></div>
 

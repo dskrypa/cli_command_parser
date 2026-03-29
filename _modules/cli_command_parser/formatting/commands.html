@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1113,7 +1124,8 @@
         <span class="n">allow_sys_argv</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">cont_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">wrap_usage_str</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">wrap_usage_str</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">wrap_usage_str</span> <span class="o">:=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">wrap_usage_str</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># noqa</span>
+            <span class="c1"># `is True` is used because it supports True -&gt; term width or an explicit width</span>
             <span class="n">wrap_usage_str</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">terminal_width</span>
 
         <span class="k">if</span> <span class="n">usage</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_meta</span><span class="o">.</span><span class="n">usage</span><span class="p">:</span>

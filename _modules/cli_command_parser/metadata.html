@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1017,7 +1028,8 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Generic</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">overload</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">urllib.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">urlparse</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoActiveContext</span><span class="p">,</span> <span class="n">ctx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.context</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_current_context</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoActiveContext</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMeta</span>
@@ -1372,6 +1384,8 @@
 <div class="viewcode-block" id="ProgFinder">
 <a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ProgFinder</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to find the name of the current program when ``prog`` was not set explicitly.&quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="ProgFinder.mod_obj_prog_map">
 <a class="viewcode-back" href="../../api/cli_command_parser.metadata.html#cli_command_parser.metadata.ProgFinder.mod_obj_prog_map">[docs]</a>
     <span class="nd">@cached_property</span>
@@ -1405,7 +1419,7 @@
 
         <span class="k">if</span> <span class="n">allow_sys_argv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">allow_sys_argv</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">allow_argv_prog</span>
+                <span class="n">allow_sys_argv</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">allow_argv_prog</span>
             <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
                 <span class="n">allow_sys_argv</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -1448,9 +1462,10 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="n">prog</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;__module__&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s1">&#39;__qualname__&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_from_sys_argv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_from_sys_argv</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OptStr</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">ctx_prog</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">prog</span>
+            <span class="n">ctx_prog</span> <span class="o">=</span> <span class="n">get_current_context</span><span class="p">()</span><span class="o">.</span><span class="n">prog</span>
         <span class="k">except</span> <span class="n">NoActiveContext</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 

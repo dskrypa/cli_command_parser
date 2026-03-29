@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cli_command_parser.formatting.restructured_text &mdash; CLI Command Parser 2026.02.01 documentation</title>
+  <title>cli_command_parser.inputs._typing &mdash; CLI Command Parser 2026.02.01 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_paramlinks.css" />
@@ -996,7 +996,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
-      <li class="breadcrumb-item active">cli_command_parser.formatting.restructured_text</li>
+      <li class="breadcrumb-item active">cli_command_parser.inputs._typing</li>
     <li class="wy-breadcrumbs-aside">
         
     </li>
@@ -1007,393 +1007,139 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <h1>Source code for cli_command_parser.formatting.restructured_text</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Utilities for formatting data using RST markup</span>
+  <h1>Source code for cli_command_parser.inputs._typing</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="sd">:author: Doug Skrypa</span>
-<span class="sd">&quot;&quot;&quot;</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">BinaryIO</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Protocol</span><span class="p">,</span> <span class="n">TextIO</span><span class="p">,</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">Strings</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">timedelta</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Number</span> <span class="k">as</span> <span class="n">_Number</span>
 
-    <span class="n">RowMaps</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Mapping</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]]</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;rst_bar&#39;</span><span class="p">,</span> <span class="s1">&#39;rst_list_table&#39;</span><span class="p">,</span> <span class="s1">&#39;RstTable&#39;</span><span class="p">]</span>
+<span class="n">Locale</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+<span class="n">TimeBound</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="s1">&#39;datetime&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;timedelta&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
 
+<span class="n">N</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">Union</span><span class="p">[</span><span class="s1">&#39;_Number&#39;</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span>
+<span class="n">Number</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">N</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="n">NumType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Any</span><span class="p">],</span> <span class="n">N</span><span class="p">]</span>
+<span class="n">RngType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">range</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span>
 
-<span class="c1"># region Constants &amp; Templates</span>
+<span class="c1"># There are many more compatible variations of file open modes, but enumerating every one results in poor readability</span>
+<span class="c1"># of popup type hints.</span>
+<span class="n">OpenBinaryMode</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">]</span>
+<span class="n">OpenTextMode</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">]</span>
+<span class="n">OpenAnyMode</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">str</span>
 
-<span class="n">BAR_CHAR_ORDER</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;#&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;^&#39;</span><span class="p">,</span> <span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>  <span class="c1"># parts, chapters, sections, subsections, sub-subsections, paragraphs</span>
 
-<span class="n">LIST_TABLE_TMPL</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">.. list-table::</span>
-<span class="s2">    :widths: </span><span class="si">{widths}</span>
+<span class="c1"># region Minimal IO Protocols</span>
 
-<span class="si">{entries}</span>
-<span class="s2">&quot;&quot;&quot;</span>
-<span class="n">MODULE_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
-<span class="si">{header}</span>
+<span class="n">_T_co</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_T_co&#39;</span><span class="p">,</span> <span class="n">covariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">_T_contra</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;_T_contra&#39;</span><span class="p">,</span> <span class="n">contravariant</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="s2">.. currentmodule:: </span><span class="si">{module}</span>
 
-<span class="s2">.. automodule:: </span><span class="si">{module}</span>
-<span class="s2">   :members:</span>
-<span class="s2">   :undoc-members:</span>
-<span class="s2">   :show-inheritance:</span>
-<span class="s2">&quot;&quot;&quot;</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
-
-<span class="c1"># endregion</span>
-
-
-<span class="c1"># region RST Formatting Helpers</span>
-
-
-<div class="viewcode-block" id="rst_bar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_bar">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rst_bar</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">bar_len</span> <span class="o">=</span> <span class="n">text</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">BAR_CHAR_ORDER</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">c</span> <span class="o">*</span> <span class="n">bar_len</span></div>
-
-
-
-<div class="viewcode-block" id="rst_header">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_header">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rst_header</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">overline</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">bar</span> <span class="o">=</span> <span class="n">rst_bar</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bar</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">bar</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">overline</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">bar</span><span class="si">}</span><span class="s1">&#39;</span></div>
-
-
-
-<div class="viewcode-block" id="spaced_rst_header">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.spaced_rst_header">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">spaced_rst_header</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">before</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="k">if</span> <span class="n">before</span><span class="p">:</span>
-        <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-    <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">text</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">rst_bar</span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">level</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="k">yield</span> <span class="s1">&#39;&#39;</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_rst_directive</span><span class="p">(</span>
-    <span class="n">directive</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;.. </span><span class="si">{</span><span class="n">directive</span><span class="si">}</span><span class="s1">:: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n">args</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;.. </span><span class="si">{</span><span class="n">directive</span><span class="si">}</span><span class="s1">::&#39;</span>
-    <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
-        <span class="n">pre</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">indent</span>
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">options</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span> <span class="ow">or</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">pre</span><span class="si">}</span><span class="s1">:</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s1">&#39;</span>
-
-
-<div class="viewcode-block" id="rst_directive">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_directive">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rst_directive</span><span class="p">(</span>
-    <span class="n">directive</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_rst_directive</span><span class="p">(</span><span class="n">directive</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">check</span><span class="p">))</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_rst_toc_tree</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Strings</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-    <span class="n">options</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;maxdepth&#39;</span><span class="p">:</span> <span class="n">max_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">}</span>
-    <span class="k">yield</span> <span class="n">rst_header</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-    <span class="k">yield from</span> <span class="n">_rst_directive</span><span class="p">(</span><span class="s1">&#39;toctree&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-    <span class="k">yield from</span> <span class="nb">map</span><span class="p">(</span><span class="n">content_fmt</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">contents</span><span class="p">))</span>
-
-
-<div class="viewcode-block" id="rst_toc_tree">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_toc_tree">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rst_toc_tree</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content_fmt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="n">Strings</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param name: The name of the section.  Written as a header above the ``toctree`` directive.</span>
-<span class="sd">    :param content_fmt: The format string used to indent/prefix each entry in the contents to include in this table</span>
-<span class="sd">      of contents.</span>
-<span class="sd">    :param contents: The names of the documents to include in this table of contents.</span>
-<span class="sd">    :param max_depth: The maximum depth of the table of contents tree.  Use ``-1`` to allow unlimited depth.</span>
-<span class="sd">    :param kwargs: Keyword arguments to be included as ``:key: &lt;value&gt;`` options to the ``toctree`` directive.</span>
-<span class="sd">    :return: The RST header and table of contents directive as a string.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_rst_toc_tree</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">content_fmt</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span></div>
-
-
-
-<div class="viewcode-block" id="rst_list_table">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.rst_list_table">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">rst_list_table</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">value_pad</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="n">max_key</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span>
-    <span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
-    <span class="n">widths</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">max_key</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">max_val</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">value_pad</span><span class="si">}</span><span class="s1">&#39;</span>
-    <span class="n">entries</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    * - | </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="se">\n</span><span class="s1">      - | </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-    <span class="k">return</span> <span class="n">LIST_TABLE_TMPL</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">widths</span><span class="o">=</span><span class="n">widths</span><span class="p">,</span> <span class="n">entries</span><span class="o">=</span><span class="n">entries</span><span class="p">)</span></div>
-
-
-
-<span class="c1"># endregion</span>
-
-
-<div class="viewcode-block" id="RstTable">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">RstTable</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    :param title: The title for this table.  Only displayed if ``show_title`` is True.</span>
-<span class="sd">    :param subtitle: Passed as an option to the :du_directives:`table directive &lt;table&gt;` if ``header`` is True.</span>
-<span class="sd">    :param headers: Columns headers to use before the first row.</span>
-<span class="sd">    :param show_title: If True, and a title was provided, then that title will be emitted as a</span>
-<span class="sd">      :any:`sphinx:rubric` directive by :meth:`.iter_build` before the beginning of this table.</span>
-<span class="sd">    :param use_table_directive: If True, then the :du_directives:`table directive &lt;table&gt;` will be used before the</span>
-<span class="sd">      body of this table.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;subtitle&#39;</span><span class="p">,</span> <span class="s1">&#39;show_title&#39;</span><span class="p">,</span> <span class="s1">&#39;use_table_directive&#39;</span><span class="p">,</span> <span class="s1">&#39;_rows&#39;</span><span class="p">,</span> <span class="s1">&#39;_widths&#39;</span><span class="p">,</span> <span class="s1">&#39;_updated&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">title</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">subtitle</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">headers</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="o">*</span><span class="p">,</span>
-        <span class="n">show_title</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">use_table_directive</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span> <span class="o">=</span> <span class="n">subtitle</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_title</span> <span class="o">=</span> <span class="n">show_title</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">use_table_directive</span> <span class="o">=</span> <span class="n">use_table_directive</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Row</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span> <span class="o">=</span> <span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_updated</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">headers</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">headers</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-<div class="viewcode-block" id="RstTable.from_dicts">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.from_dicts">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dicts</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">RowMaps</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OptStr</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">auto_headers</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize a RstTable using the given keyword arguments, and populate its rows using the given dicts and</span>
-<span class="sd">        :meth:`.add_dict_rows`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">auto_headers</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;headers&#39;</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_dict_rows</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">table</span></div>
-
-
-<div class="viewcode-block" id="RstTable.from_dict">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.from_dict">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RstTable</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize a RstTable using the given keyword arguments, and populate its rows using the given dict and</span>
-<span class="sd">        :meth:`.add_kv_rows`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">table</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="n">table</span><span class="o">.</span><span class="n">add_kv_rows</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">table</span></div>
-
-
-<div class="viewcode-block" id="RstTable.widths">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.widths">[docs]</a>
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">widths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_updated</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">widths</span><span class="p">()</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">)))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_updated</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_widths</span></div>
-
-
-<div class="viewcode-block" id="RstTable.add_dict_rows">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.add_dict_rows">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_dict_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">RowMaps</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OptStr</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">add_header</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add a row for each dict in the given sequence of rows, where the keys represent the columns.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">columns</span><span class="p">:</span>
-            <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-        <span class="k">if</span> <span class="n">add_header</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_row</span><span class="p">(</span><span class="o">*</span><span class="n">columns</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_rows</span><span class="p">((</span><span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="RstTable.add_kv_rows">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.add_kv_rows">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_kv_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">]):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a row for each key=value pair in the given dict, where the first column contains the key and the second</span>
-<span class="sd">        column contains the value.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_rows</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">())</span></div>
-
-
-<div class="viewcode-block" id="RstTable.add_rows">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.add_rows">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Iterable</span><span class="p">[</span><span class="n">OptStr</span><span class="p">]]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_rows</span><span class="p">(</span><span class="n">Row</span><span class="p">([</span><span class="n">Cell</span><span class="p">(</span><span class="n">c</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">])</span> <span class="k">for</span> <span class="n">columns</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rows</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Row</span><span class="p">]):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_updated</span> <span class="o">=</span> <span class="kc">True</span>
-
-<div class="viewcode-block" id="RstTable.add_row">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.add_row">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">columns</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Add a row to the table.</span>
-
-<span class="sd">        :param columns: The string values to use as columns in a single row</span>
-<span class="sd">        :param index: If specified, insert the new row at the specified index.  By default, the new row is appended to</span>
-<span class="sd">          the list of rows.</span>
-<span class="sd">        :param header: If True, this row will be treated as a header row.  Does not affect insertion order.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_row</span><span class="p">(</span><span class="n">Row</span><span class="p">([</span><span class="n">Cell</span><span class="p">(</span><span class="n">c</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">],</span> <span class="n">header</span><span class="p">),</span> <span class="n">index</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">:</span> <span class="n">Row</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_updated</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s1">&#39;&lt;RstTable[use_table_directive=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">use_table_directive</span><span class="si">}</span><span class="s1">, rows=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">)</span><span class="si">}</span><span class="s1">,&#39;</span>
-            <span class="sa">f</span><span class="s1">&#39; title=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">!r}</span><span class="s1">, widths=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">widths</span><span class="si">}</span><span class="s1">]&gt;&#39;</span>
-        <span class="p">)</span>
-
-<div class="viewcode-block" id="RstTable.iter_build">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.RstTable.iter_build">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">iter_build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_title</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">yield</span> <span class="sa">f</span><span class="s1">&#39;.. rubric:: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_table_directive</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="n">_rst_directive</span><span class="p">(</span><span class="s1">&#39;table&#39;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;subtitle&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subtitle</span><span class="p">,</span> <span class="s1">&#39;widths&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">},</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">yield</span> <span class="s1">&#39;&#39;</span>
-            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_render</span><span class="p">():</span>
-                <span class="k">yield</span> <span class="s1">&#39;    &#39;</span> <span class="o">+</span> <span class="n">line</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter_render</span><span class="p">()</span>
-
-        <span class="k">yield</span> <span class="s1">&#39;&#39;</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_iter_render</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">col_widths</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">widths</span>
-        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">render_upper_bar</span><span class="p">(</span><span class="n">col_widths</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rows</span><span class="p">:</span>
-            <span class="k">yield from</span> <span class="n">row</span><span class="o">.</span><span class="n">render_lines</span><span class="p">(</span><span class="n">col_widths</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_build</span><span class="p">())</span></div>
-
-
-
-<div class="viewcode-block" id="Cell">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Cell</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;lines&#39;</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="s1">&#39;brd_bottom&#39;</span><span class="p">,</span> <span class="s1">&#39;brd_right&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">ext_right</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">ext_below</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">text</span>
-        <span class="k">if</span> <span class="n">text</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">len</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="mi">1</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">brd_bottom</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">ext_below</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">brd_right</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">ext_right</span>
-
-<div class="viewcode-block" id="Cell.render_upper_bar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_upper_bar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_upper_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">brd_bottom</span> <span class="k">else</span> <span class="s1">&#39;|&#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Cell.render_lower_bar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_lower_bar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_lower_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">char</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">brd_bottom</span><span class="p">:</span>
-            <span class="n">char</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">char</span> <span class="o">*</span> <span class="p">(</span><span class="n">width</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span> <span class="o">+</span> <span class="p">(</span><span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">brd_bottom</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">brd_right</span> <span class="k">else</span> <span class="s1">&#39; &#39;</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Cell.render_lines">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Cell.render_lines">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">max_lines</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">format_line</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39; </span><span class="se">{{</span><span class="s1">:&lt;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s1">s</span><span class="se">}}</span><span class="s1"> </span><span class="si">{</span><span class="s2">&quot;|&quot;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">brd_right</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">&quot; &quot;</span><span class="si">}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span>
-        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">format_line</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="n">max_lines</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="n">format_line</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;&lt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s1">[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">text</span><span class="si">!r}</span><span class="s1">, width=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="si">}</span><span class="s1">, height=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="si">}</span><span class="s1">]&gt;&#39;</span></div>
-
-
-
-<div class="viewcode-block" id="Row">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Row</span><span class="p">:</span>
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;cells&#39;</span><span class="p">,</span> <span class="s1">&#39;header&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cells</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cell</span><span class="p">],</span> <span class="n">header</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cells</span> <span class="o">=</span> <span class="n">cells</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">header</span>
-
-<div class="viewcode-block" id="Row.widths">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.widths">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">widths</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
-        <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">:</span>
-            <span class="k">yield</span> <span class="n">cell</span><span class="o">.</span><span class="n">width</span></div>
-
-
-<div class="viewcode-block" id="Row.render_upper_bar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_upper_bar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_upper_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s1">&#39;+&#39;</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">render_upper_bar</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">cell</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">,</span> <span class="n">widths</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="Row.render_lower_bar">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_lower_bar">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_lower_bar</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">char</span> <span class="o">=</span> <span class="s1">&#39;=&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="k">else</span> <span class="s1">&#39;-&#39;</span>
-        <span class="n">first</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">brd_bottom</span> <span class="k">else</span> <span class="s1">&#39;|&#39;</span>
-        <span class="k">return</span> <span class="n">first</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">render_lower_bar</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">char</span><span class="p">)</span> <span class="k">for</span> <span class="n">cell</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">,</span> <span class="n">widths</span><span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="Row.render_lines">
-<a class="viewcode-back" href="../../../api/cli_command_parser.formatting.restructured_text.html#cli_command_parser.formatting.restructured_text.Row.render_lines">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">render_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-        <span class="n">max_lines</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cell</span><span class="o">.</span><span class="n">height</span> <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">)</span>
-        <span class="n">renderers</span> <span class="o">=</span> <span class="p">[</span><span class="n">cell</span><span class="o">.</span><span class="n">render_lines</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">max_lines</span><span class="p">)</span> <span class="k">for</span> <span class="n">cell</span><span class="p">,</span> <span class="n">w</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cells</span><span class="p">,</span> <span class="n">widths</span><span class="p">)]</span>
-        <span class="k">for</span> <span class="n">cell_strs</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">renderers</span><span class="p">):</span>
-            <span class="k">yield</span> <span class="s1">&#39;|&#39;</span> <span class="o">+</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cell_strs</span><span class="p">)</span>
-
-        <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">render_lower_bar</span><span class="p">(</span><span class="n">widths</span><span class="p">)</span></div>
+<div class="viewcode-block" id="SupportsRead">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportsRead</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">_T_co</span><span class="p">]):</span>
+<div class="viewcode-block" id="SupportsRead.read">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T_co</span><span class="p">:</span> <span class="o">...</span></div>
 </div>
 
+
+
+<div class="viewcode-block" id="SupportsReadLine">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportsReadLine</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">_T_co</span><span class="p">]):</span>
+<div class="viewcode-block" id="SupportsReadLine.read">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T_co</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="SupportsReadLine.readline">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine.readline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">readline</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T_co</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SupportsWrite">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportsWrite</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">_T_contra</span><span class="p">]):</span>
+<div class="viewcode-block" id="SupportsWrite.write">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">_T_contra</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="SupportsRW">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">SupportsRW</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]):</span>
+<div class="viewcode-block" id="SupportsRW.read">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW.read">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyStr</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="SupportsRW.readline">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW.readline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">readline</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyStr</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="SupportsRW.write">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW.write">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<span class="c1"># endregion</span>
+
+
+<span class="c1"># region Serializer Protocols</span>
+
+
+<div class="viewcode-block" id="FileSerializer">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileSerializer</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="FileSerializer.load">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer.load">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">SupportsRead</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]</span> <span class="o">|</span> <span class="n">SupportsReadLine</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="FileSerializer.dump">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer.dump">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">fp</span><span class="p">:</span> <span class="n">SupportsWrite</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AnyStrSerializer">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnyStrSerializer</span><span class="p">(</span><span class="n">Protocol</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
+
+<div class="viewcode-block" id="AnyStrSerializer.loads">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer.loads">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">AnyStr</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span> <span class="o">...</span></div>
+
+<div class="viewcode-block" id="AnyStrSerializer.dumps">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer.dumps">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dumps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AnyStr</span><span class="p">:</span> <span class="o">...</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FullSerializer">
+<a class="viewcode-back" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FullSerializer</span><span class="p">(</span><span class="n">FileSerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">],</span> <span class="n">AnyStrSerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">],</span> <span class="n">Protocol</span><span class="p">):</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span></div>
+
+
+
+<span class="n">AnySerializer</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">FileSerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]</span> <span class="o">|</span> <span class="n">AnyStrSerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]</span> <span class="o">|</span> <span class="n">FullSerializer</span><span class="p">[</span><span class="n">AnyStr</span><span class="p">]</span>
+
+
+<span class="c1"># endregion</span>
 </pre></div>
 
            </div>

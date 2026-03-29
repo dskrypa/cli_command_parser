@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1005,14 +1016,18 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChainMap</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">TypeVar</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandParserException</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ErrorHandler&#39;</span><span class="p">,</span> <span class="s1">&#39;error_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;extended_error_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;no_exit_handler&#39;</span><span class="p">,</span> <span class="s1">&#39;NullErrorHandler&#39;</span><span class="p">]</span>
 
 <span class="n">E</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="ne">BaseException</span><span class="p">)</span>
 <span class="n">HandlerFunc</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">E</span><span class="p">],</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span>
+<span class="n">HandlerDecorator</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">HandlerFunc</span><span class="p">],</span> <span class="n">HandlerFunc</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="ErrorHandler">
@@ -1047,8 +1062,8 @@
 
 <div class="viewcode-block" id="ErrorHandler.__call__">
 <a class="viewcode-back" href="../../../api/cli_command_parser.error_handling.base.html#cli_command_parser.error_handling.base.ErrorHandler.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]):</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span> <span class="o">|</span> <span class="nb">staticmethod</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">HandlerDecorator</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HandlerFunc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>
 
@@ -1058,8 +1073,8 @@
 <div class="viewcode-block" id="ErrorHandler.cls_handler">
 <a class="viewcode-back" href="../../../api/cli_command_parser.error_handling.base.html#cli_command_parser.error_handling.base.ErrorHandler.cls_handler">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">cls_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">E</span><span class="p">]):</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_cls_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span> <span class="o">|</span> <span class="nb">staticmethod</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cls_handler</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">*</span><span class="n">exceptions</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">E</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">HandlerDecorator</span><span class="p">:</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">_cls_handler</span><span class="p">(</span><span class="n">handler</span><span class="p">:</span> <span class="n">HandlerFunc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">HandlerFunc</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">exc</span> <span class="ow">in</span> <span class="n">exceptions</span><span class="p">:</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_exc_handler_map</span><span class="p">[</span><span class="n">exc</span><span class="p">]</span> <span class="o">=</span> <span class="n">Handler</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">handler</span>
@@ -1082,7 +1097,7 @@
             <span class="k">yield</span> <span class="n">candidate</span><span class="o">.</span><span class="n">handler</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span> <span class="n">exc_val</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1112,7 +1127,7 @@
 <div class="viewcode-block" id="NullErrorHandler">
 <a class="viewcode-back" href="../../../api/cli_command_parser.error_handling.base.html#cli_command_parser.error_handling.base.NullErrorHandler">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NullErrorHandler</span><span class="p">:</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
@@ -1135,9 +1150,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">handler</span> <span class="o">=</span> <span class="n">handler</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Handler</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">return</span> <span class="n">other</span><span class="o">.</span><span class="n">exc_cls</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">exc_cls</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">handler</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Handler</span><span class="p">)</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">exc_cls</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">exc_cls</span> <span class="ow">and</span> <span class="n">other</span><span class="o">.</span><span class="n">handler</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Handler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">return</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">exc_cls</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">exc_cls</span><span class="p">)</span></div>

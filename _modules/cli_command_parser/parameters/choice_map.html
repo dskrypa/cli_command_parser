@@ -590,7 +590,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.inputs.html">Inputs Package</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html">_Typing Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRead"><code class="docutils literal notranslate"><span class="pre">SupportsRead</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsReadLine"><code class="docutils literal notranslate"><span class="pre">SupportsReadLine</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsWrite"><code class="docutils literal notranslate"><span class="pre">SupportsWrite</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.SupportsRW"><code class="docutils literal notranslate"><span class="pre">SupportsRW</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FileSerializer"><code class="docutils literal notranslate"><span class="pre">FileSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.AnyStrSerializer"><code class="docutils literal notranslate"><span class="pre">AnyStrSerializer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs._typing.html#cli_command_parser.inputs._typing.FullSerializer"><code class="docutils literal notranslate"><span class="pre">FullSerializer</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html">Base Module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.base.html#cli_command_parser.inputs.base.InputType"><code class="docutils literal notranslate"><span class="pre">InputType</span></code></a></li>
 </ul>
@@ -649,6 +658,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.InputParam"><code class="docutils literal notranslate"><span class="pre">InputParam</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode"><code class="docutils literal notranslate"><span class="pre">StatMode</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.FileWrapper"><code class="docutils literal notranslate"><span class="pre">FileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.SerializedFileWrapper"><code class="docutils literal notranslate"><span class="pre">SerializedFileWrapper</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.JsonSerializer"><code class="docutils literal notranslate"><span class="pre">JsonSerializer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.allows_write"><code class="docutils literal notranslate"><span class="pre">allows_write()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.fix_windows_path"><code class="docutils literal notranslate"><span class="pre">fix_windows_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.range_str"><code class="docutils literal notranslate"><span class="pre">range_str()</span></code></a></li>
@@ -1044,6 +1055,7 @@
 
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;choice&#39;</span><span class="p">,</span> <span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="s1">&#39;local&#39;</span><span class="p">)</span>
 
+    <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span>
     <span class="n">target</span><span class="p">:</span> <span class="n">T</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
@@ -1164,14 +1176,16 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_register_choice</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>  <span class="c1"># noqa</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">existing</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span> <span class="o">=</span> <span class="n">Choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">help</span><span class="p">,</span> <span class="n">local</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_nargs</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;Invalid default&#39;</span> <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> for&#39;</span>
-            <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">target</span><span class="si">=}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing</span> <span class="o">:=</span> <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">choice</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_duplicate_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">existing</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span> <span class="o">=</span> <span class="n">Choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">help</span><span class="p">,</span> <span class="n">local</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_nargs</span><span class="p">()</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_duplicate_choice</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span> <span class="n">existing</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="s1">&#39;Invalid default&#39;</span> <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> for&#39;</span>
+        <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">target</span><span class="si">=}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="n">existing</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_no_choices_error</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No choices were registered for </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -1302,18 +1316,20 @@
             <span class="k">if</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent</span> <span class="ow">or</span> <span class="n">meta</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">description</span> <span class="o">!=</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span><span class="p">):</span>
                 <span class="n">help</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">description</span>  <span class="c1"># noqa</span>
 
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">CommandDefinitionError</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parent</span>
-
-            <span class="n">parent</span> <span class="o">=</span> <span class="n">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="n">choice</span><span class="p">]</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_choice</span><span class="p">(</span><span class="n">choice</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">help</span><span class="p">)</span>
 
         <span class="n">command</span><span class="o">.</span><span class="n">_is_subcommand_</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># This is used indirectly by ``main()`` to filter out non-top-level Commands</span>
         <span class="k">return</span> <span class="n">command</span></div>
 
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_handle_duplicate_choice</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">choice</span><span class="p">:</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">command</span><span class="p">:</span> <span class="n">CommandCls</span><span class="p">,</span> <span class="n">existing</span><span class="p">:</span> <span class="n">Choice</span><span class="p">):</span>  <span class="c1"># type: ignore[override]</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">..core</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parent</span>
+
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">get_parent</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">CommandDefinitionError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">choice</span><span class="si">=}</span><span class="s1"> for </span><span class="si">{</span><span class="n">command</span><span class="si">}</span><span class="s1"> with </span><span class="si">{</span><span class="n">parent</span><span class="si">=}</span><span class="s1"> - already assigned to </span><span class="si">{</span><span class="n">existing</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="SubCommand.register">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.choice_map.html#cli_command_parser.parameters.choice_map.SubCommand.register">[docs]</a>
