@@ -136,7 +136,7 @@ class CommandMeta(ABCMeta, type):
         if parent := mcs.parent(cls, False):
             if sub_cmd := mcs.params(parent).sub_command:
                 for choice, choice_help in _choice_items(choice, choices):
-                    sub_cmd.register_command(choice, cls, choice_help or help)  # type: ignore[attr-defined]
+                    sub_cmd.register_command(choice, cls, choice_help or help)
             elif choices or (choice is not None and choice is not _NotSet):
                 _no_choices_registered_warning(choice, choices, cls, f'its {parent=} has no SubCommand parameter')
         elif choices or (choice is not None and choice is not _NotSet):
@@ -167,18 +167,20 @@ class CommandMeta(ABCMeta, type):
 
         return None
 
-    @overload
-    @classmethod
-    def config(mcs, cls: CommandAny, default: None = None) -> CommandConfig | None: ...
+    if TYPE_CHECKING:
 
-    @overload
-    @classmethod
-    def config(mcs, cls: CommandAny, default: T) -> CommandConfig | T: ...
+        @overload
+        @classmethod
+        def config(mcs, cls: CommandAny, default: None = None) -> CommandConfig | None: ...
+
+        @overload
+        @classmethod
+        def config(mcs, cls: CommandAny, default: T) -> CommandConfig | T: ...
 
     @classmethod
     def config(mcs, cls: CommandAny, default: T | None = None) -> CommandConfig | T | None:
         try:
-            return cls.__config  # type: ignore[union-attr]  # This attr is not overwritten for every subclass
+            return cls.__config  # This attr is not overwritten for every subclass
         except AttributeError:  # This means that the Command and all of its parents have no custom config
             return default
 
@@ -197,7 +199,7 @@ class CommandMeta(ABCMeta, type):
           ``include_abc``).
         """
         try:
-            first, parent = cls.__parents  # type: ignore[union-attr]  # Works for both Command objects and classes
+            first, parent = cls.__parents  # Works for both Command objects and classes
         except TypeError:
             pass
         else:
@@ -220,7 +222,7 @@ class CommandMeta(ABCMeta, type):
     def params(mcs, cls: CommandAny) -> CommandParameters:
         # Late initialization is necessary to allow late assignment of Parameters for now
         try:
-            params = cls.__params  # type: ignore[union-attr]
+            params = cls.__params
         except AttributeError:
             raise TypeError('CommandParameters are only available for Command subclasses') from None
 
@@ -245,7 +247,7 @@ class CommandMeta(ABCMeta, type):
 def _mro(cmd_or_cls: CommandAny) -> tuple[CommandMeta, list[type]]:
     # In the return value of type.mro(...), 0 is always the class itself, -1 is always object
     try:
-        return cmd_or_cls, type.mro(cmd_or_cls)[1:-1]  # type: ignore[arg-type,return-value]
+        return cmd_or_cls, type.mro(cmd_or_cls)[1:-1]  # type: ignore[return-value]
     except TypeError:  # a Command object was provided instead of a Command class
         cmd_cls: CommandMeta = cmd_or_cls.__class__  # type: ignore[assignment]
         return cmd_cls, type.mro(cmd_cls)[1:-1]

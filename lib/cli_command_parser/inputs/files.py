@@ -9,18 +9,28 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import IO, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, AnyStr, Literal, TypeVar, overload
 
 from ..typing import T
 from .base import InputType
 from .exceptions import InputValidationError
-from .utils import FileWrapper, InputParam, StatMode, allows_write, fix_windows_path
+from .utils import (
+    FileWrapper,
+    InputParam,
+    JsonSerializer,
+    SerializedFileWrapper,
+    StatMode,
+    allows_write,
+    fix_windows_path,
+)
 
 if TYPE_CHECKING:
     from ..typing import Bool, OptStr, PathLike
-    from ._typing import Converter
+    from ._typing import AnySerializer, OpenAnyMode, OpenBinaryMode, OpenTextMode
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
+
+T_co = TypeVar('T_co', covariant=True)
 
 
 class FileInput(InputType[T], ABC):
@@ -67,7 +77,7 @@ class FileInput(InputType[T], ABC):
         """
         if value is None or not self._fix_default:
             return value
-        return self(value)  # type: ignore[arg-type]
+        return self(value)
 
     def validated_path(self, path: PathLike) -> _Path:
         if not isinstance(path, _Path):
@@ -133,7 +143,7 @@ class Path(FileInput[_Path]):
         return self.validated_path(value)
 
 
-class File(FileInput[FileWrapper | str | bytes]):
+class File(FileInput[T_co]):
     """
     :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.
     :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
@@ -144,16 +154,118 @@ class File(FileInput[FileWrapper | str | bytes]):
     :param kwargs: Additional keyword arguments to pass to :class:`.Path`.
     """
 
-    mode: InputParam[str] = InputParam('r')
+    mode: InputParam[OpenAnyMode] = InputParam('r')
     type: InputParam[StatMode] = InputParam(StatMode.FILE)
     encoding: InputParam[str | None] = InputParam(None)
     errors: InputParam[str | None] = InputParam(None)
     lazy: InputParam[bool] = InputParam(True)
     parents: InputParam[bool] = InputParam(False)
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: File[FileWrapper[str]],
+            mode: OpenTextMode = 'r',
+            *,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[True] = True,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: File[FileWrapper[bytes]],
+            mode: OpenBinaryMode,
+            *,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[True] = True,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: File[str],
+            mode: OpenTextMode = 'r',
+            *,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[False],
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: File[bytes],
+            mode: OpenBinaryMode,
+            *,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[False],
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            mode: OpenAnyMode = 'r',
+            *,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Bool = True,
+            parents: Bool = False,
+        ): ...
+
     def __init__(
         self,
-        mode: str = 'r',
+        mode: OpenAnyMode = 'r',
         *,
         encoding: OptStr = None,
         errors: OptStr = None,
@@ -174,85 +286,255 @@ class File(FileInput[FileWrapper | str | bytes]):
         self.parents = parents
 
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
-        return FileWrapper(path, self.mode, self.encoding, self.errors, parents=self.parents)
+        return FileWrapper(path, self.mode, encoding=self.encoding, errors=self.errors, parents=self.parents)
 
-    def __call__(self, value: PathLike) -> FileWrapper | str | bytes:
+    def __call__(self, value: PathLike) -> T_co:
         wrapper = self._prep_file_wrapper(self.validated_path(value))
         if self.lazy:
-            return wrapper
+            return wrapper  # type: ignore[return-value]
         return wrapper.read()
 
 
-class Serialized(File):
+class Serialized(File[T_co]):
     """
-    :param converter: Function to use to (de)serialize the given file, such as :func:`python:json.loads`,
-      :func:`python:json.dumps`, :func:`python:pickle.load`, etc.
-    :param pass_file: For reading, if True, call the converter with the file object, otherwise read the
-      file first and call the converter with the result.  For writing, if True, call the converter with both the
-      data to be written and the file object, otherwise call the converter with only the data and then write the
-      result to the file.
+    :param serializer: Class or module that provides ``load``/``dump`` and/or ``loads``/``dumps`` methods/functions for
+      deserialization and serialization, respectively.  Expects them to follow the same interface as the *json* or
+      *pickle* modules, with :func:`python:json.loads`, :func:`python:json.dumps`, :func:`python:pickle.load`, etc.
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
 
-    converter: InputParam[Converter | None] = InputParam(None)
-    pass_file: InputParam[bool] = InputParam(False)
+    serializer: AnySerializer
 
-    def __init__(self, converter: Converter, *, pass_file: Bool = False, **kwargs):
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Serialized[SerializedFileWrapper[AnyStr]],
+            serializer: AnySerializer[AnyStr],
+            *,
+            mode: OpenAnyMode = 'r',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[True] = True,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Serialized[Any],
+            serializer: AnySerializer,
+            *,
+            mode: OpenAnyMode = 'r',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[False],
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            serializer: AnySerializer,
+            *,
+            mode: OpenAnyMode = 'r',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Bool = True,
+            parents: Bool = False,
+        ): ...
+
+    def __init__(self, serializer: AnySerializer, **kwargs):
         super().__init__(**kwargs)
-        self.converter = converter
-        self.pass_file = pass_file
+        self.serializer = serializer
 
     def __repr__(self) -> str:
-        non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items() if k != 'converter')
-        # `converter` must be excluded to prevent infinite recursion when an instance method is stored in that attr
+        non_defaults = ', '.join(f'{k}={v!r}' for k, v in self.__dict__.items() if k != 'serializer')
+        # `serializer` must be excluded to prevent infinite recursion when an instance method is stored in that attr
         return f'<{self.__class__.__name__}({non_defaults})>'
 
-    def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
-        return FileWrapper(path, self.mode, self.encoding, self.errors, self.converter, self.pass_file, self.parents)
+    def _prep_file_wrapper(self, path: _Path) -> SerializedFileWrapper[AnyStr]:
+        return SerializedFileWrapper(
+            path,
+            self.mode,
+            serializer=self.serializer,
+            encoding=self.encoding,
+            errors=self.errors,
+            parents=self.parents,
+        )
 
 
-class Json(Serialized):
+class Json(Serialized[T_co]):
     """
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
 
-    def __init__(self, *, mode: str = 'rb', wrap_errors: bool = True, **kwargs):
-        import json
+    if TYPE_CHECKING:
 
-        write = allows_write(mode, True)
-        kwargs['pass_file'] = True
-        super().__init__(json.dump if write else self._load_json, mode=mode, **kwargs)
-        self.wrap_errors = wrap_errors
+        @overload
+        def __init__(
+            self: Json[SerializedFileWrapper[str]],
+            *,
+            mode: OpenTextMode = 'r',
+            wrap_errors: Bool = True,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[True] = True,
+            parents: Bool = False,
+        ): ...
 
-    def _load_json(self, f: IO):
-        from json import JSONDecodeError, load
+        @overload
+        def __init__(
+            self: Json[Any],
+            *,
+            mode: OpenTextMode = 'r',
+            wrap_errors: Bool = True,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[False],
+            parents: Bool = False,
+        ): ...
 
-        try:
-            return load(f)
-        except JSONDecodeError as e:
-            if self.wrap_errors:
-                if name := getattr(f, 'name', None):
-                    msg = f'json from file={name!r} - are you sure it contains properly formatted json?'
-                else:
-                    msg = "the provided json content - are you sure it's properly formatted json?"
-                raise InputValidationError(f'Unable to load {msg} - error: {e}') from e
-            else:
-                raise
+        @overload
+        def __init__(
+            self,
+            *,
+            mode: OpenTextMode = 'r',
+            wrap_errors: Bool = True,
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Bool = True,
+            parents: Bool = False,
+        ): ...
+
+    def __init__(self, *, mode: OpenTextMode = 'r', wrap_errors: Bool = True, **kwargs):
+        super().__init__(JsonSerializer(wrap_errors), mode=mode, **kwargs)
 
 
-class Pickle(Serialized):
+class Pickle(Serialized[T_co]):
     """
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
 
-    def __init__(self, *, mode: str = 'rb', **kwargs):
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Pickle[SerializedFileWrapper[bytes]],
+            *,
+            mode: OpenBinaryMode = 'rb',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[True] = True,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Pickle[Any],
+            *,
+            mode: OpenBinaryMode = 'rb',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Literal[False],
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            mode: OpenBinaryMode = 'rb',
+            exists: Bool = None,
+            expand: Bool = True,
+            resolve: Bool = False,
+            type: StatMode | str = StatMode.FILE,  # noqa
+            readable: Bool = False,
+            writable: Bool = False,
+            allow_dash: Bool = False,
+            use_windows_fix: Bool = True,
+            fix_default: Bool = True,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            lazy: Bool = True,
+            parents: Bool = False,
+        ): ...
+
+    def __init__(self, *, mode: OpenBinaryMode = 'rb', **kwargs):
         import pickle
 
-        if 't' in mode:
-            raise ValueError(f'Invalid {mode=} - pickle does not read/write text')
-        if 'b' not in mode:
-            mode += 'b'
+        if 't' in mode or 'b' not in mode:
+            raise ValueError(f'Invalid {mode=} - pickle does not read/write text - it requires a binary open mode')
 
-        write = allows_write(mode, True)
-        kwargs['pass_file'] = True
-        super().__init__(pickle.dump if write else pickle.load, mode=mode, **kwargs)
+        super().__init__(pickle, mode=mode, **kwargs)

@@ -6,30 +6,41 @@ Utils for input types
 
 from __future__ import annotations
 
+import json
 import sys
 import warnings
 from contextlib import contextmanager
 from pathlib import Path
 from stat import S_IFBLK, S_IFCHR, S_IFDIR, S_IFIFO, S_IFLNK, S_IFMT, S_IFREG, S_IFSOCK
-from typing import IO, TYPE_CHECKING, Any, Generic, Iterator, Literal, TypeVar, overload
+from typing import IO, TYPE_CHECKING, Any, AnyStr, Generic, Iterator, Literal, TypeVar, overload
 from weakref import finalize
 
 from ..utils import FixedFlag
+from ._typing import FileSerializer
 from .exceptions import InputValidationError
 
 if TYPE_CHECKING:
     from ..typing import Bool, OptStr, Self
-    from ._typing import Converter, Number
+    from ._typing import AnySerializer, Number, OpenAnyMode, OpenBinaryMode, OpenTextMode, SupportsRead, SupportsRW
 
-__all__ = ['InputParam', 'StatMode', 'FileWrapper', 'fix_windows_path', 'range_str', 'RangeMixin']
+__all__ = [
+    'InputParam',
+    'StatMode',
+    'FileWrapper',
+    'SerializedFileWrapper',
+    'JsonSerializer',
+    'fix_windows_path',
+    'range_str',
+    'RangeMixin',
+]
 
-_T = TypeVar('_T')
+T = TypeVar('T')
 
 
-class InputParam(Generic[_T]):
+class InputParam(Generic[T]):
     __slots__ = ('default', 'name')
 
-    def __init__(self, default: _T):
+    def __init__(self, default: T):
         self.default = default
 
     def __set_name__(self, owner, name: str):
@@ -39,9 +50,9 @@ class InputParam(Generic[_T]):
     def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
 
     @overload
-    def __get__(self, instance: object, owner: Any) -> _T: ...
+    def __get__(self, instance: object, owner: Any) -> T: ...
 
-    def __get__(self, instance: object, owner: Any) -> Self | _T:
+    def __get__(self, instance: object, owner: Any) -> Self | T:
         try:
             return instance.__dict__[self.name]
         except AttributeError:  # instance is None
@@ -49,7 +60,7 @@ class InputParam(Generic[_T]):
         except KeyError:
             return self.default
 
-    def __set__(self, instance: object, value: _T):
+    def __set__(self, instance: object, value: T):
         if value != self.default:
             instance.__dict__[self.name] = value
 
@@ -103,15 +114,49 @@ class StatMode(FixedFlag):
         return ', '.join(names)
 
 
-class FileWrapper:
+class FileWrapper(Generic[AnyStr]):
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: FileWrapper[str],
+            path: Path,
+            mode: OpenTextMode = 'r',
+            *,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self: FileWrapper[bytes],
+            path: Path,
+            mode: OpenBinaryMode,
+            *,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            parents: Bool = False,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            path: Path,
+            mode: OpenAnyMode = 'r',
+            *,
+            encoding: OptStr = None,
+            errors: OptStr = None,
+            parents: Bool = False,
+        ): ...
+
     def __init__(
         self,
         path: Path,
-        mode: str = 'r',
+        mode: OpenAnyMode = 'r',
+        *,
         encoding: OptStr = None,
         errors: OptStr = None,
-        converter: Converter | None = None,
-        pass_file: Bool = False,
         parents: Bool = False,
     ):
         self.path = path
@@ -119,40 +164,29 @@ class FileWrapper:
         self.binary = 'b' in mode
         self.encoding = encoding
         self.errors = errors
-        self.converter = converter
-        self.pass_file = pass_file
         self.parents = parents
         self._fp: IO | None = None
         self._finalizer: finalize | None = None
 
     def __eq__(self, other) -> bool:
-        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'converter', 'pass_file', 'parents')
+        attrs = ('path', 'mode', 'binary', 'encoding', 'errors', 'parents')
         try:
             return all(getattr(self, a) == getattr(other, a) for a in attrs)
         except AttributeError:  # not a FileWrapper
             return NotImplemented
 
-    def read(self) -> Any:
-        with self._file() as f:
-            if self.converter is not None:
-                return self.converter(f if self.pass_file else f.read())  # type: ignore[call-arg]
-            else:
-                return f.read()
+    def read(self) -> AnyStr:
+        with self as f:
+            return f.read()
 
-    def write(self, data: Any):
-        with self._file() as f:
-            if self.converter is not None:
-                if self.pass_file:
-                    self.converter(data, f)  # type: ignore[call-arg]
-                else:
-                    f.write(self.converter(data))  # type: ignore[call-arg]
-            else:
-                f.write(data)
+    def write(self, data: AnyStr) -> None:
+        with self as f:
+            f.write(data)
 
-    def _open(self) -> IO:
+    def _open(self) -> SupportsRW[AnyStr]:
         if self.path == Path('-'):
             stream = sys.stdin if 'r' in self.mode else sys.stdout
-            return stream.buffer if self.binary else stream
+            return stream.buffer if self.binary else stream  # type: ignore[return-value]
 
         if self.parents and allows_write(self.mode):
             self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -187,20 +221,76 @@ class FileWrapper:
         if do_close:
             self._close()
 
+    def __enter__(self) -> SupportsRW[AnyStr]:
+        return self._open()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+
+class SerializedFileWrapper(FileWrapper[AnyStr]):
+    serializer: AnySerializer[AnyStr]
+
+    def __init__(
+        self,
+        path: Path,
+        mode: OpenAnyMode,
+        serializer: AnySerializer[AnyStr],
+        *,
+        encoding: OptStr = None,
+        errors: OptStr = None,
+        parents: Bool = False,
+    ):
+        super().__init__(path, mode, encoding=encoding, errors=errors, parents=parents)
+        self.serializer = serializer
+
+    def __eq__(self, other) -> bool:
+        attrs = ('__class__', 'path', 'mode', 'binary', 'encoding', 'errors', 'serializer', 'parents')
+        return all(getattr(self, a) == getattr(other, a) for a in attrs)
+
+    def __enter__(self) -> Self:  # type: ignore[override]
+        return self
+
     @contextmanager
-    def _file(self) -> Iterator[IO]:
+    def _file(self) -> Iterator[SupportsRW[AnyStr]]:
         try:
             yield self._open()
         finally:
             self.close()
 
-    def __enter__(self) -> IO | FileWrapper:
-        if self.converter is not None:
-            return self
-        return self._open()
+    def read(self) -> Any:
+        with self._file() as f:
+            if hasattr(self.serializer, 'load'):
+                return self.serializer.load(f)
+            return self.serializer.loads(f.read())
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+    def write(self, data: Any) -> None:
+        with self._file() as f:
+            if hasattr(self.serializer, 'dump'):
+                self.serializer.dump(data, f)
+            else:
+                f.write(self.serializer.dumps(data))
+
+
+class JsonSerializer(FileSerializer[str]):
+    __slots__ = ('wrap_errors',)
+    dump = staticmethod(json.dump)  # noqa
+
+    def __init__(self, wrap_errors: Bool = True):
+        self.wrap_errors = wrap_errors
+
+    def load(self, fp: SupportsRead[str]) -> Any:
+        if not self.wrap_errors:
+            return json.load(fp)
+
+        try:
+            return json.load(fp)
+        except json.JSONDecodeError as e:
+            if name := getattr(fp, 'name', None):
+                msg = f'json from file={name!r} - are you sure it contains properly formatted json?'
+            else:
+                msg = "the provided json content - are you sure it's properly formatted json?"
+            raise InputValidationError(f'Unable to load {msg} - error: {e}') from e
 
 
 def allows_write(mode: str, strict: bool = False) -> bool:

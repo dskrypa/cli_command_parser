@@ -6,14 +6,18 @@ from __future__ import annotations
 
 import sys
 from collections import ChainMap
-from typing import Callable, Iterator, Type, TypeVar
+from typing import TYPE_CHECKING, Callable, Iterator, Type, TypeVar
 
 from ..exceptions import CommandParserException
+
+if TYPE_CHECKING:
+    from ..typing import Self
 
 __all__ = ['ErrorHandler', 'error_handler', 'extended_error_handler', 'no_exit_handler', 'NullErrorHandler']
 
 E = TypeVar('E', bound=BaseException)
 HandlerFunc = Callable[[E], bool | int | None]
+HandlerDecorator = Callable[[HandlerFunc], HandlerFunc]
 
 
 class ErrorHandler:
@@ -38,16 +42,16 @@ class ErrorHandler:
             except KeyError:
                 pass
 
-    def __call__(self, *exceptions: Type[BaseException]):
-        def _handler(handler: HandlerFunc | staticmethod):
+    def __call__(self, *exceptions: Type[BaseException]) -> HandlerDecorator:
+        def _handler(handler: HandlerFunc) -> HandlerFunc:
             self.register(handler, *exceptions)
             return handler
 
         return _handler
 
     @classmethod
-    def cls_handler(cls, *exceptions: Type[E]):
-        def _cls_handler(handler: HandlerFunc | staticmethod):
+    def cls_handler(cls, *exceptions: Type[E]) -> HandlerDecorator:
+        def _cls_handler(handler: HandlerFunc) -> HandlerFunc:
             for exc in exceptions:
                 cls._exc_handler_map[exc] = Handler(exc, handler)
             return handler
@@ -66,7 +70,7 @@ class ErrorHandler:
         for candidate in candidates:
             yield candidate.handler
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, exc_type: Type[BaseException], exc_val: BaseException, exc_tb) -> bool:
@@ -90,7 +94,7 @@ class ErrorHandler:
 
 
 class NullErrorHandler:
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -110,9 +114,7 @@ class Handler:
         self.handler = handler
 
     def __eq__(self, other) -> bool:
-        if not isinstance(other, Handler):
-            return False
-        return other.exc_cls == self.exc_cls and other.handler == self.handler
+        return isinstance(other, Handler) and other.exc_cls == self.exc_cls and other.handler == self.handler
 
     def __lt__(self, other: Handler) -> bool:
         return issubclass(self.exc_cls, other.exc_cls)

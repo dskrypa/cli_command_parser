@@ -33,7 +33,7 @@ def handle_kb_interrupt(exc: KeyboardInterrupt) -> int:
 
 
 @extended_error_handler(OSError)
-def handle_win_os_pipe_error(exc: OSError):
+def handle_win_os_pipe_error(exc: OSError) -> bool:
     """
     This is a workaround for `[Windows] I/O on a broken pipe may raise an EINVAL OSError instead of BrokenPipeError
     <https://github.com/python/cpython/issues/79935>`_, which is a bug in the way that the

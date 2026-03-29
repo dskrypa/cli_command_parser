@@ -182,9 +182,7 @@ class ScriptVisitor(NodeVisitor):
         """
         log.debug(f'Attempting smart for loop visit for {loop_var=} in {ele_names=}')
         refs: list[AstArgumentParser] = [
-            ref  # type: ignore[misc]  # mypy doesn't seem to recognize the isinstance part of the condition
-            for name in ele_names
-            if (ref := self.scopes.get(name)) and isinstance(ref, AstArgumentParser)
+            ref for name in ele_names if (ref := self.scopes.get(name)) and isinstance(ref, AstArgumentParser)
         ]
         # log.debug(f'  > Found {len(refs)=}, {len(ele_names)=}')
 

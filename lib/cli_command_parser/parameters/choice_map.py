@@ -43,6 +43,7 @@ class Choice(Generic[T]):
 
     __slots__ = ('choice', 'target', 'help', 'local')
 
+    choice: OptStr
     target: T
 
     def __init__(self, choice: OptStr, target: T, help: OptStr = None, local: bool = False):  # noqa
@@ -142,14 +143,16 @@ class ChoiceMap(BasePositional[str, None], Generic[T], actions=(Concatenate,)):
         self._register_choice(choice, target, help)
 
     def _register_choice(self, choice: OptStr, target: T, help: OptStr = None, local: bool = False):  # noqa
-        try:
-            existing = self.choices[choice]
-        except KeyError:
-            self.choices[choice] = Choice(choice, target, help, local)
-            self._update_nargs()
-        else:
-            prefix = 'Invalid default' if choice is None else f'Invalid {choice=} for'
-            raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
+        if existing := self.choices.get(choice):
+            self._handle_duplicate_choice(choice, target, existing)
+
+        self.choices[choice] = Choice(choice, target, help, local)
+        self._update_nargs()
+
+    @classmethod
+    def _handle_duplicate_choice(cls, choice: OptStr, target: T, existing: Choice):
+        prefix = 'Invalid default' if choice is None else f'Invalid {choice=} for'
+        raise CommandDefinitionError(f'{prefix} {target=} - already assigned to {existing}')
 
     def _no_choices_error(self) -> NoReturn:
         raise CommandDefinitionError(f'No choices were registered for {self}')
@@ -260,17 +263,19 @@ class SubCommand(ChoiceMap[CommandCls | None], title='Subcommands', choice_valid
             if meta.description and (not meta.parent or meta.parent.description != meta.description):
                 help = meta.description  # noqa
 
-        try:
-            self.register_choice(choice, command, help)
-        except CommandDefinitionError:
-            from ..core import get_parent
-
-            parent = get_parent(command)
-            msg = f'Invalid {choice=} for {command} with {parent=} - already assigned to {self.choices[choice].target}'
-            raise CommandDefinitionError(msg) from None
+        self.register_choice(choice, command, help)
 
         command._is_subcommand_ = True  # This is used indirectly by ``main()`` to filter out non-top-level Commands
         return command
+
+    @classmethod
+    def _handle_duplicate_choice(cls, choice: OptStr, command: CommandCls, existing: Choice):  # type: ignore[override]
+        from ..core import get_parent
+
+        parent = get_parent(command)
+        raise CommandDefinitionError(
+            f'Invalid {choice=} for {command} with {parent=} - already assigned to {existing.target}'
+        )
 
     def register(
         self,

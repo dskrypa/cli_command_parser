@@ -301,7 +301,7 @@ class RedirectStreams(AbstractContextManager):
     def __enter__(self) -> RedirectStreams:
         streams: dict[str, IO] = {'stdout': self._stdout, 'stderr': self._stderr}
         if self._stdin is not None:
-            streams['stdin'] = self._stdin  # type: ignore[assignment]
+            streams['stdin'] = self._stdin
 
         for name, io in streams.items():
             self._old[name] = getattr(sys, name)
