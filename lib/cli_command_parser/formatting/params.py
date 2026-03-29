@@ -123,7 +123,7 @@ class ParameterHelpFormatter(ParamHelpFormatter[ParamP], param_cls=Parameter):
         config = ctx.config
         if (t := param.type) is not None:
             try:
-                metavar = t.format_metavar(  # type: ignore[union-attr,attr-defined]
+                metavar = t.format_metavar(  # type: ignore[union-attr]
                     config.choice_delim, config.sort_choices
                 )
             except Exception:  # noqa  # pylint: disable=W0703
@@ -134,7 +134,7 @@ class ParameterHelpFormatter(ParamHelpFormatter[ParamP], param_cls=Parameter):
 
         if config.use_type_metavar and t is not None:
             try:
-                name = t.__name__  # type: ignore[union-attr,attr-defined]
+                name = t.__name__  # type: ignore[union-attr]
             except AttributeError:
                 pass
             else:

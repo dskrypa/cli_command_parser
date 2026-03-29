@@ -205,7 +205,7 @@ class NumRange(RangeMixin, _RangeInput[N]):
             return num_val
 
 
-class Bytes(NumericInput[int | float]):  # type: ignore[type-var]
+class Bytes(NumericInput[int | float]):
     """
     A byte count/size.
 

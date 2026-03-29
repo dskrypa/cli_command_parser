@@ -64,8 +64,8 @@ class _ChoicesBase(InputType[T], ABC):
         yield value
         if not self.case_sensitive and (choices is None or isinstance(choices, (set, Mapping))):
             # Choices validates that all members of `choices` are strings when not case_sensitive
-            yield value.lower()  # type: ignore[misc,union-attr]
-            yield value.upper()  # type: ignore[misc,union-attr]
+            yield value.lower()
+            yield value.upper()
 
     def _case_insensitive_map_choice(self, value: Any) -> T:
         if not self.case_sensitive:
@@ -114,22 +114,22 @@ class Choices(_ChoicesBase[T]):
 
     def _choices_repr(self, delim: str = ',') -> str:
         try:
-            return delim.join(map(repr, sorted(self.choices)))  # type: ignore[type-var]
+            return delim.join(map(repr, sorted(self.choices)))
         except TypeError:  # The choice values are not sortable
             return delim.join(sorted(map(repr, self.choices)))
 
     def __call__(self, value: str) -> T:
         choices = self.choices
-        value = self._normalize(value)  # type: ignore[assignment]
+        value = self._normalize(value)
         for val in self._iter_normalized(value, choices):
             if val in choices:
-                return value  # type: ignore[return-value]
+                return value
 
         if not self.case_sensitive:
             # choices/value are confirmed to be str in init when case_sensitive=False
-            norm_value = value.casefold()  # type: ignore[attr-defined]
+            norm_value = value.casefold()
             for choice in choices:
-                if norm_value == choice.casefold():  # type: ignore[attr-defined]
+                if norm_value == choice.casefold():
                     return choice
 
         raise InvalidChoiceError(value, choices)
@@ -155,7 +155,7 @@ class ChoiceMap(Choices[T]):
         # TODO: Alternate ChoiceMap where values are used as help text, similar to SubCommand with local_choices
 
     def __call__(self, value: str) -> T:
-        value = self._normalize(value)  # type: ignore[assignment]
+        value = self._normalize(value)
         for val in self._iter_normalized(value):
             try:
                 return self.choices[val]
