@@ -15,7 +15,7 @@ from cli_command_parser import Command, Option, Positional
 from cli_command_parser.exceptions import BadArgument
 from cli_command_parser.inputs import File, Json, Path as PathInput, Pickle, Serialized, StatMode
 from cli_command_parser.inputs.exceptions import InputValidationError
-from cli_command_parser.inputs.utils import FileWrapper, InputParam, fix_windows_path
+from cli_command_parser.inputs.utils import FileWrapper, InputParam, SerializedFileWrapper, fix_windows_path
 from cli_command_parser.testing import ParserTest, RedirectStreams
 
 PKG = 'cli_command_parser.inputs'
@@ -55,7 +55,7 @@ def fn_mock(return_value) -> Mock:
 # endregion
 
 
-class FileInputTest(TestCase):
+class FileInputTest(ParserTest):
     # region Stat Mode
 
     def test_invalid_stat_modes(self):
@@ -177,10 +177,11 @@ class FileInputTest(TestCase):
             with self.subTest(case=case), self.assertRaises(ValueError):
                 Pickle(mode=case)
 
-    def test_pickle_b_added(self):
-        self.assertEqual('rb', Pickle(mode='r').mode)
-        self.assertEqual('r+b', Pickle(mode='r+').mode)
-        self.assertEqual('wb', Pickle(mode='w').mode)
+    def test_pickle_no_b_rejected(self):
+        for mode in ('r', 'r+', 'w'):
+            with self.subTest(mode=mode):
+                with self.assert_raises_contains_str(ValueError, 'it requires a binary open mode'):
+                    Pickle(mode=mode)
 
     # endregion
 
@@ -336,7 +337,7 @@ class WriteFileTest(TestCase):
 
     def test_serialized_json_write_with(self):
         with temp_path('a') as a:
-            with Serialized(json.dumps, mode='w')(a.as_posix()) as j:
+            with Serialized(json, mode='w')(a.as_posix()) as j:
                 j.write({'a': 1})
             self.assertEqual('{"a": 1}', a.read_text())
 
@@ -351,12 +352,13 @@ class ReadFileTest(ParserTest):
     def test_serialized_pickle_read(self):
         with temp_path('a') as a:
             a.write_bytes(pickle.dumps({'a': 1}))
-            self.assertEqual({'a': 1}, Serialized(pickle.loads, mode='rb', lazy=False)(a.as_posix()))
+            self.assertEqual({'a': 1}, Serialized(pickle, mode='rb', lazy=False)(a.as_posix()))
 
     def test_serialized_pickle_read_with(self):
         with temp_path('a') as a:
             a.write_bytes(pickle.dumps({'a': 1}))
-            with Serialized(pickle.loads, mode='rb')(a.as_posix()) as f:
+            with Serialized(pickle, mode='rb')(a.as_posix()) as f:
+                self.assertIsInstance(f, SerializedFileWrapper)
                 self.assertEqual({'a': 1}, f.read())
 
     def test_pickle_read(self):
