@@ -10,13 +10,17 @@ those are automatically generated based on the name assigned to the attribute.
 
 .. _hello_example:
 
-Here's a basic example of a program that uses CLI Command Parser::
+Here's a basic example of a program that uses CLI Command Parser:
+
+.. code-block:: python
 
     from cli_command_parser import Command, Option, main
 
-    class Hello(Command, description='Simple greeting example'):
+    class Hello(Command):
+        """Simple greeting example"""
+
         name = Option('-n', default='World', help='The person to say hello to')
-        count: int = Option('-c', default=1, help='Number of times to repeat the message')
+        count = Option('-c', type=int, default=1, help='Number of times to repeat the message')
 
         def main(self):
             for _ in range(self.count):
@@ -26,7 +30,9 @@ Here's a basic example of a program that uses CLI Command Parser::
         main()
 
 
-After saving the example above as ``hello_world.py``, we can run it with multiple variations of arguments::
+After saving the example above as ``hello_world.py``, we can run it with multiple variations of arguments:
+
+.. code-block:: shell-session
 
     $ hello_world.py
     Hello World!
@@ -107,15 +113,18 @@ More advanced programs may contain multiple Commands, and more complex entry poi
 Help Text
 =========
 
-Using the Hello World example again, we can see the automatically generated help text::
+Using the Hello World example again, we can see the automatically generated help text:
+
+.. code-block:: shell-session
 
     $ hello_world.py -h
-    usage: hello_world.py [--name NAME] [--help]
+    usage: hello_world.py [--name NAME] [--count COUNT] [--help]
 
     Simple greeting example
 
     Optional arguments:
       --name NAME, -n NAME        The person to say hello to (default: 'World')
+      --count COUNT, -c COUNT     Number of times to repeat the message (default: 1)
       --help, -h                  Show this help message and exit
 
 

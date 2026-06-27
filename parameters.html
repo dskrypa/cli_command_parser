@@ -894,13 +894,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1016,8 +1010,9 @@ say, argparse) to differentiate between parameter types.  The two major categori
 but there are <a class="reference internal" href="#others">Others</a> as well.  The base class for all Parameters is extensible, and user-defined
 <code class="xref py py-class docutils literal notranslate"><span class="pre">Parameter</span></code> types are technically possible as well.</p>
 <p>Many parameters support a <code class="docutils literal notranslate"><span class="pre">type</span></code> argument, which will result in the user-provided value being cast to that type before
-being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
-type will be inferred automatically from any type annotations (see <span class="target" id="index-0"></span><a class="pep reference external" href="https://peps.python.org/pep-0484/"><strong>PEP 484</strong></a>) that are present.</p>
+being stored.  The default type is string (i.e., no type cast occurs).  Most type checkers (mypy, your IDE, etc.) should
+understand the value type to match the specified <code class="docutils literal notranslate"><span class="pre">type</span></code> in code that accesses a given parameter without needing to
+explicitly annotate it.</p>
 <p class="rubric" id="common-init-params">Common Initialization Parameters</p>
 <p>All parameters that can be specified when initializing Parameters should be passed as keyword arguments unless
 otherwise stated.</p>
@@ -1099,9 +1094,14 @@ even number of arguments, such as <code class="docutils literal notranslate"><sp
 <dd class="field-even"><p>A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
 argument values.  It will be used before evaluating whether the value is in <code class="docutils literal notranslate"><span class="pre">choices</span></code>, if specified.  If <code class="docutils literal notranslate"><span class="pre">nargs</span></code>
 accepts multiple values, then this will be called on each value individually before appending it to the list of
-values.  By default, no transformation is performed, and values will be strings.  If not specified, but a type
-annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
-argument takes precedence.</p>
+values.  By default, no transformation is performed, and values will be strings.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Type inference from annotations is deprecated</p>
+<p>In the past, the use of invalid type annotations for parameters was fully supported as an alternative to passing
+an explicit <code class="docutils literal notranslate"><span class="pre">type=...</span></code> argument.  This is now deprecated, and it will be removed in a future (TBD) version.
+See <a class="reference internal" href="configuration.html#parameter options:allow_annotation_type"><span class="std std-ref">allow_annotation_type</span></a> for more info.</p>
+</div>
 </dd>
 <dt class="field-odd" id="parameters:strict_default">strict_default<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Whether default values should be processed as if provided via CLI (this happens when
@@ -1643,9 +1643,9 @@ allowed when <code class="docutils literal notranslate"><span class="pre">before
 </dl>
 <p>Example command:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Build</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
-    <span class="n">build_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target build directory&#39;</span><span class="p">)</span>
-    <span class="n">install_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target install directory&#39;</span><span class="p">)</span>
-    <span class="n">backup_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory in which backups should be stored&#39;</span><span class="p">)</span>
+    <span class="n">build_dir</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target build directory&#39;</span><span class="p">)</span>
+    <span class="n">install_dir</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The target install directory&#39;</span><span class="p">)</span>
+    <span class="n">backup_dir</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Directory in which backups should be stored&#39;</span><span class="p">)</span>
 
     <span class="nd">@before_main</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Backup the install directory before building&#39;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">backup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -894,13 +894,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1118,7 +1112,7 @@ we can see an example of two levels of subcommands, and another way that we can 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Find</span><span class="p">(</span><span class="n">ApiWrapper</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Find objects&#39;</span><span class="p">):</span>
     <span class="n">sub_cmd</span> <span class="o">=</span> <span class="n">SubCommand</span><span class="p">(</span><span class="n">help</span><span class="o">=</span><span class="s1">&#39;What to find&#39;</span><span class="p">)</span>
-    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of results to show&#39;</span><span class="p">)</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-L&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The number of results to show&#39;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_objects</span><span class="p">():</span>

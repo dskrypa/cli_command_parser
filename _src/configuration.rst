@@ -57,6 +57,30 @@ Parameter Options
   ``type`` argument takes precedence.  When disabled, type annotations will not be inspected.  If no ``type`` is
   specified, then the default type (usually ``str``) for that Parameter will be used.
 
+.. warning:: Type inference from annotations is deprecated
+
+    In a future (TBD) version, this setting will change so that it defaults to False and/or a DeprecationWarning will
+    be raised.  In a later version, support for inferring the type from annotations will be removed completely.
+
+    Using an annotation like the following is not actually valid::
+
+        count: int = Option('-c', default=1, help='Number of times to repeat the message')  # INVALID
+
+    Some type checkers will allow it, but it is not technically accurate, and it is not supported by mypy.  The more
+    accurate way to annotate the above example would be::
+
+        count: Option[int] = Option('-c', default=1, help='Number of times to repeat the message')  # INVALID
+
+    But that still would not be accurate without also passing ``type=int`` to Option.
+
+    The recommended approach is now the following::
+
+        count = Option('-c', type=int, default=1, help='Number of times to repeat the message')  # CORRECT
+
+    Changes were made to all Parameter subclasses so that they are now annotated in a way that type checkers can
+    correctly understand the value type when parameter attributes are accessed, without needing an explicit annotation
+    for the parameter attribute itself.
+
 
 ActionFlag Options
 ------------------

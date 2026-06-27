@@ -894,13 +894,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1017,11 +1011,13 @@ to be called after arguments are parsed.</p>
 specify a <code class="docutils literal notranslate"><span class="pre">'--long-option-name'</span></code> string for options, flags, and other similar parameters (but you can!) - by default,
 those are automatically generated based on the name assigned to the attribute.</p>
 <p id="hello-example">Here’s a basic example of a program that uses CLI Command Parser:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cli_command_parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span><span class="p">,</span> <span class="n">Option</span><span class="p">,</span> <span class="n">main</span>
 
-<span class="k">class</span><span class="w"> </span><span class="nc">Hello</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Hello</span><span class="p">(</span><span class="n">Command</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple greeting example&quot;&quot;&quot;</span>
+
     <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
-    <span class="n">count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Number of times to repeat the message&#39;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span><span class="p">):</span>
@@ -1032,14 +1028,14 @@ those are automatically generated based on the name assigned to the attribute.</
 </pre></div>
 </div>
 <p>After saving the example above as <code class="docutils literal notranslate"><span class="pre">hello_world.py</span></code>, we can run it with multiple variations of arguments:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ hello_world.py
-Hello World!
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hello_world.py
+<span class="go">Hello World!</span>
 
-$ hello_world.py -n John
-Hello John!
+<span class="gp">$ </span>hello_world.py<span class="w"> </span>-n<span class="w"> </span>John
+<span class="go">Hello John!</span>
 
-$ hello_world.py --name John
-Hello John!
+<span class="gp">$ </span>hello_world.py<span class="w"> </span>--name<span class="w"> </span>John
+<span class="go">Hello John!</span>
 </pre></div>
 </div>
 <p>That example used the <code class="docutils literal notranslate"><span class="pre">main()</span></code> function imported from <code class="docutils literal notranslate"><span class="pre">cli_command_parser</span></code> to automatically find the command that
@@ -1102,14 +1098,15 @@ of strings as the first argument to parse arguments from that instead.</p>
 <section id="help-text">
 <h2>Help Text<a class="headerlink" href="#help-text" title="Link to this heading"></a></h2>
 <p>Using the Hello World example again, we can see the automatically generated help text:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ hello_world.py -h
-usage: hello_world.py [--name NAME] [--help]
+<div class="highlight-shell-session notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>hello_world.py<span class="w"> </span>-h
+<span class="go">usage: hello_world.py [--name NAME] [--count COUNT] [--help]</span>
 
-Simple greeting example
+<span class="go">Simple greeting example</span>
 
-Optional arguments:
-  --name NAME, -n NAME        The person to say hello to (default: &#39;World&#39;)
-  --help, -h                  Show this help message and exit
+<span class="go">Optional arguments:</span>
+<span class="go">  --name NAME, -n NAME        The person to say hello to (default: &#39;World&#39;)</span>
+<span class="go">  --count COUNT, -c COUNT     Number of times to repeat the message (default: 1)</span>
+<span class="go">  --help, -h                  Show this help message and exit</span>
 </pre></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">--help</span></code> / <code class="docutils literal notranslate"><span class="pre">-h</span></code> option is automatically added to the command, and usage / help text is automatically generated

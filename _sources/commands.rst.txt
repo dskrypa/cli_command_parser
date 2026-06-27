@@ -4,7 +4,7 @@ Commands
 Commands provide a way to organize CLI applications in an intuitively object-oriented way.
 
 Having parameters defined as attributes in the class results in a better developer experience when writing code that
-references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
+references those attributes in an IDE.  You can take advantage of type detection and variable name completion.
 Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
 references to ``args.foo`` to be updated, for example.  Further, there's no need to keep function signatures up to date
 with parameters defined in decorators.
@@ -24,11 +24,9 @@ while other :ref:`configuration:Configuration Options` exist to control error ha
 
 :gh_examples:`Example command <hello_world.py>` that uses some of those options::
 
-    class HelloWorld(
-        Command,
-        description='Simple greeting example',
-        epilog='Contact <example@fake.org> with any issues'
-    ):
+    class HelloWorld(Command, epilog='Contact <example@fake.org> with any issues'):
+        """Simple greeting example"""
+
         name = Option('-n', default='World', help='The person to say hello to')
 
         def main(self):

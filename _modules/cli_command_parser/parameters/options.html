@@ -891,13 +891,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1020,9 +1014,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span><span class="p">,</span> <span class="n">update_wrapper</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Type</span><span class="p">,</span> <span class="n">overload</span>
 
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Never</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>  <span class="c1"># Added in 3.11</span>
+    <span class="n">Never</span> <span class="o">=</span> <span class="n">NoReturn</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">..exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BadArgument</span><span class="p">,</span> <span class="n">CommandDefinitionError</span><span class="p">,</span> <span class="n">ParameterDefinitionError</span><span class="p">,</span> <span class="n">ParamUsageError</span><span class="p">,</span> <span class="n">ParserExit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inputs</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_input_type</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span><span class="p">,</span> <span class="n">NargsValue</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">B</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">,</span> <span class="n">str_to_bool</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendConst</span><span class="p">,</span> <span class="n">Count</span><span class="p">,</span> <span class="n">Store</span><span class="p">,</span> <span class="n">StoreConst</span>
@@ -1032,6 +1031,7 @@
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..commands</span><span class="w"> </span><span class="kn">import</span> <span class="n">Command</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..config</span><span class="w"> </span><span class="kn">import</span> <span class="n">OptionNameMode</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">NargsMultiple</span><span class="p">,</span> <span class="n">NargsSingle</span><span class="p">,</span> <span class="n">NargsValue</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">OptStr</span><span class="p">,</span> <span class="n">OptStrs</span><span class="p">,</span> <span class="n">TypeFunc</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandMethod</span><span class="p">,</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">LeadingDash</span>
 
@@ -1093,33 +1093,111 @@
 
         <span class="nd">@overload</span>
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">],</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">Never</span><span class="p">],</span>
             <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
             <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
             <span class="n">default_cb</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="n">OptAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-            <span class="n">allow_leading_dash</span><span class="p">:</span> <span class="n">LeadingDash</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsSingle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">Never</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsMultiple</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsSingle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">):</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">D</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsSingle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">],</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsSingle</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">]],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsMultiple</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">D</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">D</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsMultiple</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">:</span> <span class="n">Option</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">D</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
+            <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
+            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">],</span>
+            <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsMultiple</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">):</span> <span class="o">...</span>
+
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
             <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
             <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
@@ -1227,7 +1305,7 @@
 
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
     <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">__default_const_map</span> <span class="o">=</span> <span class="p">{</span><span class="kc">True</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="n">_NotSet</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
     <span class="n">default</span><span class="p">:</span> <span class="n">B</span>
@@ -1398,7 +1476,7 @@
 
     <span class="n">nargs</span> <span class="o">=</span> <span class="n">Nargs</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="c1"># Without staticmethod, this would be interpreted as a normal method</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">TypeFunc</span><span class="p">[</span><span class="n">B</span><span class="p">]</span> <span class="o">=</span> <span class="nb">staticmethod</span><span class="p">(</span><span class="n">str_to_bool</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
     <span class="n">use_env_value</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">_default_cb_ok</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">_opt_str_cls</span> <span class="o">=</span> <span class="n">TriFlagOptionStrings</span>

@@ -891,13 +891,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1032,7 +1026,7 @@
 <span class="n">_Pat</span> <span class="o">=</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Pattern</span>
 <span class="n">GroupsResult</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 <span class="n">DictResult</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
-<span class="n">RegexResult</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;RegexResult&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Match</span><span class="p">,</span> <span class="n">GroupsResult</span><span class="p">,</span> <span class="n">DictResult</span><span class="p">)</span>
+<span class="n">RegexResult</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;RegexResult&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">GroupsResult</span><span class="p">,</span> <span class="n">DictResult</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="PatternInput">
@@ -1129,46 +1123,23 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
             <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span>
-            <span class="n">group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
-            <span class="n">groups</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">GROUP</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;group&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">GROUP</span><span class="p">,</span> <span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">STRING</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">):</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="n">GroupsResult</span><span class="p">],</span>
             <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span>
-            <span class="n">group</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">groups</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">],</span>
+            <span class="n">groups</span><span class="p">:</span> <span class="n">Collection</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">GROUPS</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="p">):</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
-        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span>
-            <span class="n">group</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">groups</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;string&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">STRING</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="p">):</span> <span class="o">...</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="n">Match</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">MATCH</span><span class="p">]):</span> <span class="o">...</span>
 
         <span class="nd">@overload</span>
-        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="n">Match</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span>
-            <span class="n">group</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">groups</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">MATCH</span><span class="p">],</span>
-        <span class="p">):</span> <span class="o">...</span>
-
-        <span class="nd">@overload</span>
-        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="n">DictResult</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span>
-            <span class="n">group</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">groups</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;dict&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">DICT</span><span class="p">],</span>
-        <span class="p">):</span> <span class="o">...</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">:</span> <span class="n">Regex</span><span class="p">[</span><span class="n">DictResult</span><span class="p">],</span> <span class="o">*</span><span class="n">patterns</span><span class="p">:</span> <span class="n">_Pat</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;dict&#39;</span><span class="p">,</span> <span class="n">RegexMode</span><span class="o">.</span><span class="n">DICT</span><span class="p">]):</span> <span class="o">...</span>
 
     <span class="c1"># endregion</span>
 

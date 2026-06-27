@@ -70,7 +70,7 @@ raised.  The ``tasks`` and ``verbose`` parameters are not in the group::
         tasks = Positional(nargs='+', help='The tasks to run')
 
         with ParamGroup('Wait Options', mutually_exclusive=True):
-            wait: int = Option('-w', default=1, help='Seconds to wait (0 or below to wait indefinitely)')
+            wait = Option('-w', type=int, default=1, help='Seconds to wait (0 or below to wait indefinitely)')
             no_wait = Flag('-W', help='Do not wait')
 
         verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
@@ -87,7 +87,7 @@ following :gh_examples:`example <rest_api_wrapper.py>` snippet::
     class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
         with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
             foo = Option('-f', metavar='NAME', help='Find baz objects related to the foo object with the specified name')
-            bar: int = Option('-b', metavar='ID', help='Find baz objects related to the bar object with the specified ID')
+            bar = Option('-b', type=int, metavar='ID', help='Find baz objects related to the bar object with the specified ID')
 
         def find_objects(self):
             if self.foo:

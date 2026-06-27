@@ -894,13 +894,7 @@
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.testing.html#cli_command_parser.testing.TemporaryDir"><code class="docutils literal notranslate"><span class="pre">TemporaryDir</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc"><code class="docutils literal notranslate"><span class="pre">TypeFunc</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.typing.html#cli_command_parser.typing.TypeFunc.__call__"><code class="docutils literal notranslate"><span class="pre">TypeFunc.__call__()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.typing.html">Typing Module</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/cli_command_parser.utils.html">Utils Module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.camel_to_snake_case"><code class="docutils literal notranslate"><span class="pre">camel_to_snake_case()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/cli_command_parser.utils.html#cli_command_parser.utils.short_repr"><code class="docutils literal notranslate"><span class="pre">short_repr()</span></code></a></li>
@@ -1013,7 +1007,7 @@
 <h1>Commands<a class="headerlink" href="#commands" title="Link to this heading"></a></h1>
 <p>Commands provide a way to organize CLI applications in an intuitively object-oriented way.</p>
 <p>Having parameters defined as attributes in the class results in a better developer experience when writing code that
-references those attributes in an IDE.  You can take advantage of type annotations and variable name completion.
+references those attributes in an IDE.  You can take advantage of type detection and variable name completion.
 Changing the name of a parameter can take advantage of builtin renaming tools, instead of needing to hunt for
 references to <code class="docutils literal notranslate"><span class="pre">args.foo</span></code> to be updated, for example.  Further, there’s no need to keep function signatures up to date
 with parameters defined in decorators.</p>
@@ -1026,11 +1020,9 @@ common parameters, methods, and initialization steps with minimal extra work or 
 these options provide a way to include additional <a class="reference internal" href="configuration.html#command-metadata"><span class="std std-ref">Command Metadata</span></a> in help text / documentation,
 while other <a class="reference internal" href="configuration.html#configuration-options"><span class="std std-ref">Configuration Options</span></a> exist to control error handling and parsing / formatting.</p>
 <p><a class="extlink-gh_examples reference external" href="https://github.com/dskrypa/cli_command_parser/blob/main/examples/hello_world.py">Example command</a> that uses some of those options:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HelloWorld</span><span class="p">(</span>
-    <span class="n">Command</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Simple greeting example&#39;</span><span class="p">,</span>
-    <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span>
-<span class="p">):</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HelloWorld</span><span class="p">(</span><span class="n">Command</span><span class="p">,</span> <span class="n">epilog</span><span class="o">=</span><span class="s1">&#39;Contact &lt;example@fake.org&gt; with any issues&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Simple greeting example&quot;&quot;&quot;</span>
+
     <span class="n">name</span> <span class="o">=</span> <span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;World&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;The person to say hello to&#39;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
