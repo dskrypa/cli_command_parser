@@ -20,7 +20,7 @@ except ImportError:  # added in 3.11
 try:
     from wcwidth import wcwidth  # type: ignore[import-untyped]
 except ImportError:
-    wcwidth = len
+    wcwidth = len  # type: ignore[assignment]
 
 if TYPE_CHECKING:
     from .typing import Self

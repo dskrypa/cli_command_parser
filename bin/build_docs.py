@@ -32,7 +32,7 @@ class BuildDocs(Command, description='Build documentation using Sphinx'):
     verbose = Counter('-v', help='Increase logging verbosity (can specify multiple times)')
     dry_run = Flag('-D', help='Print the actions that would be taken instead of taking them')
 
-    def _init_command_(self):
+    def _init_command_(self) -> None:
         self.title = __description__
         self.package = __title__
         self.package_path = PROJECT_ROOT.joinpath('lib', self.package)

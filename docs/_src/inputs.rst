@@ -80,7 +80,7 @@ Using another snippet from the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
         in_file = Option('-f', type=File(allow_dash=True, lazy=False), help='The path to a file to read')
-        out_file: FileWrapper = Option('-o', type=File(allow_dash=True, mode='w'), help='The path to a file to write')
+        out_file = Option('-o', type=File(allow_dash=True, mode='w'), help='The path to a file to write')
 
         def main(self):
             if self.in_file:
@@ -118,7 +118,7 @@ In addition to plain text or binary files, custom input handlers also exist for 
 and a generic handler (:class:`.Serialized`) exists for any other serialization format.  They all extend
 :ref:`inputs:File`, so the same options are accepted.
 
-.. version-changed:: 2026-04-TBD
+.. version-changed:: 2026-06-27
 
     A breaking change was made to the generic :class:`.Serialized` class to remove support for a single ``converter``
     callable that handled either serialization xor deserialization.  Instead, it now requires a ``serializer`` that
@@ -145,7 +145,7 @@ and a generic handler (:class:`.Serialized`) exists for any other serialization 
 Adding another snippet to the above :gh_examples:`example <custom_inputs.py>`::
 
     class InputsExample(Command):
-        json: FileWrapper = Option('-j', type=Json(allow_dash=True), help='The path to a file containing json')
+        json = Option('-j', type=Json(allow_dash=True), help='The path to a file containing json')
 
         def main(self):
             if self.json:

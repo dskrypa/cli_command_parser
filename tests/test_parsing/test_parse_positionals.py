@@ -167,6 +167,38 @@ class NargsParsingTest(ParserTest):
         self.assert_parse_results_cases(Foo, success_cases)
         self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
 
+    def test_positional_nargs_question_default(self):
+        class Foo(Command):
+            foo = Positional(nargs='?', default='bar')
+
+        cases = [([], {'foo': 'bar'}), (['baz'], {'foo': 'baz'})]
+        self.assert_parse_results_cases(Foo, cases)
+
+    def test_positional_nargs_question_no_default(self):
+        class Foo(Command):
+            foo = Positional(nargs='?')
+
+        cases = [([], {'foo': None}), (['baz'], {'foo': 'baz'})]
+        self.assert_parse_results_cases(Foo, cases)
+
+    def test_positional_nargs_star_default(self):
+        class Foo(Command):
+            foo = Positional(nargs='*', default='bar')
+
+        cases = [
+            ([], {'foo': ['bar']}),
+            # (['baz'], {'foo': ['baz']}),  # TODO: This is what it probably *should* be
+            (['baz'], {'foo': ['bar', 'baz']}),
+        ]
+        self.assert_parse_results_cases(Foo, cases)
+
+    def test_positional_nargs_star_no_default(self):
+        class Foo(Command):
+            foo = Positional(nargs='*')
+
+        cases = [([], {'foo': []}), (['baz'], {'foo': ['baz']}), (['bar', 'baz'], {'foo': ['bar', 'baz']})]
+        self.assert_parse_results_cases(Foo, cases)
+
 
 class NargsParsingBacktrackTest(ParserTest):
     """

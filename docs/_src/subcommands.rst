@@ -107,7 +107,7 @@ we can see an example of two levels of subcommands, and another way that we can 
 
     class Find(ApiWrapper, help='Find objects'):
         sub_cmd = SubCommand(help='What to find')
-        limit: int = Option('-L', default=10, help='The number of results to show')
+        limit = Option('-L', type=int, default=10, help='The number of results to show')
 
         def main(self):
             for obj in self.find_objects():

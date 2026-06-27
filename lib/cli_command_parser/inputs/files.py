@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 from abc import ABC
 from pathlib import Path as _Path
-from typing import TYPE_CHECKING, Any, AnyStr, Literal, TypeVar, overload
+from typing import TYPE_CHECKING, Any, AnyStr, Literal, overload
 
 from ..typing import T
 from .base import InputType
@@ -29,8 +29,6 @@ if TYPE_CHECKING:
     from ._typing import AnySerializer, OpenAnyMode, OpenBinaryMode, OpenTextMode
 
 __all__ = ['Path', 'File', 'Serialized', 'Json', 'Pickle']
-
-T_co = TypeVar('T_co', covariant=True)
 
 
 class FileInput(InputType[T], ABC):
@@ -143,7 +141,7 @@ class Path(FileInput[_Path]):
         return self.validated_path(value)
 
 
-class File(FileInput[T_co]):
+class File(FileInput[T]):
     """
     :param mode: The mode in which the file should be opened.  For more info, see :func:`python:open`.
     :param encoding: The encoding to use when reading the file in text mode.  Ignored if the parsed path is ``-``.
@@ -288,14 +286,14 @@ class File(FileInput[T_co]):
     def _prep_file_wrapper(self, path: _Path) -> FileWrapper:
         return FileWrapper(path, self.mode, encoding=self.encoding, errors=self.errors, parents=self.parents)
 
-    def __call__(self, value: PathLike) -> T_co:
+    def __call__(self, value: PathLike) -> T:
         wrapper = self._prep_file_wrapper(self.validated_path(value))
         if self.lazy:
             return wrapper  # type: ignore[return-value]
         return wrapper.read()
 
 
-class Serialized(File[T_co]):
+class Serialized(File[T]):
     """
     :param serializer: Class or module that provides ``load``/``dump`` and/or ``loads``/``dumps`` methods/functions for
       deserialization and serialization, respectively.  Expects them to follow the same interface as the *json* or
@@ -390,7 +388,7 @@ class Serialized(File[T_co]):
         )
 
 
-class Json(Serialized[T_co]):
+class Json(Serialized[T]):
     """
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """
@@ -464,7 +462,7 @@ class Json(Serialized[T_co]):
         super().__init__(JsonSerializer(wrap_errors), mode=mode, **kwargs)
 
 
-class Pickle(Serialized[T_co]):
+class Pickle(Serialized[T]):
     """
     :param kwargs: Additional keyword arguments to pass to :class:`.File`
     """

@@ -29,10 +29,12 @@ NARGS_STR_RANGES = {'?': (0, 1), '*': (0, None), '+': (1, None), 'REMAINDER': (0
 SET_ERROR_FMT = 'Invalid nargs={!r} set - expected non-empty set where all values are integers >= 0'
 SEQ_ERROR_FMT = 'Invalid nargs={!r} sequence - expected 2 ints where 0 <= a <= b or b is None'
 
+_NargsOrig: TypeAlias = int | tuple[int, _Max] | Sequence[int] | FrozenSet[int] | range | _Remainder
+_NargsValue: TypeAlias = _NargsOrig | set[int]
 NargsStr = Literal['?', '*', '+', 'REMAINDER']
-NargsValue: TypeAlias = (
-    NargsStr | int | tuple[int, _Max] | Sequence[int] | set[int] | FrozenSet[int] | range | _Remainder
-)
+NargsValue: TypeAlias = NargsStr | _NargsValue
+NargsSingle = Literal['?', 1, None]  # nargs values that result in param type=T
+NargsMultiple = Literal['*', '+', 'REMAINDER'] | _NargsValue  # nargs values that result in param type=list[T]
 
 
 class Nargs:
@@ -48,7 +50,7 @@ class Nargs:
     # None or REMAINDER without explicit type verification via isinstance/similar.
 
     __slots__ = ('_orig', 'range', 'min', 'max', 'allowed', 'variable', '_has_upper_bound')
-    _orig: NargsValue
+    _orig: _NargsOrig
     range: range | None
     min: int
     max: _Max
@@ -56,13 +58,14 @@ class Nargs:
     variable: bool
 
     def __init__(self, nargs: NargsValue):
-        self._orig = nargs
+        self._orig = nargs  # type: ignore[assignment]  # set is replaced with frozenset below
         self.range = None
 
         match nargs:
             case int():
                 if nargs < 0:
                     raise ValueError(f'Invalid {nargs=} integer - must be >= 0')
+                # Note: 0 is supported specifically for Flag
                 self.min = self.max = nargs
                 self.allowed = (nargs,)
             case str():
@@ -91,7 +94,7 @@ class Nargs:
                 self.max = max(nargs)
             case Sequence():
                 try:
-                    self.min, self.max = self.allowed = a, b = nargs  # type: ignore[misc,assignment]
+                    self.min, self.max = self.allowed = a, b = nargs  # type: ignore[str-unpack,assignment]
                 except (ValueError, TypeError) as e:
                     raise e.__class__(SEQ_ERROR_FMT.format(nargs)) from e
 
@@ -163,7 +166,7 @@ class Nargs:
             try_all = other.min in allowed and other.max in allowed
             return try_all and all(v in allowed for v in other.range)  # less mem than large set(other.range)
         else:
-            return self.allowed == set(other.allowed)
+            return self.allowed == set(other.allowed)  # noqa
 
     def __hash__(self) -> int:
         return hash(self.__class__) ^ hash(self._orig)

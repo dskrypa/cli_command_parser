@@ -21,9 +21,7 @@ from .time import Date, DateTime, Day, DTFormatMode, Month, Time, TimeDelta
 from .utils import FileWrapper, StatMode
 
 if _t.TYPE_CHECKING:
-    from ..typing import ChoicesType, InputTypeFunc, NormalizedType, T, TypeFunc
-
-    TypeT: _t.TypeAlias = _t.Union[_t.Type[T], TypeFunc[T], InputType[T]]
+    from ..typing import ChoicesType, T, TypeFunc
 
 # fmt: off
 __all__ = [
@@ -46,50 +44,48 @@ if _t.TYPE_CHECKING:
     def normalize_input_type(type_func: None, param_choices: None) -> None: ...
 
     @_t.overload
-    def normalize_input_type(type_func: InputType[T], param_choices: None) -> InputType[T]: ...
-
-    @_t.overload
     def normalize_input_type(type_func: TypeFunc[T], param_choices: None) -> TypeFunc[T]: ...
 
     @_t.overload
-    def normalize_input_type(type_func: _t.Type[T], param_choices: None) -> _t.Type[T]: ...
+    def normalize_input_type(type_func: TypeFunc[T] | None, param_choices: range) -> Range[T]: ...
 
     @_t.overload
-    def normalize_input_type(type_func: TypeT[T] | None, param_choices: _t.Collection[T]) -> Choices[T]: ...
+    def normalize_input_type(type_func: TypeFunc[T] | None, param_choices: _t.Collection[T]) -> Choices[T]: ...
 
     @_t.overload
-    def normalize_input_type(type_func: range, param_choices: _t.Any) -> Range[int]: ...
+    def normalize_input_type(type_func: range, param_choices: None) -> Range[int]: ...
 
     @_t.overload
-    def normalize_input_type(type_func: _Pattern, param_choices: _t.Any) -> Regex[str]: ...
+    def normalize_input_type(type_func: _Pattern, param_choices: None) -> Regex[str]: ...
 
 
-def normalize_input_type(type_func: InputTypeFunc[T], param_choices: ChoicesType[T]) -> NormalizedType[T]:
+def normalize_input_type(
+    type_func: TypeFunc[T] | range | _Pattern | None, param_choices: range | ChoicesType[T] | None
+) -> TypeFunc[T] | Range[T] | Range[int] | Choices[T] | Regex[str] | None:
     if param_choices is not None:
         if not param_choices:
             raise _ParamDefinitionError(f'Invalid choices={param_choices!r} - when specified, choices cannot be empty')
-        elif isinstance(param_choices, range):
-            return Range(param_choices, type_func)
-        elif isinstance(param_choices, _INVALID_CHOICES_TYPES):
+        if isinstance(param_choices, _INVALID_CHOICES_TYPES):
             raise _ParamDefinitionError(f'Invalid choices={param_choices!r} - use type={param_choices!r} instead')
-        elif isinstance(type_func, _INVALID_TYPES_WITH_CHOICES):
+        if isinstance(type_func, _INVALID_TYPES_WITH_CHOICES):
             raise _ParamDefinitionError(f'Cannot combine type={type_func!r} with choices={param_choices!r}')
 
     match type_func:
         case None:
-            if param_choices is None:
-                return type_func
-            return Choices(param_choices)
+            pass
+        case _EnumMeta():
+            type_func: EnumChoices = EnumChoices(type_func)  # type: ignore[no-redef]
         case range():
             return Range(type_func)
         case _Pattern():
             return Regex(type_func)
-        case _EnumMeta():
-            enum_choices: EnumChoices = EnumChoices(type_func)
-            if param_choices is None:
-                return enum_choices
-            return Choices(param_choices, enum_choices)
+        case _ if not callable(type_func):
+            raise _ParamDefinitionError(f'Invalid type={type_func!r} - expected a callable')
 
-    if param_choices is None:
-        return type_func
-    return Choices(param_choices, type_func)
+    match param_choices:
+        case None:
+            return type_func
+        case range():
+            return Range(param_choices, type=type_func)
+        case _:
+            return Choices(param_choices, type_func)

@@ -38,7 +38,7 @@ class ParserConverter(Command):
 class Convert(ParserConverter):
     """Print the cli-command-parser Commands that are equivalent to the discovered argparse ArgumentParsers"""
 
-    input = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
+    input: Param[Path] = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
     add_methods = Flag('--no-methods', '-M', default=True, help='Do not include boilerplate methods in Commands')
 
     def main(self):
@@ -50,7 +50,7 @@ class Convert(ParserConverter):
 class Pprint(ParserConverter):
     """Print a tiered internal representation of the discovered argparse ArgumentParsers and their groups/arguments"""
 
-    input = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
+    input: Param[Path] = Positional(type=IPath(type='file', exists=True), help=f'A file containing an {arg_parser}')
 
     def main(self):
         for parser in self.script.parsers:

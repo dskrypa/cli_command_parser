@@ -10,9 +10,14 @@ import logging
 from functools import partial, update_wrapper
 from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, Type, overload
 
+try:
+    from typing import Never
+except ImportError:  # Added in 3.11
+    Never = NoReturn
+
 from ..exceptions import BadArgument, CommandDefinitionError, ParameterDefinitionError, ParamUsageError, ParserExit
 from ..inputs import normalize_input_type
-from ..nargs import Nargs, NargsValue
+from ..nargs import Nargs
 from ..typing import B, D, T
 from ..utils import _NotSet, _NotSetType, str_to_bool
 from .actions import Append, AppendConst, Count, Store, StoreConst
@@ -22,6 +27,7 @@ from .option_strings import TriFlagOptionStrings
 if TYPE_CHECKING:
     from ..commands import Command
     from ..config import OptionNameMode
+    from ..nargs import NargsMultiple, NargsSingle, NargsValue
     from ..typing import Bool, ChoicesType, InputTypeFunc, OptStr, OptStrs, TypeFunc
     from ._typing import CommandMethod, DefaultFunc, LeadingDash
 
@@ -81,33 +87,111 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
 
         @overload
         def __init__(
-            self: Option[T, _NotSetType],
+            self: Option[T, Never],
             *option_strs: str,
             required: Literal[True],
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
             default: _NotSetType = _NotSet,
             default_cb: None = None,
-            nargs: NargsValue | None = None,
-            action: OptAct = None,
-            help: OptStr = None,  # noqa
-            hide: Bool = False,
-            metavar: OptStr = None,
-            name: OptStr = None,
-            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
-            allow_leading_dash: LeadingDash | None = None,
-            cb_with_cmd: Bool = False,
-            show_default: Bool = None,
-            strict_default: Bool = False,
-            env_var: OptStrs = None,
-            strict_env: bool = True,
-            use_env_value: Bool = None,
-            show_env_var: Bool = None,
+            nargs: NargsSingle = None,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], Never],
+            *option_strs: str,
+            required: Literal[True],
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: None = None,
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[T, None],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | None = None,
+            nargs: NargsSingle = None,
+            **kwargs,
         ): ...
 
         @overload
         def __init__(
             self: Option[T, D],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: D,
+            default_cb: DefaultFunc[D] | None = None,
+            nargs: NargsSingle = None,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[T, D],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D],
+            nargs: NargsSingle = None,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], list[T]],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | None = None,
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], D],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: D,
+            default_cb: DefaultFunc[D] | None = None,
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], D],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D],
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
             *option_strs: str,
             required: Bool = False,
             type: InputTypeFunc[T] = None,  # noqa
@@ -212,7 +296,7 @@ class Flag(BaseFlag[B, B], actions=(StoreConst, AppendConst)):
 
     nargs = Nargs(0)
     # Without staticmethod, this would be interpreted as a normal method
-    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[arg-type]
+    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[assignment]
     use_env_value: bool = False
     __default_const_map = {True: False, False: True, _NotSet: True}
     default: B
@@ -374,7 +458,7 @@ class TriFlag(BaseFlag[B, D], actions=(StoreConst, AppendConst)):
 
     nargs = Nargs(0)
     # Without staticmethod, this would be interpreted as a normal method
-    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[arg-type]
+    type: TypeFunc[B] = staticmethod(str_to_bool)  # type: ignore[assignment]
     use_env_value: bool = False
     _default_cb_ok = True
     _opt_str_cls = TriFlagOptionStrings

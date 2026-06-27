@@ -82,6 +82,7 @@ class MetadataBase(Generic[_T]):
 
     @classmethod
     def _get_parent(cls, instance: ProgramMetadata) -> ProgramMetadata | None:
+        # TODO: Maybe this strict package check is why epilog isn't inherited, if the parent is in a different sub-pkg?
         # if (parent := instance.parent) and parent.distribution == instance.distribution:
         if (parent := instance.parent) and parent.package == instance.package:
             return parent
@@ -125,7 +126,7 @@ def dynamic_metadata(func=None, *, inheritable: bool = True):
 
 
 class ProgramMetadata:
-    _fields = {'parent'}
+    _fields = {'parent'}  # This is updated by `MetadataBase.__set_name__`
     parent: ProgramMetadata | None = None
     distribution: Metadata[Distribution | None] = Metadata(None, inheritable=False)
     path: Metadata[Path | None] = Metadata(None, inheritable=False)
@@ -135,7 +136,7 @@ class ProgramMetadata:
     command: Metadata[str | None] = Metadata(None, inheritable=False)
     usage: Metadata[str | None] = Metadata(None)
     description: Metadata[str | None] = Metadata(None)
-    epilog: Metadata[str | None] = Metadata(None)
+    epilog: Metadata[str | None] = Metadata(None)  # TODO: This is not inherited by subclasses of an ABC, but should be
     doc_str: Metadata[str | str] = Metadata('')
     # pkg_doc_str is set by :func:`~.documentation.load_commands` to capture package docstrings
     pkg_doc_str: Metadata[str | str] = Metadata('')

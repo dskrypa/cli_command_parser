@@ -34,6 +34,7 @@ Issues = 'https://github.com/dskrypa/cli_command_parser/issues'
 
 [project.optional-dependencies]
 wcwidth = ['wcwidth']
+dev = ['ruff', 'pytest', 'pytest-cov', 'coverage', 'mypy >= 2.1.0']
 
 [project.scripts]
 'argparse_to_command.py' = 'cli_command_parser.conversion.cli:main'
