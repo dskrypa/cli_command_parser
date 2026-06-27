@@ -7,8 +7,9 @@ but there are `Others`_ as well.  The base class for all Parameters is extensibl
 :class:`~cli_command_parser.parameters.Parameter` types are technically possible as well.
 
 Many parameters support a ``type`` argument, which will result in the user-provided value being cast to that type before
-being stored.  For the parameters that support a type, if not explicitly specified when initializing the parameter, the
-type will be inferred automatically from any type annotations (see :pep:`484`) that are present.
+being stored.  The default type is string (i.e., no type cast occurs).  Most type checkers (mypy, your IDE, etc.) should
+understand the value type to match the specified ``type`` in code that accesses a given parameter without needing to
+explicitly annotate it.
 
 
 .. _common_init_params:
@@ -71,9 +72,14 @@ Common parameters that are supported when initializing most Parameters:
 :type: A callable (function, class, etc.) that accepts a single string argument to be used to transform parsed
   argument values.  It will be used before evaluating whether the value is in ``choices``, if specified.  If ``nargs``
   accepts multiple values, then this will be called on each value individually before appending it to the list of
-  values.  By default, no transformation is performed, and values will be strings.  If not specified, but a type
-  annotation is detected, then that annotation will be used as if it was provided here.  When both are present, this
-  argument takes precedence.
+  values.  By default, no transformation is performed, and values will be strings.
+
+  .. warning:: Type inference from annotations is deprecated
+
+        In the past, the use of invalid type annotations for parameters was fully supported as an alternative to passing
+        an explicit ``type=...`` argument.  This is now deprecated, and it will be removed in a future (TBD) version.
+        See :ref:`configuration:Parameter Options:allow_annotation_type` for more info.
+
 :strict_default: Whether default values should be processed as if provided via CLI (this happens when
   ``strict_default=False``, the default), or used as-is (``strict_default=True``).  Only applies to :doc:`inputs`
   that have a :meth:`~.InputType.fix_default` method.
@@ -592,9 +598,9 @@ are provided to simplify this distinction: :func:`.before_main` and :func:`.afte
 Example command::
 
     class Build(Command):
-        build_dir: Path = Option(required=True, help='The target build directory')
-        install_dir: Path = Option(required=True, help='The target install directory')
-        backup_dir: Path = Option(required=True, help='Directory in which backups should be stored')
+        build_dir = Option(required=True, help='The target build directory')
+        install_dir = Option(required=True, help='The target install directory')
+        backup_dir = Option(required=True, help='Directory in which backups should be stored')
 
         @before_main('-b', help='Backup the install directory before building')
         def backup(self):

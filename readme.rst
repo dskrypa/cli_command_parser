@@ -28,7 +28,7 @@ CLIs while remaining readable and easy to maintain.
 
 Some of the primary goals and key features of this project:
   - Minimal boilerplate code is necessary to define CLI parameters and access their parsed values
-  - Easy to use type annotations for CLI parameters
+  - Typing support for CLI parameters that can be validated via type checkers
   - Subcommands can inherit common parameters so they don't need to be repeated
   - Easy to handle common initialization tasks for all actions / subcommands once
 

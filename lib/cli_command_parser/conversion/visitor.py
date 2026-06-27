@@ -278,7 +278,7 @@ class ScriptVisitor(NodeVisitor):
     def visit_withitem(self, item: withitem):
         """
         Visit a single ``withitem`` / context expression within a ``with ...:`` statement that may include one or more
-        ``withitem``s / content expressions.
+        ``withitem`` entries / content expressions.
         """
         if func := self.resolve_ref(item.context_expr, True):
             # Found a `with foo(...):` statement where `foo` is being tracked or a `with bar:` where `bar = foo(...)`
