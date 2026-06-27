@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, overload
 
 from ._typing import N, Number, NumType, RngType
 from .base import _FixedInputType
@@ -71,11 +71,31 @@ class Range(_RangeInput[N]):
     range: _range
     snap: bool
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Range[int],
+            range: RngType,  # noqa
+            snap: Bool = ...,
+            type: None = None,  # noqa
+            fix_default: Bool = ...,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Range[N],
+            range: RngType,  # noqa
+            snap: Bool = ...,
+            type: NumType[N] = ...,  # noqa
+            fix_default: Bool = ...,
+        ): ...
+
     def __init__(
         self,
         range: RngType,  # noqa
         snap: Bool = False,
-        type: NumType | None = None,  # noqa
+        type: NumType[N] | None = None,  # noqa
         fix_default: Bool = True,
     ):
         super().__init__(fix_default)
@@ -132,20 +152,49 @@ class NumRange(RangeMixin, _RangeInput[N]):
     __slots__ = ('type', 'snap', 'min', 'max', 'include_min', 'include_max')
     snap: bool
 
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: NumRange[N],
+            type: None = None,  # noqa
+            snap: Bool = ...,
+            *,
+            min: N | None = ...,  # noqa
+            max: N | None = ...,  # noqa
+            include_min: Bool = ...,
+            include_max: Bool = ...,
+            fix_default: Bool = ...,
+        ): ...
+
+        @overload
+        def __init__(
+            self: NumRange[N],
+            type: NumType[N],  # noqa
+            snap: Bool = ...,
+            *,
+            # int is included below to indicate that int min/max with type=float will still produce float
+            min: N | int | None = ...,  # noqa
+            max: N | int | None = ...,  # noqa
+            include_min: Bool = ...,
+            include_max: Bool = ...,
+            fix_default: Bool = ...,
+        ): ...
+
     def __init__(
         self,
-        type: NumType | None = None,  # noqa
+        type: NumType[N] | None = None,  # noqa
         snap: Bool = False,
         *,
-        min: Number = None,  # noqa
-        max: Number = None,  # noqa
+        min: N | int | None = None,  # noqa
+        max: N | int | None = None,  # noqa
         include_min: Bool = True,
         include_max: Bool = False,
         fix_default: Bool = True,
     ):
         if min is None and max is None:
             raise ValueError('NumRange inputs must be initialized with at least one of min and/or max values')
-        elif min is not None and max is not None and min >= max:
+        elif min is not None and max is not None and min >= max:  # type: ignore[operator]
             raise ValueError(f'Invalid {min=} >= {max=} - min must be less than max')
 
         super().__init__(fix_default)
@@ -159,17 +208,18 @@ class NumRange(RangeMixin, _RangeInput[N]):
                 raise TypeError('Unable to snap to extrema with type=float')
 
             if min is not None and max is not None:
-                real_min = min if include_min else min + 1
-                real_max = max if include_max else max - 1
-                if real_min >= real_max:
+                real_min = min if include_min else min + 1  # type: ignore[operator]
+                real_max = max if include_max else max - 1  # type: ignore[operator]
+                if real_min >= real_max:  # type: ignore[operator]
                     raise ValueError(
                         f'Invalid {min=} >= {max=} with snap=True, {include_min=},'
                         f' {include_max=} - snap would produce invalid values'
                     )
 
         self.snap = snap
-        self.min = self.type(min) if min is not None else min  # for floats especially, such as a range like 0~1, this
-        self.max = self.type(max) if max is not None else max  # helps to highlight the type in reprs
+        # for floats especially, such as a range like 0~1, this helps to highlight the type in reprs
+        self.min = self.type(min) if min is not None else min  # type: ignore[arg-type]
+        self.max = self.type(max) if max is not None else max  # type: ignore[arg-type]
         self.include_min = include_min
         self.include_max = include_max
 
@@ -205,7 +255,7 @@ class NumRange(RangeMixin, _RangeInput[N]):
             return num_val
 
 
-class Bytes(NumericInput[int | float]):
+class Bytes(NumericInput[N]):
     """
     A byte count/size.
 
@@ -229,6 +279,30 @@ class Bytes(NumericInput[int | float]):
     __slots__ = ('base', 'short', 'fractions', 'negative')
     _pattern = re.compile(r'^(-?\d+(?:\.\d+)?)\s*([KMGTPEZYRQ]?i?B?)$', re.IGNORECASE)
     _PREFIXES = 'KMGTPEZYRQ'
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Bytes[float],
+            base: Literal[2, 10] = 10,
+            *,
+            short: Bool = True,
+            fractions: Literal[True],
+            negative: Bool = False,
+            fix_default: Bool = True,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Bytes[int],
+            base: Literal[2, 10] = 10,
+            *,
+            short: Bool = True,
+            fractions: Bool = False,
+            negative: Bool = False,
+            fix_default: Bool = True,
+        ): ...
 
     def __init__(
         self,
@@ -282,7 +356,7 @@ class Bytes(NumericInput[int | float]):
         parts.append('byte count/size')
         return ' '.join(parts)
 
-    def __call__(self, value: str) -> int | float:
+    def __call__(self, value: str) -> N:
         try:
             num, unit = self._pattern.match(value.strip()).groups()  # type: ignore[union-attr]
         except (TypeError, AttributeError):
@@ -296,7 +370,7 @@ class Bytes(NumericInput[int | float]):
         if not self.negative and num < 0:
             raise InputValidationError(f'expected {self._type_desc()}, but found {num!r}')
 
-        return num * self._get_multiplier(unit)
+        return num * self._get_multiplier(unit)  # type: ignore[return-value]
 
     def _get_multiplier(self, unit: str | None) -> int:
         if not unit:

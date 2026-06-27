@@ -150,6 +150,9 @@ class UsageTextTest(ParserTest):
             def __name__(self):
                 raise AttributeError
 
+            def __call__(self, *args, **kwargs):
+                pass
+
         class Foo(Command, use_type_metavar=True):
             bar = Option(type=NoName())  # noqa
             baz = Option(type=int)

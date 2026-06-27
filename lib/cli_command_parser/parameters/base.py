@@ -33,7 +33,7 @@ if TYPE_CHECKING:
     from ..commands import Command
     from ..context import Context
     from ..formatting.params import ParamHelpFormatter
-    from ..typing import Bool, NormalizedType, OptStr, OptStrs, Self, Strings
+    from ..typing import AnyParam, Bool, NormalizedType, OptStr, OptStrs, Self, Strings
     from ._typing import CommandMethod, DefaultFunc, LeadingDash
     from .actions import ParamAction
     from .groups import ParamGroup
@@ -59,12 +59,12 @@ class Param(Generic[T]):
         def __get__(self, command: Literal[None], owner: Any = None) -> Self: ...
 
         @overload
-        def __get__(self, command: Command, owner: Any = None) -> T | None: ...
+        def __get__(self, command: Command, owner: Any = None) -> T: ...
 
         @overload
         def __get__(self, command: object, owner: Any = None) -> Self: ...
 
-        def __get__(self, command: Command | object | None, owner: Any = None) -> Self | T | None: ...
+        def __get__(self, command: Command | object | None, owner: Any = None) -> Self | T: ...
 
 
 class ParamBase(ABC):
@@ -245,7 +245,7 @@ class Parameter(ParamBase, Param[T | D], ABC):
     metavar: OptStr = None
     allow_leading_dash: AllowLeadingDash = AllowLeadingDash.NUMERIC     # Set in some subclasses
     nargs: Nargs                                                        # Expected to be set in subclasses
-
+    action: ParamAction
     type: NormalizedType[T] = None
 
     # Expected to be set in subclasses
@@ -514,7 +514,7 @@ class Parameter(ParamBase, Param[T | D], ABC):
         if self.required:
             if missing_default is _NotSet:
                 raise MissingArgument(self)
-            return missing_default
+            return missing_default  # type: ignore[return-value]  # mypy bug (doesn't recognize it can't be _NotSetType)
 
         try:
             return self.action.get_default(command, missing_default)
@@ -745,14 +745,14 @@ class AllowLeadingDashProperty:
     def __get__(self, instance: None, owner: Any) -> AllowLeadingDashProperty: ...
 
     @overload
-    def __get__(self, instance: Parameter, owner: Any) -> AllowLeadingDash: ...
+    def __get__(self, instance: AnyParam, owner: Any) -> AllowLeadingDash: ...
 
-    def __get__(self, instance: Parameter | None, owner: Any) -> AllowLeadingDash | AllowLeadingDashProperty:
+    def __get__(self, instance: AnyParam | None, owner: Any) -> AllowLeadingDash | AllowLeadingDashProperty:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)
 
-    def __set__(self, instance: Parameter, value: LeadingDash | None):
+    def __set__(self, instance: AnyParam, value: LeadingDash | None):
         if value is not None:
             value = AllowLeadingDash(value)
 

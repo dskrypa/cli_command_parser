@@ -6,18 +6,24 @@ Positional Parameters
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, NoReturn, overload
+
+try:
+    from typing import Never
+except ImportError:  # Added in 3.11
+    Never = NoReturn
 
 from ..exceptions import ParameterDefinitionError
 from ..inputs import normalize_input_type
-from ..nargs import Nargs, NargsValue
+from ..nargs import Nargs
 from ..typing import D, T
 from ..utils import _NotSet, _NotSetType
 from .actions import Append, Store
 from .base import AllowLeadingDashProperty, BasePositional
 
 if TYPE_CHECKING:
-    from ..typing import ChoicesType, InputTypeFunc
+    from ..nargs import NargsMultiple, NargsValue
+    from ..typing import Bool, ChoicesType, InputTypeFunc, OptStr
     from ._typing import DefaultFunc, LeadingDash
 
 __all__ = ['Positional']
@@ -53,6 +59,74 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
     """
 
     allow_leading_dash = AllowLeadingDashProperty()
+
+    if TYPE_CHECKING:
+
+        @overload
+        def __init__(
+            self: Positional[T, Never],
+            nargs: Literal[1, None] = None,
+            action: Literal['store', 'append'] | None = None,
+            type: InputTypeFunc[T] = None,  # noqa
+            *,
+            choices: ChoicesType[T] = None,
+            allow_leading_dash: LeadingDash | None = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Positional[T, D],
+            nargs: Literal['?'],
+            action: Literal['store', 'append'] | None = None,
+            type: InputTypeFunc[T] = None,  # noqa
+            default: D | _NotSetType = _NotSet,
+            *,
+            default_cb: DefaultFunc[D] | None = None,
+            choices: ChoicesType[T] = None,
+            allow_leading_dash: LeadingDash | None = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Positional[list[T], list[D]],
+            nargs: NargsMultiple,
+            action: Literal['store', 'append'] | None = None,
+            type: InputTypeFunc[T] = None,  # noqa
+            default: D | _NotSetType = _NotSet,
+            *,
+            default_cb: DefaultFunc[D] | None = None,
+            choices: ChoicesType[T] = None,
+            allow_leading_dash: LeadingDash | None = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            nargs: NargsValue | None = None,
+            action: Literal['store', 'append'] | None = None,
+            type: InputTypeFunc[T] = None,  # noqa
+            default: D | _NotSetType = _NotSet,
+            *,
+            default_cb: DefaultFunc[D] | None = None,
+            choices: ChoicesType[T] = None,
+            allow_leading_dash: LeadingDash | None = None,
+            help: OptStr = None,  # noqa
+            hide: Bool = False,
+            metavar: OptStr = None,
+            name: OptStr = None,
+        ): ...
 
     def __init__(
         self,

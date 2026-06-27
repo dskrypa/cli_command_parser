@@ -22,7 +22,7 @@ from datetime import date, datetime, time, timedelta
 from enum import Enum
 from locale import LC_ALL, setlocale
 from threading import RLock
-from typing import TYPE_CHECKING, ClassVar, Collection, Iterator, Literal, NoReturn, Sequence, Type, TypeVar, overload
+from typing import TYPE_CHECKING, ClassVar, Collection, Iterator, Literal, Sequence, Type, TypeVar, overload
 
 from ..typing import T
 from ..utils import MissingMixin
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 __all__ = ['DTFormatMode', 'Day', 'Month', 'TimeDelta', 'DateTime', 'Date', 'Time']
 
 DT = TypeVar('DT', datetime, date, time)
+SI = TypeVar('SI', str, int)
 TimeUnit = Literal['microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks']
 _TIMEDELTA_UNITS = {'microseconds', 'milliseconds', 'seconds', 'minutes', 'hours', 'days', 'weeks'}
 DEFAULT_DATE_FMT = '%Y-%m-%d'
@@ -111,7 +112,10 @@ class DTFormatMode(MissingMixin, Enum):
     # fmt: on
 
 
-class CalendarUnitInput(DTInput[str | int], ABC):
+_StrDTFormatMode = Literal['full', 'abbreviation', DTFormatMode.FULL, DTFormatMode.ABBREVIATION]
+
+
+class CalendarUnitInput(DTInput[SI], ABC):
     """
     Input type representing a date/time unit.
 
@@ -125,6 +129,7 @@ class CalendarUnitInput(DTInput[str | int], ABC):
     """
 
     __slots__ = ('full', 'abbreviation', 'numeric', 'out_format', 'out_locale')
+    out_format: DTFormatMode
     _formats: dict[DTFormatMode, Sequence[str | int]]
     _min_index: int = 0
 
@@ -211,20 +216,20 @@ class CalendarUnitInput(DTInput[str | int], ABC):
 
         raise InvalidChoiceError(value, self.choices(), self.dt_type)
 
-    def __call__(self, value: str) -> str | int:
+    def __call__(self, value: str) -> SI:
         normalized = self.parse(value)
         if normalized < self._min_index:
             raise InvalidChoiceError(value, self.choices(), self.dt_type)
         elif self.out_format in (DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO):
-            return self._formats[self.out_format][normalized]
+            return self._formats[self.out_format][normalized]  # type: ignore[return-value]
         elif (names_or_abbreviations := self._formats.get(self.out_format)) is not None:
             with different_locale(self.out_locale):
-                return names_or_abbreviations[normalized]
+                return names_or_abbreviations[normalized]  # type: ignore[return-value]
 
         raise ValueError(f'Unexpected output format={self.out_format!r} for {self.dt_type}={normalized}')
 
 
-class Day(CalendarUnitInput, dt_type='day of the week'):
+class Day(CalendarUnitInput[SI], dt_type='day of the week'):
     """
     Input type representing a day of the week.
 
@@ -247,22 +252,49 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
         DTFormatMode.NUMERIC_ISO: range(1, 8),  # 1 = Monday; 7 = Sunday
     }
 
-    @overload
-    def __init__(
-        self,
-        *,
-        full: Bool = True,
-        abbreviation: Bool = True,
-        numeric: Bool = False,
-        iso: Bool = False,
-        locale: Locale | None = None,
-        out_format: str | DTFormatMode = DTFormatMode.FULL,
-        out_locale: Locale | None = None,
-        fix_default: Bool = True,
-    ): ...
+    if TYPE_CHECKING:
 
-    @overload
-    def __init__(self: NoReturn) -> NoReturn: ...  # type: ignore[misc]  # Workaround for single overload def error
+        @overload
+        def __init__(
+            self: Day[str],
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = False,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: _StrDTFormatMode = DTFormatMode.FULL,
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Day[int],
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = False,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: Literal['numeric', 'numeric_iso', DTFormatMode.NUMERIC, DTFormatMode.NUMERIC_ISO],
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = False,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: str | DTFormatMode = DTFormatMode.FULL,
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
 
     def __init__(self, *, iso: Bool = False, **kwargs):
         super().__init__(**kwargs)
@@ -286,7 +318,7 @@ class Day(CalendarUnitInput, dt_type='day of the week'):
             )
 
 
-class Month(CalendarUnitInput, dt_type='month', min_index=1):
+class Month(CalendarUnitInput[SI], dt_type='month', min_index=1):
     """
     Input type representing a month.
 
@@ -306,21 +338,49 @@ class Month(CalendarUnitInput, dt_type='month', min_index=1):
         DTFormatMode.NUMERIC: range(13),
     }
 
-    @overload
-    def __init__(
-        self,
-        *,
-        full: Bool = True,
-        abbreviation: Bool = True,
-        numeric: Bool = True,
-        locale: Locale | None = None,
-        out_format: str | DTFormatMode = DTFormatMode.FULL,
-        out_locale: Locale | None = None,
-        fix_default: Bool = True,
-    ): ...
+    if TYPE_CHECKING:
 
-    @overload
-    def __init__(self: NoReturn) -> NoReturn: ...  # type: ignore[misc]  # Workaround for single overload def error
+        @overload
+        def __init__(
+            self: Month[str],
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = True,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: _StrDTFormatMode = DTFormatMode.FULL,
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Month[int],
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = True,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: Literal['numeric', DTFormatMode.NUMERIC],
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
+
+        @overload
+        def __init__(
+            self,
+            *,
+            full: Bool = True,
+            abbreviation: Bool = True,
+            numeric: Bool = True,
+            iso: Bool = False,
+            locale: Locale | None = None,
+            out_format: str | DTFormatMode = DTFormatMode.FULL,
+            out_locale: Locale | None = None,
+            fix_default: Bool = True,
+        ): ...
 
     def __init__(self, *, numeric: Bool = True, **kwargs):
         super().__init__(numeric=numeric, **kwargs)

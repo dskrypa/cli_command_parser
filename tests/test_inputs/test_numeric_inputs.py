@@ -11,11 +11,12 @@ from cli_command_parser.testing import ParserTest
 class NumericInputTest(ParserTest):
     def test_range_replaced(self):
         class Foo(Command):
-            bar: int = Option(type=range(10))
-            baz: int = Option(choices=range(10))
+            bar = Option(type=range(10))
+            baz = Option(choices=range(10))
 
-        self.assertIsInstance(Foo.bar.type, Range)  # noqa
-        self.assertIsInstance(Foo.baz.type, Range)  # noqa
+        self.assertIsInstance(Foo.bar.type, Range)
+        self.assertIsInstance(Foo.baz.type, Range)
+        self.assert_parse_results(Foo, ['--bar=1', '--baz', '2'], {'bar': 1, 'baz': 2})
 
     def test_range_with_choices_rejected(self):
         with self.assertRaisesRegex(ParameterDefinitionError, 'Cannot combine type=.* with choices='):

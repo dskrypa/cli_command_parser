@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .commands import Command
     from .core import CommandMeta
     from .parameters import ActionFlag, BaseOption, Parameter
-    from .typing import Bool, OptStr, ParamOrGroup, PathLike, StrSeq
+    from .typing import AnyParam, Bool, OptStr, ParamOrGroup, PathLike, StrSeq
 
     Argv = StrSeq | None
     AnyConfig = CommandConfig | dict[str, Any] | None
@@ -157,7 +157,7 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
         self,
         command: Command | None = None,
         *,
-        exclude: Collection[Parameter[Any, Any]] = (),
+        exclude: Collection[AnyParam] = (),
         recursive: Bool = True,
         default: Any = None,
         include_defaults: Bool = True,
@@ -217,23 +217,23 @@ class Context(AbstractContextManager):  # Extending AbstractContextManager to ma
 
     # region Parsing Methods - Generally not intended to be called by users
 
-    def has_parsed_value(self, param: Parameter) -> bool:
+    def has_parsed_value(self, param: AnyParam) -> bool:
         return param in self._parsed
 
-    def get_parsed_value(self, param: Parameter, default=_NotSet):
+    def get_parsed_value(self, param: AnyParam, default=_NotSet):
         """Not intended to be called by users.  Used by Parameters to access their parsed values."""
         return self._parsed.get(param, default)
 
-    def set_parsed_value(self, param: Parameter, value: Any):
+    def set_parsed_value(self, param: AnyParam, value: Any):
         """Not intended to be called by users.  Used by Parameters during parsing to store parsed values."""
         self._parsed[param] = value
 
-    def pop_parsed_value(self, param: Parameter):
+    def pop_parsed_value(self, param: AnyParam):
         """Not intended to be called by users.  Used by Parameters during parsing if backtracking is necessary."""
         self._provided[param] = 0
         return self._parsed.pop(param)
 
-    def roll_back_parsed_values(self, param: Parameter, count: int):
+    def roll_back_parsed_values(self, param: AnyParam, count: int):
         """Not intended to be called by users.  Used during parsing as part of backtracking."""
         values = self._parsed[param]
         self._parsed[param] = values[:-count]
@@ -392,13 +392,13 @@ class ContextProxy:
 
     # region Proxied Parsing Methods
 
-    def has_parsed_value(self, param: Parameter) -> bool:
+    def has_parsed_value(self, param: AnyParam) -> bool:
         return get_current_context().has_parsed_value(param)
 
-    def get_parsed_value(self, param: Parameter):
+    def get_parsed_value(self, param: AnyParam):
         return get_current_context().get_parsed_value(param)
 
-    def set_parsed_value(self, param: Parameter, value: Any):
+    def set_parsed_value(self, param: AnyParam, value: Any):
         get_current_context().set_parsed_value(param, value)
 
     def record_action(self, param: ParamOrGroup, val_count: int = 1):
@@ -525,7 +525,7 @@ def get_parsed(
     return parsed
 
 
-def get_raw_arg(command: Command, parameter: Parameter) -> Any:
+def get_raw_arg(command: Command, parameter: AnyParam) -> Any:
     """Retrieve the raw parsed argument value(s) provided for the given Parameter"""
     return get_context(command).get_parsed_value(parameter)
 

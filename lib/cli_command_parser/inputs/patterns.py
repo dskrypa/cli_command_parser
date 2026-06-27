@@ -22,7 +22,7 @@ __all__ = ['Regex', 'RegexMode', 'Glob']
 _Pat = str | Pattern
 GroupsResult = tuple[str, ...]
 DictResult = dict[str, str]
-RegexResult = TypeVar('RegexResult', str, Match, GroupsResult, DictResult)
+RegexResult = TypeVar('RegexResult', str, Match[str], GroupsResult, DictResult)
 
 
 class PatternInput(InputType[T], ABC):
@@ -105,46 +105,23 @@ class Regex(PatternInput[RegexResult]):
         def __init__(
             self: Regex[str],
             *patterns: _Pat,
-            group: str | int,
-            groups: Collection[str | int] | None = None,
-            mode: Literal['group', RegexMode.GROUP] | None = None,
+            group: str | int | None = None,
+            mode: Literal['group', RegexMode.GROUP, 'string', RegexMode.STRING] | None = None,
         ): ...
 
         @overload
         def __init__(
             self: Regex[GroupsResult],
             *patterns: _Pat,
-            group: None = None,
-            groups: Collection[str | int],
+            groups: Collection[str | int] | None = None,
             mode: Literal['groups', RegexMode.GROUPS] | None = None,
         ): ...
 
         @overload
-        def __init__(
-            self: Regex[str],
-            *patterns: _Pat,
-            group: None = None,
-            groups: None = None,
-            mode: Literal['string', RegexMode.STRING] | None = None,
-        ): ...
+        def __init__(self: Regex[Match[str]], *patterns: _Pat, mode: Literal['match', RegexMode.MATCH]): ...
 
         @overload
-        def __init__(
-            self: Regex[Match],
-            *patterns: _Pat,
-            group: None = None,
-            groups: None = None,
-            mode: Literal['match', RegexMode.MATCH],
-        ): ...
-
-        @overload
-        def __init__(
-            self: Regex[DictResult],
-            *patterns: _Pat,
-            group: None = None,
-            groups: None = None,
-            mode: Literal['dict', RegexMode.DICT],
-        ): ...
+        def __init__(self: Regex[DictResult], *patterns: _Pat, mode: Literal['dict', RegexMode.DICT]): ...
 
     # endregion
 

@@ -32,8 +32,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools
-          python -m pip install ruff pytest pytest-cov
-          pip install -e .[wcwidth]
+          pip install -e .[wcwidth,dev]
       - name: Lint with ruff
         run: ruff check
       - name: Generate coverage report

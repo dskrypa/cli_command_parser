@@ -51,7 +51,7 @@ class Sync(ApiWrapper, help='Sync group members'):
 
 class Find(ApiWrapper, help='Find objects'):
     sub_cmd = SubCommand(help='What to find')
-    limit: int = Option('-L', default=10, help='The number of results to show')
+    limit = Option('-L', type=int, default=10, help='The number of results to show')
 
     def main(self):
         for obj in self.find_objects():
@@ -85,7 +85,9 @@ class FindBar(Find, choice='bar', help='Find bar objects'):
 class FindBaz(Find, choices=('baz', 'bazs'), help='Find baz objects'):
     with ParamGroup(description='Filter Choices', mutually_exclusive=True, required=True):
         foo = Option('-f', metavar='NAME', help='Find baz objects related to the foo object with the specified name')
-        bar: int = Option('-b', metavar='ID', help='Find baz objects related to the bar object with the specified ID')
+        bar = Option(
+            '-b', type=int, metavar='ID', help='Find baz objects related to the bar object with the specified ID'
+        )
 
     def find_objects(self):
         if self.foo:
