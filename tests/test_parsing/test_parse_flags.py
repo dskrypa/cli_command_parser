@@ -437,6 +437,20 @@ class ParseTriFlagsTest(ParserTest):
         ]
         self.assert_parse_results_cases(Cmd, success_cases)
 
+    def test_default_matching_const(self):
+        class Cmd(Command):
+            foo = TriFlag(default=False)
+            bar = TriFlag(consts=(False, True), default=True)
+
+        success_cases = [
+            ([], {'foo': False, 'bar': True}),
+            (['--foo'], {'foo': True, 'bar': True}),
+            (['--bar'], {'foo': False, 'bar': False}),
+            (['--no-foo'], {'foo': False, 'bar': True}),
+            (['--no-bar'], {'foo': False, 'bar': True}),
+        ]
+        self.assert_parse_results_cases(Cmd, success_cases)
+
     # region Env Var Handling
 
     def test_env_var(self):

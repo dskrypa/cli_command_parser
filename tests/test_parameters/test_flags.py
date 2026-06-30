@@ -76,19 +76,19 @@ class FlagTest(ParserTest):
 
     def test_nargs_not_allowed(self):
         with self.assertRaises(TypeError):
-            Flag(nargs='+')
+            Flag(nargs='+')  # type: ignore
 
     def test_choices_not_allowed(self):
         with self.assertRaises(TypeError):
-            Flag(choices=(1, 2))
+            Flag(choices=(1, 2))  # type: ignore
 
     def test_allow_leading_dash_not_allowed(self):
         with self.assertRaises(TypeError):
-            Flag(allow_leading_dash=True)
+            Flag(allow_leading_dash=True)  # type: ignore
 
     def test_default_cb_rejected(self):
         with self.assert_raises_contains_str(ParameterDefinitionError, "The 'default_cb' arg is not supported"):
-            Flag(default_cb=lambda: 123)
+            Flag(default_cb=lambda: 123)  # type: ignore
 
     # endregion
 
@@ -229,19 +229,21 @@ class TriFlagTest(ParserTest):
         fail_cases = [({'consts': None}, exc), ({'consts': (1,)}, exc), ({'consts': [1, 2, 3]}, exc)]
         self.assert_call_fails_cases(TriFlag, fail_cases)
 
-    def test_default_in_consts_rejected(self):
-        expected = 'the default must not match either value'
-        cases = [((None, 'foo'), None), (('foo', None), None), ((True, False), True), ((True, False), False)]
-        for consts, default in cases:
-            with self.subTest(consts=consts, default=default):
-                with self.assert_raises_contains_str(ParameterDefinitionError, expected):
-                    TriFlag(consts=consts, default=default)
-
-    def test_register_default_cb_rejected(self):
+    def test_register_default_cb_rejected_due_to_existing_default(self):
         with self.assert_raises_contains_str(ParameterDefinitionError, 'because it already has default='):
 
             class Foo(Command):
                 bar = TriFlag(default=123)
+
+                @bar.register_default_cb
+                def baz(self):
+                    pass
+
+    def test_register_default_cb_rejected_due_to_required(self):
+        with self.assert_raises_contains_str(ParameterDefinitionError, 'because it has required=True'):
+
+            class Foo(Command):
+                bar = TriFlag(required=True)
 
                 @bar.register_default_cb
                 def baz(self):
