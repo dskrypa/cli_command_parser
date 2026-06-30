@@ -18,3 +18,6 @@ publish:
 
 sign:
 	for f in dist/*; do echo "Signing $${f}"; gpg --armor --detach-sign $${f}; done
+
+verify:
+	for f in dist/*.asc; do gpg --verify $$f $${f%.asc}; done

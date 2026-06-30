@@ -380,16 +380,16 @@ class Parameter(ParamBase, Param[T | D], ABC):
         :return: The method, unchanged.
         """
         if self.default is not _NotSet:
-            problem = f'default={self.default!r}'
+            problem = f'already has default={self.default!r}'
         elif self.default_cb:
-            problem = f'default_cb={self.default_cb!r}'
+            problem = f'already has default_cb={self.default_cb!r}'
+        elif self.required:
+            problem = 'has required=True'
         else:
             problem = None
 
         if problem:
-            raise ParameterDefinitionError(
-                f'Cannot register a default callback method for {self} because it already has {problem}'
-            )
+            raise ParameterDefinitionError(f'Cannot register a default callback method for {self} because it {problem}')
 
         self.default_cb = DefaultCallback(method, True)
         return method

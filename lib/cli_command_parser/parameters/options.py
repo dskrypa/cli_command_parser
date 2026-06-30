@@ -436,7 +436,7 @@ class TriFlag(BaseFlag[B, D], actions=(StoreConst, AppendConst)):
     :param alt_short: The alternate short form to use.
     :param alt_help: The help text to display with the alternate option strings.
     :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.
-    :param default: The default value to use if neither the primary or alternate options are provided.  Defaults
+    :param default: The default value to use if neither the primary nor alternate options are provided.  Defaults
       to None.
     :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this TriFlag.
     :param type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value,
@@ -495,15 +495,12 @@ class TriFlag(BaseFlag[B, D], actions=(StoreConst, AppendConst)):
             raise ParameterDefinitionError(msg) from e
 
         if default is _NotSet and default_cb is None:
-            if not kwargs.get('required', False):
+            if kwargs.get('required', False):
+                self._default_cb_ok = False  # prevent late registration of a default callback when param is required
+            else:
                 default = None  # type: ignore[assignment]
         else:
             self._default_cb_ok = False
-
-        if default in consts:
-            raise ParameterDefinitionError(
-                f'Invalid {default=} with {consts=} - the default must not match either value'
-            )
 
         alt_opt_strs = (opt for opt in (alt_short, alt_long) if opt)
         super().__init__(*option_strs, *alt_opt_strs, action=action, default=default, default_cb=default_cb, **kwargs)
