@@ -270,7 +270,12 @@ provided, respectively.
 :alt_long: The alternate long form to use.
 :alt_short: The alternate short form to use.
 :alt_help: The help text to display with the alternate option strings.
-:default: The default value to use if neither the primary or alternate options are provided.  Defaults to None.
+:default: The default value to use if neither the primary nor alternate options are provided.  Defaults to None.
+
+    .. version-changed:: 2026-06-30
+
+        The ``default`` value may now match either value in ``consts`` (previously, matching values were rejected).
+
 :name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for the TriFlag.
 :type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value, which
   should be called on environment variable values, if any are configured for this TriFlag via

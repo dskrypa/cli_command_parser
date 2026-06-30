@@ -1289,7 +1289,7 @@ should be able to explicitly enable / disable it as well.  To support this, the 
 stored by default, and True / False being stored when the positive / negative (primary / alternate) versions are
 provided, respectively.</p>
 <p id="triflag-init-params"><strong>Unique TriFlag initialization parameters:</strong></p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd" id="triflag:option_strs">option_strs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The primary long and/or short option prefixes for this option.  If no long prefixes are
 specified, then one will automatically be added based on the name assigned to this parameter.</p>
@@ -1311,7 +1311,10 @@ specified.  Defaults to <code class="docutils literal notranslate"><span class="
 <dd class="field-even"><p>The help text to display with the alternate option strings.</p>
 </dd>
 <dt class="field-odd" id="triflag:default">default<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The default value to use if neither the primary or alternate options are provided.  Defaults to None.</p>
+<dd class="field-odd"><p>The default value to use if neither the primary nor alternate options are provided.  Defaults to None.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 2026-06-30: </span>The <code class="docutils literal notranslate"><span class="pre">default</span></code> value may now match either value in <code class="docutils literal notranslate"><span class="pre">consts</span></code> (previously, matching values were rejected).</p>
+</div>
 </dd>
 <dt class="field-even" id="triflag:name_mode">name_mode<span class="colon">:</span></dt>
 <dd class="field-even"><p>Override the configured <a class="reference internal" href="configuration.html#parsing options:option_name_mode"><span class="std std-ref">option_name_mode</span></a> for the TriFlag.</p>

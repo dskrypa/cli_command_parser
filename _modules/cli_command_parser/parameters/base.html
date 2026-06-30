@@ -1415,16 +1415,16 @@
 <span class="sd">        :return: The method, unchanged.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_NotSet</span><span class="p">:</span>
-            <span class="n">problem</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;default=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">&#39;</span>
+            <span class="n">problem</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;already has default=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="si">!r}</span><span class="s1">&#39;</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span><span class="p">:</span>
-            <span class="n">problem</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;default_cb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span><span class="si">!r}</span><span class="s1">&#39;</span>
+            <span class="n">problem</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;already has default_cb=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span><span class="si">!r}</span><span class="s1">&#39;</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">required</span><span class="p">:</span>
+            <span class="n">problem</span> <span class="o">=</span> <span class="s1">&#39;has required=True&#39;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">problem</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="n">problem</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Cannot register a default callback method for </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> because it already has </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Cannot register a default callback method for </span><span class="si">{</span><span class="bp">self</span><span class="si">}</span><span class="s1"> because it </span><span class="si">{</span><span class="n">problem</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">default_cb</span> <span class="o">=</span> <span class="n">DefaultCallback</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">method</span></div>

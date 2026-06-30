@@ -1454,7 +1454,7 @@
 <span class="sd">    :param alt_short: The alternate short form to use.</span>
 <span class="sd">    :param alt_help: The help text to display with the alternate option strings.</span>
 <span class="sd">    :param action: The action to take on individual parsed values.  Only ``store_const`` (the default) is supported.</span>
-<span class="sd">    :param default: The default value to use if neither the primary or alternate options are provided.  Defaults</span>
+<span class="sd">    :param default: The default value to use if neither the primary nor alternate options are provided.  Defaults</span>
 <span class="sd">      to None.</span>
 <span class="sd">    :param name_mode: Override the configured :ref:`configuration:Parsing Options:option_name_mode` for this TriFlag.</span>
 <span class="sd">    :param type: A callable (function, class, etc.) that accepts a single string argument and returns a boolean value,</span>
@@ -1513,15 +1513,12 @@
             <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
         <span class="k">if</span> <span class="n">default</span> <span class="ow">is</span> <span class="n">_NotSet</span> <span class="ow">and</span> <span class="n">default_cb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_default_cb_ok</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># prevent late registration of a default callback when param is required</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: ignore[assignment]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_default_cb_ok</span> <span class="o">=</span> <span class="kc">False</span>
-
-        <span class="k">if</span> <span class="n">default</span> <span class="ow">in</span> <span class="n">consts</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ParameterDefinitionError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;Invalid </span><span class="si">{</span><span class="n">default</span><span class="si">=}</span><span class="s1"> with </span><span class="si">{</span><span class="n">consts</span><span class="si">=}</span><span class="s1"> - the default must not match either value&#39;</span>
-            <span class="p">)</span>
 
         <span class="n">alt_opt_strs</span> <span class="o">=</span> <span class="p">(</span><span class="n">opt</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="p">(</span><span class="n">alt_short</span><span class="p">,</span> <span class="n">alt_long</span><span class="p">)</span> <span class="k">if</span> <span class="n">opt</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">option_strs</span><span class="p">,</span> <span class="o">*</span><span class="n">alt_opt_strs</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">default_cb</span><span class="o">=</span><span class="n">default_cb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
