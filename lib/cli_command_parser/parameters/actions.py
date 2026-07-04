@@ -108,13 +108,6 @@ class ParamAction(ABC, Generic[P]):
     def add_env_value(self, value: str, env_var: str) -> Found:
         return self.add_value(value, env_var=env_var)
 
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     added = 0
-    #     for value in values:
-    #         added += self.add_value(value, combo=combo)
-    #     return added
-
     def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:  # noqa
         ctx.record_action(self.param)
         raise MissingArgument(self.param)
@@ -138,14 +131,6 @@ class ParamAction(ABC, Generic[P]):
             return False
         else:
             return valid_values and len(values) in self.param.nargs
-
-    # Note: Not used yet
-    # def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
-    #     prepare_value, validate = self.param.prepare_value, self.param.validate
-    #     for value in values:
-    #         value = prepare_value(value, combo)
-    #         validate(value)
-    #         yield value
 
     # endregion
 
@@ -209,15 +194,6 @@ class _ValueAction(ParamAction[P], ABC):
 
         parsed.append(value)
 
-    # Note: Not used yet
-    # def extend_values(self, values: Iterable[T_co]):
-    #     parsed = ctx.get_parsed_value(self.param)
-    #     if parsed is _NotSet:
-    #         parsed = self.get_default()
-    #         ctx.set_parsed_value(self.param, parsed)
-    #
-    #     parsed.extend(values)
-
 
 class _ConstAction(ParamAction[F], ABC):
     __slots__ = ()
@@ -242,14 +218,6 @@ class _ConstAction(ParamAction[F], ABC):
             ctx.set_parsed_value(self.param, parsed)
 
         parsed.append(const)
-
-    # def extend_consts(self, consts):
-    #     parsed = ctx.get_parsed_value(self.param)
-    #     if parsed is _NotSet:
-    #         parsed = self.get_default()
-    #         ctx.set_parsed_value(self.param, parsed)
-    #
-    #     parsed.extend(consts)
 
     def add_env_value(self, value: str, env_var: str) -> Found:
         const, use_value = self.param.get_env_const(value, env_var)
@@ -284,17 +252,6 @@ class Store(_ValueAction, default=None, accepts_values=True):
         self.set_value(value)
         return 1
 
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     ctx.record_action(self.param)
-    #     if not values:
-    #         raise MissingArgument(self.param)
-    #     elif (val_count := len(values)) not in self.param.nargs:
-    #         raise BadArgument(self.param, f'expected nargs={self.param.nargs} values but found {val_count}')
-    #
-    #     self.set_value([value for value in self._prep_and_validate(values, combo)])
-    #     return val_count
-
     # endregion
 
     # region Parsing
@@ -319,17 +276,6 @@ class Append(_ValueAction, accepts_values=True):
         self.param.validate(value)
         self.append_value(value)
         return 1
-
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     ctx.record_action(self.param)
-    #     if not values:
-    #         raise MissingArgument(self.param)
-    #     elif (val_count := len(values)) not in (nargs := self.param.nargs):
-    #         raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
-    #
-    #     self.extend_values(value for value in self._prep_and_validate(values, combo))
-    #     return val_count
 
     # endregion
 
