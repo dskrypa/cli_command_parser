@@ -7,18 +7,20 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Generic, NoReturn, TypeVar, Union
+from typing import TYPE_CHECKING, ClassVar, Generic, NoReturn, TypeVar
 
 from ..context import ctx
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
 from ..inputs import InputType
 from ..nargs import Nargs
-from ..utils import _NotSet, camel_to_snake_case
+from ..utils import _NotSet, _NotSetType, camel_to_snake_case
 
 if TYPE_CHECKING:
     from ..commands import Command
     from ..typing import Bool, OptStr
     from .base import BaseFlag, Parameter
+
+    Found = int | NoReturn
 
 __all__ = [
     'ParamAction',
@@ -46,19 +48,21 @@ _PANotSet = _PANotSetType._PANotSet
 
 P = TypeVar('P', bound='Parameter')
 F = TypeVar('F', bound='BaseFlag')
-Found = Union[int, NoReturn]
 
 
 class ParamAction(ABC, Generic[P]):
     __slots__ = ('param',)
     name: str
-    # param: P
-    default = _NotSet
+    default: None | _NotSetType = _NotSet
     accepts_values: bool = False
     accepts_consts: bool = False
 
     def __init_subclass__(
-        cls, default=_PANotSet, accepts_values: bool | None = None, accepts_consts: bool | None = None, **kwargs
+        cls,
+        default: None | _PANotSetType = _PANotSet,
+        accepts_values: bool | None = None,
+        accepts_consts: bool | None = None,
+        **kwargs,
     ):
         super().__init_subclass__(**kwargs)
         cls.name = camel_to_snake_case(cls.__name__)
@@ -198,7 +202,7 @@ class _ValueAction(ParamAction[P], ABC):
     def append_value(self, value):
         parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
-            parsed = self.get_default()
+            parsed = []
             ctx.set_parsed_value(self.param, parsed)
         elif self.param.nargs.max_reached(parsed):
             raise TooManyArguments(self.param, f'already found {len(parsed)} values')
@@ -396,6 +400,20 @@ class Append(_ValueAction, accepts_values=True):
         return value
 
     # endregion
+
+
+class AppendDefault(Append):
+    __slots__ = ()
+
+    def append_value(self, value):
+        parsed = ctx.get_parsed_value(self.param)
+        if parsed is _NotSet:
+            parsed = self.get_default()
+            ctx.set_parsed_value(self.param, parsed)
+        elif self.param.nargs.max_reached(parsed):
+            raise TooManyArguments(self.param, f'already found {len(parsed)} values')
+
+        parsed.append(value)
 
 
 class BasicConstAction(_ConstAction, ABC, accepts_consts=True):

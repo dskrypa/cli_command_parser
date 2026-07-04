@@ -20,7 +20,7 @@ TEST_MODULES_DIR = Path(__file__).resolve().parent.joinpath('modules')
 class TestInputsTyping(TestCase):
     def assert_revealed_types_are_correct(self, name: str):
         for result in RevealedTypeChecker(name):
-            with self.subTest(line=result.line):
+            with self.subTest(line=result.line, attr=result.name):
                 if reason := result.failure_reason():
                     self.fail(reason)
 

@@ -147,12 +147,21 @@ more about how attribute names are used to automatically generate ``--long`` opt
 **Unique Option initialization parameters:**
 
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.
-:nargs: The number of values that are expected/required when this parameter is specified.  Defaults to ``+``
-  when ``action='append'``, and to ``1`` otherwise. See :ref:`parameters:Parameters:nargs` for more info.
-:action: The action to take on individual parsed values.  Supported actions include ``store`` and ``append``.
-  Defaults to ``store`` when ``nargs=1`` (the default if neither action nor nargs are specified), and to ``append``
-  otherwise.  A single value will be stored when ``action='store'``, and a list of values will be stored when
-  ``action='append'``.
+:nargs: The number of values that are expected/required when this parameter is specified.  Defaults to ``+`` when
+  ``action='append'`` or ``action='append_default'``, and to ``1`` otherwise. See :ref:`parameters:Parameters:nargs`
+  for more info.
+:action: The action to take on individual parsed values.  Supported actions include ``store``, ``append``, and
+  ``append_default``.  Defaults to ``store`` when ``nargs=1`` (the default if neither action nor nargs are specified),
+  and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list of values will be
+  stored when ``action='append'`` or ``action='append_default'``.  The difference between the two append actions is
+  that using ``append_default`` will result in the default value(s) being included at the beginning of the list of
+  values.
+
+    .. version-changed:: 2026-07-04
+
+        The ``append`` action was changed to exclude default value(s).  To restore the behavior from previous versions,
+        explicitly specify ``action='append_default'``.
+
 :allow_leading_dash: Whether string values may begin with a dash (``-``).  By default, if a value begins with a dash,
   it is only accepted if it appears to be a negative numeric value.  Use ``True`` / ``always`` /
   ``AllowLeadingDash.ALWAYS`` to allow any value that begins with a dash (as long as it is not an option string for an
@@ -388,6 +397,18 @@ The generic :class:`.Positional` parameter that accepts arbitrary values or list
   allows 0 values to have the same effect as making the Parameter not required (the ``required`` option is not
   supported for Positional Parameters).  Only the last Positional in a given :class:`.Command` may allow a
   variable / unbound number of arguments.
+:action: The action to take on individual parsed values.  Supported actions include ``store``, ``append``, and
+  ``append_default``.  Defaults to ``store`` when ``nargs=1`` (the default if neither action nor nargs are specified),
+  and to ``append`` otherwise.  A single value will be stored when ``action='store'``, and a list of values will be
+  stored when ``action='append'`` or ``action='append_default'``.  The difference between the two append actions is
+  that using ``append_default`` will result in the default value(s) being included at the beginning of the list of
+  values.
+
+    .. version-changed:: 2026-07-04
+
+        The ``append`` action was changed to exclude default value(s).  To restore the behavior from previous versions,
+        explicitly specify ``action='append_default'``.
+
 :default: Only supported when ``action='store'`` and 0 values are allowed by the specified ``nargs``.  Defaults
   to ``None`` under those conditions.
 :choices: A container that holds the specific values that users must pick from.  By default, any value is allowed.

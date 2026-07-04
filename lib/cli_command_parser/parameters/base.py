@@ -51,6 +51,12 @@ TD = TypeVar('TD')
 
 
 class Param(Generic[T]):
+    """
+    Primarily used for type checking.  Generally, explicit annotations for parameters are not necessary.  In some cases,
+    such as when indicating that a common parameter will exist with different definitions in one or more subclasses,
+    then the use of this class for the annotations may be useful.
+    """
+
     __slots__ = ()
 
     if TYPE_CHECKING:
@@ -626,56 +632,6 @@ class BaseOption(Parameter[T, D], ABC):
     strict_env: Bool
     use_env_value: Bool
 
-    # region Init Overloads
-
-    if TYPE_CHECKING:
-
-        @overload
-        def __init__(
-            self: BaseOption[T, _NotSetType],
-            *option_strs: str,
-            action: str,
-            help: OptStr = None,  # noqa
-            hide: Bool = False,
-            metavar: OptStr = None,
-            name: OptStr = None,
-            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
-            required: Literal[True],
-            default: _NotSetType = _NotSet,
-            default_cb: None = None,
-            cb_with_cmd: Bool = False,
-            show_default: Bool = None,
-            strict_default: Bool = False,
-            env_var: OptStrs = None,
-            strict_env: bool = True,
-            use_env_value: Bool = None,
-            show_env_var: Bool = None,
-        ): ...
-
-        @overload
-        def __init__(
-            self: BaseOption[T, D],
-            *option_strs: str,
-            action: str,
-            help: OptStr = None,  # noqa
-            hide: Bool = False,
-            metavar: OptStr = None,
-            name: OptStr = None,
-            name_mode: OptionNameMode | OptStr | _NotSetType = _NotSet,
-            required: Bool = False,
-            default: D | _NotSetType = _NotSet,
-            default_cb: DefaultFunc[D] | None = None,
-            cb_with_cmd: Bool = False,
-            show_default: Bool = None,
-            strict_default: Bool = False,
-            env_var: OptStrs = None,
-            strict_env: bool = True,
-            use_env_value: Bool = None,
-            show_env_var: Bool = None,
-        ): ...
-
-    # endregion
-
     def __init__(
         self,
         *option_strs: str,
@@ -741,13 +697,15 @@ class AllowLeadingDashProperty:
     def __set_name__(self, owner, name: str):
         self.name = name
 
-    @overload
-    def __get__(self, instance: None, owner: Any) -> AllowLeadingDashProperty: ...
+    if TYPE_CHECKING:
 
-    @overload
-    def __get__(self, instance: AnyParam, owner: Any) -> AllowLeadingDash: ...
+        @overload
+        def __get__(self, instance: Literal[None], owner: Any = None) -> Self: ...
 
-    def __get__(self, instance: AnyParam | None, owner: Any) -> AllowLeadingDash | AllowLeadingDashProperty:
+        @overload
+        def __get__(self, instance: AnyParam, owner: Any = None) -> AllowLeadingDash: ...
+
+    def __get__(self, instance: AnyParam | None, owner: Any = None) -> AllowLeadingDash | Self:
         if instance is None:
             return self
         return instance.__dict__.get(self.name, self.default)

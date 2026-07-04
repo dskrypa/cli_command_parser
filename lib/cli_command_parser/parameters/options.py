@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial, update_wrapper
-from typing import TYPE_CHECKING, Any, Callable, Literal, NoReturn, Type, overload
+from typing import TYPE_CHECKING, Any, Callable, Collection, Literal, NoReturn, Type, overload
 
 try:
     from typing import Never
@@ -20,7 +20,7 @@ from ..inputs import normalize_input_type
 from ..nargs import Nargs
 from ..typing import B, D, T
 from ..utils import _NotSet, _NotSetType, str_to_bool
-from .actions import Append, AppendConst, Count, Store, StoreConst
+from .actions import Append, AppendConst, AppendDefault, Count, Store, StoreConst
 from .base import AllowLeadingDashProperty, BaseFlag, BaseOption
 from .option_strings import TriFlagOptionStrings
 
@@ -30,6 +30,9 @@ if TYPE_CHECKING:
     from ..nargs import NargsMultiple, NargsSingle, NargsValue
     from ..typing import Bool, ChoicesType, InputTypeFunc, OptStr, OptStrs, TypeFunc
     from ._typing import CommandMethod, DefaultFunc, LeadingDash
+
+    OptAct = Literal['store', 'append', 'append_default'] | None
+    ConstAct = Literal['store_const', 'append_const']
 
 __all__ = [
     'Option',
@@ -44,11 +47,8 @@ __all__ = [
 ]
 log = logging.getLogger(__name__)
 
-OptAct = Literal['store', 'append'] | None
-ConstAct = Literal['store_const', 'append_const']
 
-
-class Option(BaseOption[T, D], actions=(Store, Append)):
+class Option(BaseOption[T, D], actions=(Store, Append, AppendDefault)):
     """
     A generic option that can be specified as ``--foo bar`` or by using other similar forms.
 
@@ -84,6 +84,7 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
     # region Init Overloads
 
     if TYPE_CHECKING:
+        # region Required
 
         @overload
         def __init__(
@@ -92,8 +93,7 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Literal[True],
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
-            default_cb: None = None,
+            strict_default: Bool = ...,
             nargs: NargsSingle = None,
             **kwargs,
         ): ...
@@ -105,11 +105,14 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Literal[True],
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
-            default_cb: None = None,
+            strict_default: Bool = ...,
             nargs: NargsMultiple,
             **kwargs,
         ): ...
+
+        # endregion
+
+        # region nargs=1/?/None
 
         @overload
         def __init__(
@@ -118,8 +121,8 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Literal[False] = False,
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
-            default_cb: DefaultFunc[D] | None = None,
+            default_cb: None = None,
+            strict_default: Bool = ...,
             nargs: NargsSingle = None,
             **kwargs,
         ): ...
@@ -132,7 +135,8 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
             default: D,
-            default_cb: DefaultFunc[D] | None = None,
+            default_cb: None = None,
+            strict_default: Bool = ...,
             nargs: NargsSingle = None,
             **kwargs,
         ): ...
@@ -144,24 +148,13 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Literal[False] = False,
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
             default_cb: DefaultFunc[D],
+            strict_default: Bool = ...,
             nargs: NargsSingle = None,
             **kwargs,
         ): ...
 
-        @overload
-        def __init__(
-            self: Option[list[T], list[T]],
-            *option_strs: str,
-            required: Literal[False] = False,
-            type: InputTypeFunc[T] = None,  # noqa
-            choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
-            default_cb: DefaultFunc[D] | None = None,
-            nargs: NargsMultiple,
-            **kwargs,
-        ): ...
+        # endregion
 
         @overload
         def __init__(
@@ -171,7 +164,22 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
             default: D,
-            default_cb: DefaultFunc[D] | None = None,
+            default_cb: None = None,
+            strict_default: Literal[True],
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], list[D]],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default: D | Collection[D],
+            default_cb: None = None,
+            strict_default: Literal[False] = False,
             nargs: NargsMultiple,
             **kwargs,
         ): ...
@@ -183,8 +191,34 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Literal[False] = False,
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: _NotSetType = _NotSet,
             default_cb: DefaultFunc[D],
+            strict_default: Literal[True],
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            self: Option[list[T], list[D]],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            default_cb: DefaultFunc[D] | DefaultFunc[Collection[D]],
+            strict_default: Literal[False] = False,
+            nargs: NargsMultiple,
+            **kwargs,
+        ): ...
+
+        @overload
+        def __init__(
+            # Not required, but no explicit default was provided
+            self: Option[list[T], Never],
+            *option_strs: str,
+            required: Literal[False] = False,
+            type: InputTypeFunc[T] = None,  # noqa
+            choices: ChoicesType[T] = None,
+            strict_default: Bool = ...,
             nargs: NargsMultiple,
             **kwargs,
         ): ...
@@ -196,8 +230,9 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             required: Bool = False,
             type: InputTypeFunc[T] = None,  # noqa
             choices: ChoicesType[T] = None,
-            default: D | _NotSetType = _NotSet,
-            default_cb: DefaultFunc[D] | None = None,
+            default: D | Collection[D] | _NotSetType = _NotSet,
+            default_cb: DefaultFunc[D] | DefaultFunc[Collection[D]] | None = None,
+            strict_default: Bool = False,
             nargs: NargsValue | None = None,
             action: OptAct = None,
             help: OptStr = None,  # noqa
@@ -208,7 +243,6 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
             allow_leading_dash: LeadingDash | None = None,
             cb_with_cmd: Bool = False,
             show_default: Bool = None,
-            strict_default: Bool = False,
             env_var: OptStrs = None,
             strict_env: bool = True,
             use_env_value: Bool = None,
@@ -222,7 +256,7 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
         *option_strs: str,
         nargs: NargsValue | None = None,
         action: OptAct = None,
-        default: D | _NotSetType = _NotSet,
+        default: D | Collection[D] | _NotSetType = _NotSet,
         required: Bool = False,
         type: InputTypeFunc[T] = None,  # noqa
         choices: ChoicesType[T] = None,
@@ -232,15 +266,15 @@ class Option(BaseOption[T, D], actions=(Store, Append)):
         _nargs: Nargs | None = _validate_option_nargs(nargs)
         if not action:
             if _nargs is not None:
-                action = 'store' if _nargs == 1 else 'append'
+                action = 'store' if _nargs.matches(1) else 'append'
             else:
                 action = 'store'
-        elif _nargs is not None and action == 'store' and _nargs != 1:
+        elif _nargs is not None and action == 'store' and not _nargs.matches(1):
             raise ParameterDefinitionError(f'Invalid nargs={_nargs} for {action=}')
 
         super().__init__(*option_strs, action=action, default=default, required=required, **kwargs)
-        self.nargs = self.action.default_nargs if _nargs is None else _nargs
-        self.type = normalize_input_type(type, choices)  # type: ignore[assignment]
+        self.nargs = _nargs or self.action.default_nargs
+        self.type = normalize_input_type(type, choices)
         self.allow_leading_dash = allow_leading_dash
 
     def _handle_bad_action(self, action: str) -> NoReturn:

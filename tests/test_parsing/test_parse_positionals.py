@@ -187,8 +187,19 @@ class NargsParsingTest(ParserTest):
 
         cases = [
             ([], {'foo': ['bar']}),
-            # (['baz'], {'foo': ['baz']}),  # TODO: This is what it probably *should* be
-            (['baz'], {'foo': ['bar', 'baz']}),
+            (['a'], {'foo': ['a']}),
+            (['a', 'b'], {'foo': ['a', 'b']}),
+        ]
+        self.assert_parse_results_cases(Foo, cases)
+
+    def test_positional_nargs_star_append_default(self):
+        class Foo(Command):
+            foo = Positional(nargs='*', default='bar', action='append_default')
+
+        cases = [
+            ([], {'foo': ['bar']}),
+            (['a'], {'foo': ['bar', 'a']}),
+            (['a', 'b'], {'foo': ['bar', 'a', 'b']}),
         ]
         self.assert_parse_results_cases(Foo, cases)
 

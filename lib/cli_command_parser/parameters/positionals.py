@@ -18,7 +18,7 @@ from ..inputs import normalize_input_type
 from ..nargs import Nargs
 from ..typing import D, T
 from ..utils import _NotSet, _NotSetType
-from .actions import Append, Store
+from .actions import Append, AppendDefault, Store
 from .base import AllowLeadingDashProperty, BasePositional
 
 if TYPE_CHECKING:
@@ -26,10 +26,12 @@ if TYPE_CHECKING:
     from ..typing import Bool, ChoicesType, InputTypeFunc, OptStr
     from ._typing import DefaultFunc, LeadingDash
 
+    PosAct = Literal['store', 'append', 'append_default'] | None
+
 __all__ = ['Positional']
 
 
-class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append)):
+class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append, AppendDefault)):
     """
     A parameter that must be provided positionally.
 
@@ -66,7 +68,7 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
         def __init__(
             self: Positional[T, Never],
             nargs: Literal[1, None] = None,
-            action: Literal['store', 'append'] | None = None,
+            action: PosAct = None,
             type: InputTypeFunc[T] = None,  # noqa
             *,
             choices: ChoicesType[T] = None,
@@ -81,7 +83,7 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
         def __init__(
             self: Positional[T, D],
             nargs: Literal['?'],
-            action: Literal['store', 'append'] | None = None,
+            action: PosAct = None,
             type: InputTypeFunc[T] = None,  # noqa
             default: D | _NotSetType = _NotSet,
             *,
@@ -98,7 +100,7 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
         def __init__(
             self: Positional[list[T], list[D]],
             nargs: NargsMultiple,
-            action: Literal['store', 'append'] | None = None,
+            action: PosAct = None,
             type: InputTypeFunc[T] = None,  # noqa
             default: D | _NotSetType = _NotSet,
             *,
@@ -115,7 +117,7 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
         def __init__(
             self,
             nargs: NargsValue | None = None,
-            action: Literal['store', 'append'] | None = None,
+            action: PosAct = None,
             type: InputTypeFunc[T] = None,  # noqa
             default: D | _NotSetType = _NotSet,
             *,
@@ -131,7 +133,7 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
     def __init__(
         self,
         nargs: NargsValue | None = None,
-        action: Literal['store', 'append'] | None = None,
+        action: PosAct = None,
         type: InputTypeFunc[T] = None,  # noqa
         default: D | _NotSetType = _NotSet,
         *,
@@ -163,5 +165,5 @@ class Positional(BasePositional[T, D], default_ok=True, actions=(Store, Append))
             )
         kwargs.setdefault('required', required)
         super().__init__(action=action, default=default, default_cb=default_cb, **kwargs)
-        self.type = normalize_input_type(type, choices)  # type: ignore[assignment]
+        self.type = normalize_input_type(type, choices)
         self.allow_leading_dash = allow_leading_dash
