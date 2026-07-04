@@ -130,7 +130,7 @@ class Nargs:
         """See :meth:`.satisfied`"""
         return self.satisfied(num)
 
-    def __eq__(self, other) -> bool:
+    def matches(self, other: Any) -> bool:
         match other:
             case Nargs():
                 return self._eq_nargs(other)
@@ -138,6 +138,8 @@ class Nargs:
                 return self.min == self.max == other
             case _:
                 return NotImplemented
+
+    __eq__ = matches
 
     def _eq_nargs(self, other: Nargs) -> bool:
         if not self._has_upper_bound:

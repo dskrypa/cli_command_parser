@@ -7,18 +7,20 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Generic, NoReturn, TypeVar, Union
+from typing import TYPE_CHECKING, ClassVar, Generic, NoReturn, TypeVar
 
 from ..context import ctx
 from ..exceptions import BadArgument, InvalidChoice, MissingArgument, ParamConflict, ParamUsageError, TooManyArguments
 from ..inputs import InputType
 from ..nargs import Nargs
-from ..utils import _NotSet, camel_to_snake_case
+from ..utils import _NotSet, _NotSetType, camel_to_snake_case
 
 if TYPE_CHECKING:
     from ..commands import Command
     from ..typing import Bool, OptStr
     from .base import BaseFlag, Parameter
+
+    Found = int | NoReturn
 
 __all__ = [
     'ParamAction',
@@ -46,19 +48,21 @@ _PANotSet = _PANotSetType._PANotSet
 
 P = TypeVar('P', bound='Parameter')
 F = TypeVar('F', bound='BaseFlag')
-Found = Union[int, NoReturn]
 
 
 class ParamAction(ABC, Generic[P]):
     __slots__ = ('param',)
     name: str
-    # param: P
-    default = _NotSet
+    default: None | _NotSetType = _NotSet
     accepts_values: bool = False
     accepts_consts: bool = False
 
     def __init_subclass__(
-        cls, default=_PANotSet, accepts_values: bool | None = None, accepts_consts: bool | None = None, **kwargs
+        cls,
+        default: None | _PANotSetType = _PANotSet,
+        accepts_values: bool | None = None,
+        accepts_consts: bool | None = None,
+        **kwargs,
     ):
         super().__init_subclass__(**kwargs)
         cls.name = camel_to_snake_case(cls.__name__)
@@ -104,13 +108,6 @@ class ParamAction(ABC, Generic[P]):
     def add_env_value(self, value: str, env_var: str) -> Found:
         return self.add_value(value, env_var=env_var)
 
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     added = 0
-    #     for value in values:
-    #         added += self.add_value(value, combo=combo)
-    #     return added
-
     def add_const(self, *, opt: OptStr = None, combo: bool = False) -> Found:  # noqa
         ctx.record_action(self.param)
         raise MissingArgument(self.param)
@@ -134,14 +131,6 @@ class ParamAction(ABC, Generic[P]):
             return False
         else:
             return valid_values and len(values) in self.param.nargs
-
-    # Note: Not used yet
-    # def _prep_and_validate(self, values: Sequence[str], combo: bool) -> Iterator[T_co]:
-    #     prepare_value, validate = self.param.prepare_value, self.param.validate
-    #     for value in values:
-    #         value = prepare_value(value, combo)
-    #         validate(value)
-    #         yield value
 
     # endregion
 
@@ -198,21 +187,12 @@ class _ValueAction(ParamAction[P], ABC):
     def append_value(self, value):
         parsed = ctx.get_parsed_value(self.param)
         if parsed is _NotSet:
-            parsed = self.get_default()
+            parsed = []
             ctx.set_parsed_value(self.param, parsed)
         elif self.param.nargs.max_reached(parsed):
             raise TooManyArguments(self.param, f'already found {len(parsed)} values')
 
         parsed.append(value)
-
-    # Note: Not used yet
-    # def extend_values(self, values: Iterable[T_co]):
-    #     parsed = ctx.get_parsed_value(self.param)
-    #     if parsed is _NotSet:
-    #         parsed = self.get_default()
-    #         ctx.set_parsed_value(self.param, parsed)
-    #
-    #     parsed.extend(values)
 
 
 class _ConstAction(ParamAction[F], ABC):
@@ -238,14 +218,6 @@ class _ConstAction(ParamAction[F], ABC):
             ctx.set_parsed_value(self.param, parsed)
 
         parsed.append(const)
-
-    # def extend_consts(self, consts):
-    #     parsed = ctx.get_parsed_value(self.param)
-    #     if parsed is _NotSet:
-    #         parsed = self.get_default()
-    #         ctx.set_parsed_value(self.param, parsed)
-    #
-    #     parsed.extend(consts)
 
     def add_env_value(self, value: str, env_var: str) -> Found:
         const, use_value = self.param.get_env_const(value, env_var)
@@ -280,17 +252,6 @@ class Store(_ValueAction, default=None, accepts_values=True):
         self.set_value(value)
         return 1
 
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     ctx.record_action(self.param)
-    #     if not values:
-    #         raise MissingArgument(self.param)
-    #     elif (val_count := len(values)) not in self.param.nargs:
-    #         raise BadArgument(self.param, f'expected nargs={self.param.nargs} values but found {val_count}')
-    #
-    #     self.set_value([value for value in self._prep_and_validate(values, combo)])
-    #     return val_count
-
     # endregion
 
     # region Parsing
@@ -315,17 +276,6 @@ class Append(_ValueAction, accepts_values=True):
         self.param.validate(value)
         self.append_value(value)
         return 1
-
-    # Note: Not used yet
-    # def add_values(self, values: Sequence[str], *, combo: bool = False) -> Found:
-    #     ctx.record_action(self.param)
-    #     if not values:
-    #         raise MissingArgument(self.param)
-    #     elif (val_count := len(values)) not in (nargs := self.param.nargs):
-    #         raise BadArgument(self.param, f'expected {nargs=} values but found {val_count}')
-    #
-    #     self.extend_values(value for value in self._prep_and_validate(values, combo))
-    #     return val_count
 
     # endregion
 
@@ -396,6 +346,20 @@ class Append(_ValueAction, accepts_values=True):
         return value
 
     # endregion
+
+
+class AppendDefault(Append):
+    __slots__ = ()
+
+    def append_value(self, value):
+        parsed = ctx.get_parsed_value(self.param)
+        if parsed is _NotSet:
+            parsed = self.get_default()
+            ctx.set_parsed_value(self.param, parsed)
+        elif self.param.nargs.max_reached(parsed):
+            raise TooManyArguments(self.param, f'already found {len(parsed)} values')
+
+        parsed.append(value)
 
 
 class BasicConstAction(_ConstAction, ABC, accepts_consts=True):

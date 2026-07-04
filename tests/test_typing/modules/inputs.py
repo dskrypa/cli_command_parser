@@ -82,6 +82,16 @@ class InputsExample(Command):
         # The next one doesn't work, but it probably never should have been implemented to work
         # regex_converted = Option(type=re.compile('foo.*bar'))
 
+    with ParamGroup('Complex'):
+        ints_default_list = Option(nargs='+', type=int, default=[1])
+        ints_default_set = Option(nargs='+', type=int, default={1, 2})
+        ints_default_set_strict = Option(nargs='+', type=int, default={1, 2}, strict_default=True)
+        ints_default_single = Option(nargs='+', type=int, default=1)
+        mixed_types_default_single = Option(nargs='+', default=1)
+        # The next two don't work, but it would be a relatively strange use case to need
+        # mixed_types_default_list = Option(nargs='+', default=[1])
+        # mixed_types_default_tuple = Option(nargs='+', default=(1,))
+
     def main(self) -> None:
         reveal_type(self.positional)  # str
         reveal_type(self.positional_int)  # int
@@ -140,3 +150,11 @@ class InputsExample(Command):
         reveal_type(self.regex_match)  # re.Match[str] | None
         reveal_type(self.regex_dict)  # dict[str, str] | None
         # reveal_type(self.regex_converted)  # str | None
+
+        reveal_type(self.ints_default_list)  # list[int]
+        reveal_type(self.ints_default_set)  # list[int]
+        reveal_type(self.ints_default_set_strict)  # list[int] | set[int]
+        reveal_type(self.ints_default_single)  # list[int]
+        reveal_type(self.mixed_types_default_single)  # list[str] | list[int]
+        # reveal_type(self.mixed_types_default_list)  # list[str] | list[int]
+        # reveal_type(self.mixed_types_default_tuple)  # list[str] | list[int]

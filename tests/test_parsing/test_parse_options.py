@@ -229,6 +229,27 @@ class OptionTest(ParserTest):
     def test_defaults_with_nargs_multi(self):
         success_cases = [
             ([], {'bar': [1]}),
+            (['-b', '2'], {'bar': [2]}),
+            (['-b=2'], {'bar': [2]}),
+            (['--bar', '2', '3'], {'bar': [2, 3]}),
+        ]
+        fail_cases = [
+            ['-b=2', '3'],  # argparse also rejects this
+            ['-b'],
+        ]
+
+        for default in (1, [1]):
+            with self.subTest(default=default):
+
+                class Foo(Command):
+                    bar = Option('-b', nargs='+', type=int, default=default)
+
+                self.assert_parse_results_cases(Foo, success_cases)
+                self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
+
+    def test_defaults_with_nargs_multi_append_default(self):
+        success_cases = [
+            ([], {'bar': [1]}),
             (['-b', '2'], {'bar': [1, 2]}),
             (['-b=2'], {'bar': [1, 2]}),
             (['--bar', '2', '3'], {'bar': [1, 2, 3]}),
@@ -242,7 +263,7 @@ class OptionTest(ParserTest):
             with self.subTest(default=default):
 
                 class Foo(Command):
-                    bar = Option('-b', nargs='+', type=int, default=default)
+                    bar = Option('-b', nargs='+', type=int, default=default, action='append_default')
 
                 self.assert_parse_results_cases(Foo, success_cases)
                 self.assert_parse_fails_cases(Foo, fail_cases, UsageError)
@@ -300,9 +321,30 @@ class OptionTest(ParserTest):
 
         success_cases = [
             ([], {'bar': ['xyz'], 'baz': default}),
-            (['-b', 'a'], {'bar': ['xyz', 'a'], 'baz': default}),
-            (['-b', 'a', '-b', 'b'], {'bar': ['xyz', 'a', 'b'], 'baz': default}),
-            (['-b', 'a', 'b'], {'bar': ['xyz', 'a', 'b'], 'baz': default}),
+            (['-b', 'a'], {'bar': ['a'], 'baz': default}),
+            (['-b', 'a', '-b', 'b'], {'bar': ['a', 'b'], 'baz': default}),
+            (['-b', 'a', 'b'], {'bar': ['a', 'b'], 'baz': default}),
+            (['-B', 'a'], {'bar': ['xyz'], 'baz': ['a']}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [(['-B'], UsageError), (['-b'], UsageError)]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
+    def test_append_default_strict_default(self):
+        default = {'xyz': 'abc'}
+
+        class Foo(Command):
+            foo = Option('-f', nargs='+', action='append_default')
+            bar = Option('-b', nargs='+', action='append_default', default=default)
+            baz = Option('-B', nargs='+', action='append_default', default=default, strict_default=True)
+
+        success_cases = [
+            ([], {'foo': [], 'bar': ['xyz'], 'baz': default}),
+            (['-b', 'a'], {'foo': [], 'bar': ['xyz', 'a'], 'baz': default}),
+            (['-b', 'a', '-b', 'b'], {'foo': [], 'bar': ['xyz', 'a', 'b'], 'baz': default}),
+            (['-b', 'a', 'b'], {'foo': [], 'bar': ['xyz', 'a', 'b'], 'baz': default}),
+            (['-f', 'a'], {'foo': ['a'], 'bar': ['xyz'], 'baz': default}),
+            (['-f', 'a', 'b'], {'foo': ['a', 'b'], 'bar': ['xyz'], 'baz': default}),
         ]
         self.assert_parse_results_cases(Foo, success_cases)
         fail_cases = [
@@ -312,9 +354,44 @@ class OptionTest(ParserTest):
         ]
         self.assert_parse_fails_cases(Foo, fail_cases)
 
+    def test_append_default_strict_default_list(self):
+        default = ['xyz', 'abc']
+
+        class Foo(Command):
+            foo = Option('-f', nargs='+', action='append_default')
+            bar = Option('-b', nargs='+', action='append_default', default=default)
+            baz = Option('-B', nargs='+', action='append_default', default=default, strict_default=True)
+
+        success_cases = [
+            ([], {'foo': [], 'bar': default, 'baz': default}),
+            (['-b', 'a'], {'foo': [], 'bar': ['xyz', 'abc', 'a'], 'baz': default}),
+            (['-b', 'a', '-b', 'b'], {'foo': [], 'bar': ['xyz', 'abc', 'a', 'b'], 'baz': default}),
+            (['-b', 'a', 'b'], {'foo': [], 'bar': ['xyz', 'abc', 'a', 'b'], 'baz': default}),
+            (['-B', 'a'], {'foo': [], 'bar': default, 'baz': ['xyz', 'abc', 'a']}),
+            (['-f', 'a'], {'foo': ['a'], 'bar': default, 'baz': default}),
+            (['-f', 'a', 'b'], {'foo': ['a', 'b'], 'bar': default, 'baz': default}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [(['-B'], UsageError), (['-b'], UsageError)]
+        self.assert_parse_fails_cases(Foo, fail_cases)
+
     def test_append_fix_str_to_range(self):
         class Foo(Command):
             bar = Option('-b', type=range(10), nargs='+', action='append', default='5')
+
+        success_cases = [
+            ([], {'bar': [5]}),
+            (['-b', '1'], {'bar': [1]}),
+            (['-b', '1', '-b', '2'], {'bar': [1, 2]}),
+            (['-b', '1', '2'], {'bar': [1, 2]}),
+        ]
+        self.assert_parse_results_cases(Foo, success_cases)
+        fail_cases = [['-b'], ['-b', 'a']]
+        self.assert_argv_parse_fails_cases(Foo, fail_cases)
+
+    def test_append_default_fix_str_to_range(self):
+        class Foo(Command):
+            bar = Option('-b', type=range(10), nargs='+', action='append_default', default='5')
 
         success_cases = [
             ([], {'bar': [5]}),

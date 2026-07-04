@@ -418,6 +418,19 @@ class ParseInputTest(ParserTest):
 
         cases = [
             ([], [JAN_1_2022, JAN_1_2022]),
+            (['-b', '2022-02-02', '2022-03-03'], [FEB_2_2022, MAR_3_2022]),
+        ]
+        for argv, expected in cases:
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.bar)
+
+    def test_date_append_default_collection_type_fix_tuple(self):
+        class Foo(Command):
+            bar = Option('-b', type=Date(), nargs='+', default=('2022-01-01', JAN_1_2022), action='append_default')
+
+        cases = [
+            ([], [JAN_1_2022, JAN_1_2022]),
             (['-b', '2022-02-02', '2022-03-03'], [JAN_1_2022, JAN_1_2022, FEB_2_2022, MAR_3_2022]),
         ]
         for argv, expected in cases:
@@ -428,6 +441,19 @@ class ParseInputTest(ParserTest):
     def test_date_default_collection_type_fix_single(self):
         class Foo(Command):
             bar = Option('-b', type=Date(), nargs='+', default=JAN_1_2022)
+
+        cases = [
+            ([], [JAN_1_2022]),
+            (['-b', '2022-02-02', '2022-03-03'], [FEB_2_2022, MAR_3_2022]),
+        ]
+        for argv, expected in cases:
+            with self.subTest(expected=expected, argv=argv):
+                foo = Foo.parse(argv)
+                self.assertEqual(expected, foo.bar)
+
+    def test_date_append_default_collection_type_fix_single(self):
+        class Foo(Command):
+            bar = Option('-b', type=Date(), nargs='+', default=JAN_1_2022, action='append_default')
 
         cases = [
             ([], [JAN_1_2022]),
@@ -459,17 +485,24 @@ class ParseInputTest(ParserTest):
 
         default = Custom((JAN_1_2022,))
 
-        class Foo(Command):
-            bar = Option('-b', type=Date(), nargs='+', default=default)
+        action_expected_map = {
+            'append': [FEB_2_2022, MAR_3_2022],
+            'append_default': [JAN_1_2022, FEB_2_2022, MAR_3_2022],
+        }
+        for action, expected in action_expected_map.items():
+            with self.subTest(action=action):
 
-        cases = [
-            ([], [JAN_1_2022]),
-            (['-b', '2022-02-02', '2022-03-03'], [JAN_1_2022, FEB_2_2022, MAR_3_2022]),
-        ]
-        for argv, expected in cases:
-            with self.subTest(expected=expected, argv=argv):
-                foo = Foo.parse(argv)
-                self.assertEqual(expected, foo.bar)
+                class Foo(Command):
+                    bar = Option('-b', type=Date(), nargs='+', default=default, action=action)
+
+                cases = [
+                    ([], [JAN_1_2022]),
+                    (['-b', '2022-02-02', '2022-03-03'], expected),
+                ]
+                for argv, argv_expected in cases:
+                    with self.subTest(argv_expected=argv_expected, argv=argv):
+                        foo = Foo.parse(argv)
+                        self.assertEqual(argv_expected, foo.bar)
 
 
 if __name__ == '__main__':
