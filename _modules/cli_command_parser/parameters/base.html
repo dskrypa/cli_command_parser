@@ -732,6 +732,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max"><code class="docutils literal notranslate"><span class="pre">Nargs.max</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.matches"><code class="docutils literal notranslate"><span class="pre">Nargs.matches()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached"><code class="docutils literal notranslate"><span class="pre">Nargs.max_reached()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
@@ -746,6 +747,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append"><code class="docutils literal notranslate"><span class="pre">Append</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault"><code class="docutils literal notranslate"><span class="pre">AppendDefault</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction"><code class="docutils literal notranslate"><span class="pre">BasicConstAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreConst"><code class="docutils literal notranslate"><span class="pre">StoreConst</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst"><code class="docutils literal notranslate"><span class="pre">AppendConst</span></code></a></li>
@@ -1057,6 +1059,12 @@
 <div class="viewcode-block" id="Param">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.base.html#cli_command_parser.parameters.base.Param">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Param</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Primarily used for type checking.  Generally, explicit annotations for parameters are not necessary.  In some cases,</span>
+<span class="sd">    such as when indicating that a common parameter will exist with different definitions in one or more subclasses,</span>
+<span class="sd">    then the use of this class for the annotations may be useful.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">()</span>
 
     <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1689,56 +1697,6 @@
     <span class="n">strict_env</span><span class="p">:</span> <span class="n">Bool</span>
     <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span>
 
-    <span class="c1"># region Init Overloads</span>
-
-    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-
-        <span class="nd">@overload</span>
-        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">_NotSetType</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-            <span class="n">required</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">],</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-            <span class="n">default_cb</span><span class="p">:</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="p">):</span> <span class="o">...</span>
-
-        <span class="nd">@overload</span>
-        <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">:</span> <span class="n">BaseOption</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span>
-            <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
-            <span class="n">hide</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">metavar</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name</span><span class="p">:</span> <span class="n">OptStr</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">name_mode</span><span class="p">:</span> <span class="n">OptionNameMode</span> <span class="o">|</span> <span class="n">OptStr</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-            <span class="n">required</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
-            <span class="n">default_cb</span><span class="p">:</span> <span class="n">DefaultFunc</span><span class="p">[</span><span class="n">D</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">cb_with_cmd</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">show_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_default</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-            <span class="n">env_var</span><span class="p">:</span> <span class="n">OptStrs</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">strict_env</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="n">use_env_value</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">show_env_var</span><span class="p">:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="p">):</span> <span class="o">...</span>
-
-    <span class="c1"># endregion</span>
-
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="n">option_strs</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1819,13 +1777,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">__set_name__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owner</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
 
-    <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AllowLeadingDashProperty</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
 
-    <span class="nd">@overload</span>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">AnyParam</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AllowLeadingDash</span><span class="p">:</span> <span class="o">...</span>
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span> <span class="o">...</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">AnyParam</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AllowLeadingDash</span> <span class="o">|</span> <span class="n">AllowLeadingDashProperty</span><span class="p">:</span>
+        <span class="nd">@overload</span>
+        <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">AnyParam</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AllowLeadingDash</span><span class="p">:</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">:</span> <span class="n">AnyParam</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">owner</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AllowLeadingDash</span> <span class="o">|</span> <span class="n">Self</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span><span class="p">)</span>

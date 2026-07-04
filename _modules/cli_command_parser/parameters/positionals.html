@@ -732,6 +732,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max"><code class="docutils literal notranslate"><span class="pre">Nargs.max</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.matches"><code class="docutils literal notranslate"><span class="pre">Nargs.matches()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached"><code class="docutils literal notranslate"><span class="pre">Nargs.max_reached()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
@@ -746,6 +747,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append"><code class="docutils literal notranslate"><span class="pre">Append</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault"><code class="docutils literal notranslate"><span class="pre">AppendDefault</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction"><code class="docutils literal notranslate"><span class="pre">BasicConstAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreConst"><code class="docutils literal notranslate"><span class="pre">StoreConst</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst"><code class="docutils literal notranslate"><span class="pre">AppendConst</span></code></a></li>
@@ -1022,7 +1024,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">..nargs</span><span class="w"> </span><span class="kn">import</span> <span class="n">Nargs</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">D</span><span class="p">,</span> <span class="n">T</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_NotSet</span><span class="p">,</span> <span class="n">_NotSetType</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">Store</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.actions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendDefault</span><span class="p">,</span> <span class="n">Store</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">AllowLeadingDashProperty</span><span class="p">,</span> <span class="n">BasePositional</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
@@ -1030,12 +1032,14 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">..typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Bool</span><span class="p">,</span> <span class="n">ChoicesType</span><span class="p">,</span> <span class="n">InputTypeFunc</span><span class="p">,</span> <span class="n">OptStr</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">._typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultFunc</span><span class="p">,</span> <span class="n">LeadingDash</span>
 
+    <span class="n">PosAct</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">,</span> <span class="s1">&#39;append_default&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span>
+
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Positional&#39;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Positional">
 <a class="viewcode-back" href="../../../api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span> <span class="n">default_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">)):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Positional</span><span class="p">(</span><span class="n">BasePositional</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span> <span class="n">default_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">actions</span><span class="o">=</span><span class="p">(</span><span class="n">Store</span><span class="p">,</span> <span class="n">Append</span><span class="p">,</span> <span class="n">AppendDefault</span><span class="p">)):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A parameter that must be provided positionally.</span>
 
@@ -1072,7 +1076,7 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Positional</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">Never</span><span class="p">],</span>
             <span class="n">nargs</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">PosAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
             <span class="o">*</span><span class="p">,</span>
             <span class="n">choices</span><span class="p">:</span> <span class="n">ChoicesType</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -1087,7 +1091,7 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Positional</span><span class="p">[</span><span class="n">T</span><span class="p">,</span> <span class="n">D</span><span class="p">],</span>
             <span class="n">nargs</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;?&#39;</span><span class="p">],</span>
-            <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">PosAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
             <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
@@ -1104,7 +1108,7 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">:</span> <span class="n">Positional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">D</span><span class="p">]],</span>
             <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsMultiple</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">PosAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
             <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
@@ -1121,7 +1125,7 @@
         <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">action</span><span class="p">:</span> <span class="n">PosAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
             <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
             <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
             <span class="o">*</span><span class="p">,</span>
@@ -1137,7 +1141,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">nargs</span><span class="p">:</span> <span class="n">NargsValue</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">action</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;store&#39;</span><span class="p">,</span> <span class="s1">&#39;append&#39;</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="n">PosAct</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="nb">type</span><span class="p">:</span> <span class="n">InputTypeFunc</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa</span>
         <span class="n">default</span><span class="p">:</span> <span class="n">D</span> <span class="o">|</span> <span class="n">_NotSetType</span> <span class="o">=</span> <span class="n">_NotSet</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
@@ -1169,7 +1173,7 @@
             <span class="p">)</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;required&#39;</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">default</span><span class="p">,</span> <span class="n">default_cb</span><span class="o">=</span><span class="n">default_cb</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>  <span class="c1"># type: ignore[assignment]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">normalize_input_type</span><span class="p">(</span><span class="nb">type</span><span class="p">,</span> <span class="n">choices</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">allow_leading_dash</span> <span class="o">=</span> <span class="n">allow_leading_dash</span></div>
 
 </pre></div>

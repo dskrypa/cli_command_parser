@@ -732,6 +732,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max"><code class="docutils literal notranslate"><span class="pre">Nargs.max</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.matches"><code class="docutils literal notranslate"><span class="pre">Nargs.matches()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached"><code class="docutils literal notranslate"><span class="pre">Nargs.max_reached()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
@@ -746,6 +747,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append"><code class="docutils literal notranslate"><span class="pre">Append</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault"><code class="docutils literal notranslate"><span class="pre">AppendDefault</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction"><code class="docutils literal notranslate"><span class="pre">BasicConstAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreConst"><code class="docutils literal notranslate"><span class="pre">StoreConst</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst"><code class="docutils literal notranslate"><span class="pre">AppendConst</span></code></a></li>
@@ -1350,10 +1352,10 @@
       </ul></li>
       <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreAll.add_values">add_values() (cli_command_parser.parameters.actions.StoreAll method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.conversion.argparse_ast.html#cli_command_parser.conversion.argparse_ast.AddVisitedChild">AddVisitedChild (class in cli_command_parser.conversion.argparse_ast)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cli_command_parser.context.html#cli_command_parser.context.ActionPhase.AFTER_MAIN">AFTER_MAIN (cli_command_parser.context.ActionPhase attribute)</a>
 </li>
       <li><a href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.after_main">after_main() (in module cli_command_parser.parameters.options)</a>
@@ -1488,7 +1490,11 @@
 </li>
       <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append">Append (class in cli_command_parser.parameters.actions)</a>
 </li>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault.append_value">append_value() (cli_command_parser.parameters.actions.AppendDefault method)</a>
+</li>
       <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst">AppendConst (class in cli_command_parser.parameters.actions)</a>
+</li>
+      <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault">AppendDefault (class in cli_command_parser.parameters.actions)</a>
 </li>
       <li><a href="api/cli_command_parser.parser.html#cli_command_parser.parser.CommandParser.arg_deque">arg_deque (cli_command_parser.parser.CommandParser attribute)</a>
 </li>
@@ -3639,7 +3645,11 @@
       <li><a href="api/cli_command_parser.inputs.patterns.html#cli_command_parser.inputs.patterns.Glob.params.match_case">match_case (cli_command_parser.inputs.patterns.Glob parameter)</a>
 </li>
       <li><a href="api/cli_command_parser.inputs.utils.html#cli_command_parser.inputs.utils.StatMode.matches">matches() (cli_command_parser.inputs.utils.StatMode method)</a>
+
+      <ul>
+        <li><a href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.matches">(cli_command_parser.nargs.Nargs method)</a>
 </li>
+      </ul></li>
       <li><a href="api/cli_command_parser.inputs.numeric.html#cli_command_parser.inputs.numeric.NumRange.max">max (cli_command_parser.inputs.numeric.NumRange attribute)</a>
 
       <ul>
@@ -3973,6 +3983,8 @@
         <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append.name">(cli_command_parser.parameters.actions.Append attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst.name">(cli_command_parser.parameters.actions.AppendConst attribute)</a>
+</li>
+        <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault.name">(cli_command_parser.parameters.actions.AppendDefault attribute)</a>
 </li>
         <li><a href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction.name">(cli_command_parser.parameters.actions.BasicConstAction attribute)</a>
 </li>

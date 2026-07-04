@@ -735,6 +735,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max"><code class="docutils literal notranslate"><span class="pre">Nargs.max</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.allowed"><code class="docutils literal notranslate"><span class="pre">Nargs.allowed</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.variable"><code class="docutils literal notranslate"><span class="pre">Nargs.variable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.matches"><code class="docutils literal notranslate"><span class="pre">Nargs.matches()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.satisfied"><code class="docutils literal notranslate"><span class="pre">Nargs.satisfied()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.max_reached"><code class="docutils literal notranslate"><span class="pre">Nargs.max_reached()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.nargs.html#cli_command_parser.nargs.Nargs.has_upper_bound"><code class="docutils literal notranslate"><span class="pre">Nargs.has_upper_bound</span></code></a></li>
@@ -749,6 +750,7 @@
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.ParamAction"><code class="docutils literal notranslate"><span class="pre">ParamAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Store"><code class="docutils literal notranslate"><span class="pre">Store</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.Append"><code class="docutils literal notranslate"><span class="pre">Append</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendDefault"><code class="docutils literal notranslate"><span class="pre">AppendDefault</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.BasicConstAction"><code class="docutils literal notranslate"><span class="pre">BasicConstAction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.StoreConst"><code class="docutils literal notranslate"><span class="pre">StoreConst</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/cli_command_parser.parameters.actions.html#cli_command_parser.parameters.actions.AppendConst"><code class="docutils literal notranslate"><span class="pre">AppendConst</span></code></a></li>
@@ -1169,19 +1171,28 @@ explicitly registered (the automatically added long form based on param name cou
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.options.html#cli_command_parser.parameters.options.Option" title="cli_command_parser.parameters.options.Option"><code class="xref py py-class docutils literal notranslate"><span class="pre">Option</span></code></a> parameter that accepts arbitrary values or lists of values.  See <a class="reference internal" href="intro.html#names"><span class="std std-ref">Names</span></a> for
 more about how attribute names are used to automatically generate <code class="docutils literal notranslate"><span class="pre">--long</span></code> option names by default.</p>
 <p id="option-init-params"><strong>Unique Option initialization parameters:</strong></p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd" id="option:choices">choices<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
 </dd>
 <dt class="field-even" id="option:nargs">nargs<span class="colon">:</span></dt>
-<dd class="field-even"><p>The number of values that are expected/required when this parameter is specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">+</span></code>
-when <code class="docutils literal notranslate"><span class="pre">action='append'</span></code>, and to <code class="docutils literal notranslate"><span class="pre">1</span></code> otherwise. See <a class="reference internal" href="#parameters:nargs"><span class="std std-ref">nargs</span></a> for more info.</p>
+<dd class="field-even"><p>The number of values that are expected/required when this parameter is specified.  Defaults to <code class="docutils literal notranslate"><span class="pre">+</span></code> when
+<code class="docutils literal notranslate"><span class="pre">action='append'</span></code> or <code class="docutils literal notranslate"><span class="pre">action='append_default'</span></code>, and to <code class="docutils literal notranslate"><span class="pre">1</span></code> otherwise. See <a class="reference internal" href="#parameters:nargs"><span class="std std-ref">nargs</span></a>
+for more info.</p>
 </dd>
 <dt class="field-odd" id="option:action">action<span class="colon">:</span></dt>
-<dd class="field-odd"><p>The action to take on individual parsed values.  Supported actions include <code class="docutils literal notranslate"><span class="pre">store</span></code> and <code class="docutils literal notranslate"><span class="pre">append</span></code>.
-Defaults to <code class="docutils literal notranslate"><span class="pre">store</span></code> when <code class="docutils literal notranslate"><span class="pre">nargs=1</span></code> (the default if neither action nor nargs are specified), and to <code class="docutils literal notranslate"><span class="pre">append</span></code>
-otherwise.  A single value will be stored when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, and a list of values will be stored when
-<code class="docutils literal notranslate"><span class="pre">action='append'</span></code>.</p>
+<dd class="field-odd"><p>The action to take on individual parsed values.  Supported actions include <code class="docutils literal notranslate"><span class="pre">store</span></code>, <code class="docutils literal notranslate"><span class="pre">append</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">append_default</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">store</span></code> when <code class="docutils literal notranslate"><span class="pre">nargs=1</span></code> (the default if neither action nor nargs are specified),
+and to <code class="docutils literal notranslate"><span class="pre">append</span></code> otherwise.  A single value will be stored when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, and a list of values will be
+stored when <code class="docutils literal notranslate"><span class="pre">action='append'</span></code> or <code class="docutils literal notranslate"><span class="pre">action='append_default'</span></code>.  The difference between the two append actions is
+that using <code class="docutils literal notranslate"><span class="pre">append_default</span></code> will result in the default value(s) being included at the beginning of the list of
+values.</p>
+<blockquote>
+<div><div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 2026-07-04: </span>The <code class="docutils literal notranslate"><span class="pre">append</span></code> action was changed to exclude default value(s).  To restore the behavior from previous versions,
+explicitly specify <code class="docutils literal notranslate"><span class="pre">action='append_default'</span></code>.</p>
+</div>
+</div></blockquote>
 </dd>
 <dt class="field-even" id="option:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
 <dd class="field-even"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,
@@ -1418,22 +1429,36 @@ the order in which they must be provided; i.e., the top-most positional paramete
 <h3>Positional<a class="headerlink" href="#positional" title="Link to this heading"></a></h3>
 <p>The generic <a class="reference internal" href="api/cli_command_parser.parameters.positionals.html#cli_command_parser.parameters.positionals.Positional" title="cli_command_parser.parameters.positionals.Positional"><code class="xref py py-class docutils literal notranslate"><span class="pre">Positional</span></code></a> parameter that accepts arbitrary values or lists of values.</p>
 <p id="positional-init-params"><strong>Unique Positional initialization parameters:</strong></p>
-<dl class="field-list simple">
+<dl class="field-list">
 <dt class="field-odd" id="positional:nargs">nargs<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The number of values that are expected/required for the Parameter.  Defaults to 1.  Use a value that
 allows 0 values to have the same effect as making the Parameter not required (the <code class="docutils literal notranslate"><span class="pre">required</span></code> option is not
 supported for Positional Parameters).  Only the last Positional in a given <a class="reference internal" href="api/cli_command_parser.commands.html#cli_command_parser.commands.Command" title="cli_command_parser.commands.Command"><code class="xref py py-class docutils literal notranslate"><span class="pre">Command</span></code></a> may allow a
 variable / unbound number of arguments.</p>
 </dd>
-<dt class="field-even" id="positional:default">default<span class="colon">:</span></dt>
-<dd class="field-even"><p>Only supported when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code> and 0 values are allowed by the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code>.  Defaults
+<dt class="field-even" id="positional:action">action<span class="colon">:</span></dt>
+<dd class="field-even"><p>The action to take on individual parsed values.  Supported actions include <code class="docutils literal notranslate"><span class="pre">store</span></code>, <code class="docutils literal notranslate"><span class="pre">append</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">append_default</span></code>.  Defaults to <code class="docutils literal notranslate"><span class="pre">store</span></code> when <code class="docutils literal notranslate"><span class="pre">nargs=1</span></code> (the default if neither action nor nargs are specified),
+and to <code class="docutils literal notranslate"><span class="pre">append</span></code> otherwise.  A single value will be stored when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code>, and a list of values will be
+stored when <code class="docutils literal notranslate"><span class="pre">action='append'</span></code> or <code class="docutils literal notranslate"><span class="pre">action='append_default'</span></code>.  The difference between the two append actions is
+that using <code class="docutils literal notranslate"><span class="pre">append_default</span></code> will result in the default value(s) being included at the beginning of the list of
+values.</p>
+<blockquote>
+<div><div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 2026-07-04: </span>The <code class="docutils literal notranslate"><span class="pre">append</span></code> action was changed to exclude default value(s).  To restore the behavior from previous versions,
+explicitly specify <code class="docutils literal notranslate"><span class="pre">action='append_default'</span></code>.</p>
+</div>
+</div></blockquote>
+</dd>
+<dt class="field-odd" id="positional:default">default<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Only supported when <code class="docutils literal notranslate"><span class="pre">action='store'</span></code> and 0 values are allowed by the specified <code class="docutils literal notranslate"><span class="pre">nargs</span></code>.  Defaults
 to <code class="docutils literal notranslate"><span class="pre">None</span></code> under those conditions.</p>
 </dd>
-<dt class="field-odd" id="positional:choices">choices<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
+<dt class="field-even" id="positional:choices">choices<span class="colon">:</span></dt>
+<dd class="field-even"><p>A container that holds the specific values that users must pick from.  By default, any value is allowed.</p>
 </dd>
-<dt class="field-even" id="positional:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
-<dd class="field-even"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,
+<dt class="field-odd" id="positional:allow_leading_dash">allow_leading_dash<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether string values may begin with a dash (<code class="docutils literal notranslate"><span class="pre">-</span></code>).  By default, if a value begins with a dash,
 it is only accepted if it appears to be a negative numeric value.  Use <code class="docutils literal notranslate"><span class="pre">True</span></code> / <code class="docutils literal notranslate"><span class="pre">always</span></code> /
 <code class="docutils literal notranslate"><span class="pre">AllowLeadingDash.ALWAYS</span></code> to allow any value that begins with a dash (as long as it is not an option string for an
 Option/Flag/etc).  To reject all values beginning with a dash, including numbers, use <code class="docutils literal notranslate"><span class="pre">False</span></code> / <code class="docutils literal notranslate"><span class="pre">never</span></code> /
