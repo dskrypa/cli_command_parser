@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from abc import ABC
 from contextlib import ExitStack
-from typing import TYPE_CHECKING, Sequence, TextIO, Type
+from typing import TYPE_CHECKING, Sequence, TextIO
 
 from .context import ActionPhase, Context, get_or_create_context
 from .core import CommandMeta, get_metadata, get_params, get_top_level_commands

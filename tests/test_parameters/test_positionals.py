@@ -34,21 +34,21 @@ class PositionalTest(ParserTest):
         success_cases = [([], {'bar': []}), (['a'], {'bar': ['a']}), (['a', 'b'], {'bar': ['a', 'b']})]
         self.assert_parse_results_cases(Foo, success_cases)
 
-    # def test_unbound_nargs_defaults(self):
-    #     for nargs in ('*', 'REMAINDER'):
-    #         for default in ('a', ['a']):
-    #             with self.subTest(nargs=nargs, default=default):
-    #
-    #                 class Foo(Command):
-    #                     # TODO: The default for this should be store, not append
-    #                     bar = Positional(nargs=nargs, default=default)
-    #
-    #                 success_cases = [
-    #                     ([], {'bar': ['a']}),
-    #                     (['b'], {'bar': ['b']}),
-    #                     (['a', 'b'], {'bar': ['a', 'b']}),
-    #                 ]
-    #                 self.assert_parse_results_cases(Foo, success_cases)
+    def test_unbound_nargs_defaults(self):
+        success_cases = [
+            ([], {'bar': ['a']}),
+            (['b'], {'bar': ['b']}),
+            (['a', 'b'], {'bar': ['a', 'b']}),
+        ]
+
+        for nargs in ('*', 'REMAINDER'):
+            for default in ('a', ['a']):
+                with self.subTest(nargs=nargs, default=default):
+
+                    class Foo(Command):
+                        bar = Positional(nargs=nargs, default=default)
+
+                    self.assert_parse_results_cases(Foo, success_cases)
 
     def test_pos_after_unbound_nargs_rejected(self):
         exp_0 = 'it is a positional that is not required'

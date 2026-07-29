@@ -164,15 +164,26 @@ class CommandHelpFormatter:
         sub_cmd_choice: OptStr = None,
         allow_sys_argv: Bool = False,
         include_epilog: Bool = False,
+        choice_help: OptStr = None,
     ) -> Iterator[str]:
-        """Generate the RST content for the specific Command associated with this formatter"""
+        """
+        Generate the RST content for the specific Command associated with this formatter
+
+        :param config: The config that should be used for the Command being documented
+        :param sub_cmd_choice: The subcommand choice string that would be used to invoke the Command being documented
+        :param allow_sys_argv: Whether the program name can be inferred from ``sys.argv``
+        :param include_epilog: Whether the epilog should be included
+        :param choice_help: If this is a subcommand, the help text that was displayed before this method was called
+        :return: Iterator that yields RST lines
+        """
         yield '::'
         yield ''
         yield '    ' + self.format_usage(sub_cmd_choice=sub_cmd_choice, allow_sys_argv=allow_sys_argv, cont_indent=8)
         yield ''
         yield ''
 
-        if description := self._meta.get_description(config.show_inherited_descriptions):
+        description = self._meta.get_description(config.show_inherited_descriptions)
+        if description and description != choice_help:
             yield description
             yield ''
 
@@ -217,10 +228,10 @@ class CommandHelpFormatter:
 
             if (command := choice.target) is None:
                 # When choice.target is None, that means it is the default choice, pointing back to the same Command
-                yield from self._cmd_rst_lines(config, choice_str, allow_sys_argv)
+                yield from self._cmd_rst_lines(config, choice_str, allow_sys_argv, choice_help=choice.help)
             else:
                 params = get_params(command)
-                yield from params.formatter._cmd_rst_lines(config, choice_str, allow_sys_argv)
+                yield from params.formatter._cmd_rst_lines(config, choice_str, allow_sys_argv, choice_help=choice.help)
                 if nested_sub_cmd := params.sub_command:
                     yield from params.formatter._sub_cmds_rst_lines(
                         config, nested_sub_cmd, level, choice_str, depth + 1, allow_sys_argv

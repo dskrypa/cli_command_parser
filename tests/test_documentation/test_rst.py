@@ -119,12 +119,12 @@ class CommandRstTest(ParserTest):
 
                 rendered = render_command_rst(Foo)
                 self.assertEqual(1, rendered.count('\nfoobarbaz\n'))
-                self.assertEqual(2, rendered.count('\nbazbarfoo\n'))
+                self.assertEqual(1, rendered.count('\nbazbarfoo\n'))
 
     def test_basic_subcommand_no_help(self):
         expected = THIS_DATA_DIR.joinpath('basic_subcommand_no_help.rst').read_text('utf-8')
 
-        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', show_docstring=False, add_help=False):
+        class Base(Command, doc_name='basic_subcommand_no_help', prog='foo.py', add_help=False, extended_epilog=False):
             sub_cmd = SubCommand()
 
         class Foo(Base):
@@ -147,6 +147,20 @@ class CommandRstTest(ParserTest):
             rendered = DocWriter.parse_and_run().rst_str
 
         self.assert_strings_equal(expected, rendered)
+
+    def test_subcommand_with_docstring_no_help(self):
+        expected = THIS_DATA_DIR.joinpath('subcommand_with_docstring_no_help.rst').read_text('utf-8')
+
+        class Foo(Command, doc_name='subcommand_with_docstring_no_help', prog='foo.py', extended_epilog=False):
+            sub_cmd = SubCommand()
+
+        class Bar(Foo):
+            """This is bar"""  # This is used in place of the `help='...'` text, and it should not be repeated
+
+        class Baz(Foo, help='Do baz'):
+            pass
+
+        self.assert_strings_equal(expected, render_command_rst(Foo, fix_name=False))
 
 
 if __name__ == '__main__':

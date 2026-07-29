@@ -46,11 +46,13 @@ class MetadataBase(Generic[_T]):
         self.name = name
         owner._fields.add(name)
 
-    @overload
-    def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
+    if TYPE_CHECKING:
 
-    @overload
-    def __get__(self, instance: ProgramMetadata, owner: Any) -> _T: ...
+        @overload
+        def __get__(self, instance: Literal[None], owner: Any) -> Self: ...
+
+        @overload
+        def __get__(self, instance: ProgramMetadata, owner: Any) -> _T: ...
 
     def __get__(self, instance: ProgramMetadata | None, owner: Any) -> Self | _T:
         if instance is None:
@@ -273,11 +275,11 @@ class ProgramMetadata:
         return _docs_url_from_repo_url(self.url)  # noqa
 
     def format_epilog(self, extended: Bool = True, allow_sys_argv: Bool = None) -> str:
-        parts = [self.epilog] if self.epilog else []
-        # TODO: Add support for epilog_format format string?
-        if parts and not extended:
-            return parts[0]
+        if not extended:
+            return self.epilog or ''
 
+        # TODO: Add support for epilog_format format string?
+        parts = [self.epilog] if self.epilog else []
         if version := self.version:
             version = f' [ver. {version}]'
         if self.email:
